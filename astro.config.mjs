@@ -25,5 +25,13 @@ export default defineConfig({
 			styles: ['normal'],
 			fallbacks: ['system-ui', 'sans-serif'],
 		},
+		{
+			provider: fontProviders.google(),
+			name: 'Noto Serif Thai',
+			cssVariable: '--font-thai',
+			weights: [400, 700],
+			styles: ['normal'],
+			fallbacks: ['Sarabun', 'sans-serif'],
+		},
 	],
 });

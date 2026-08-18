@@ -18,7 +18,7 @@
 		0 16px 32px rgba(var(--black), 8%);
 }
 body {
-	font-family: var(--font-serif), Georgia, serif;
+	font-family: var(--font-serif), var(--font-thai), Georgia, serif;
 	margin: 0;
 	padding: 0;
 	text-align: left;
