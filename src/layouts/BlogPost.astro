@@ -26,7 +26,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				border-radius: 12px;
+				border-radius: 16px;
 				box-shadow: var(--box-shadow);
 			}
 			.prose {
@@ -48,6 +48,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.date {
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
+				font-family: var(--font-sans), system-ui, sans-serif;
 			}
 			.last-updated-on {
 				font-style: italic;

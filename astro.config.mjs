@@ -10,26 +10,20 @@ export default defineConfig({
 	integrations: [mdx(), sitemap()],
 	fonts: [
 		{
-			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
-			options: {
-				variants: [
-					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
-						weight: 400,
-						style: 'normal',
-						display: 'swap',
-					},
-					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
-						weight: 700,
-						style: 'normal',
-						display: 'swap',
-					},
-				],
-			},
+			provider: fontProviders.google(),
+			name: 'Source Serif 4',
+			cssVariable: '--font-serif',
+			weights: [400, 600, 700],
+			styles: ['normal', 'italic'],
+			fallbacks: ['Georgia', 'serif'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'Inter',
+			cssVariable: '--font-sans',
+			weights: [400, 500, 700],
+			styles: ['normal'],
+			fallbacks: ['system-ui', 'sans-serif'],
 		},
 	],
 });
