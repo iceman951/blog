@@ -1,6 +1,7 @@
 ---
 import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
 import Layout from '../layouts/BlogPost.astro';
+import { CONTACT_EMAIL } from '../consts';
 ---
 
 <Layout
@@ -101,6 +102,9 @@ import Layout from '../layouts/BlogPost.astro';
 	<h2>Find me</h2>
 
 	<ul>
+		<li>
+			Email — <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+		</li>
 		<li>
 			GitHub — <a href="https://github.com/iceman951" target="_blank" rel="noopener noreferrer"
 				>@iceman951</a

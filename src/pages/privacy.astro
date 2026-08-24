@@ -1,0 +1,519 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { CONTACT_EMAIL } from '../consts';
+
+const title = 'Privacy Policy | Vorrapong Kertnat';
+const description =
+	'นโยบายความเป็นส่วนตัวของ blog.icerust.dev — how this website handles technical data, email, consent choices, and Google Analytics.';
+---
+
+<!doctype html>
+<html lang="th">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: 860px;
+				padding-top: 4.5rem;
+			}
+
+			.policy-hero {
+				padding-bottom: 3.5rem;
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+
+			.eyebrow {
+				margin: 0 0 1rem;
+				color: var(--accent-dark);
+				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-size: 0.75rem;
+				font-weight: 700;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+			}
+
+			h1 {
+				max-width: 760px;
+				margin-bottom: 1.25rem;
+				font-size: clamp(2.7rem, 8vw, 5rem);
+				letter-spacing: -0.05em;
+			}
+
+			.intro {
+				max-width: 740px;
+				margin: 0;
+				color: rgb(var(--gray-dark));
+				font-size: 1.1rem;
+				line-height: 1.75;
+			}
+
+			.updated {
+				margin: 1rem 0 0;
+				color: rgb(var(--gray));
+				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-size: 0.78rem;
+			}
+
+			.language-links {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				margin-top: 1.75rem;
+			}
+
+			.language-links a {
+				display: inline-flex;
+				padding: 0.55rem 0.9rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 999px;
+				background: rgba(var(--cream), 0.65);
+				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-size: 0.82rem;
+				font-weight: 700;
+				text-decoration: none;
+			}
+
+			.policy-section {
+				padding: 3.5rem 0;
+			}
+
+			.policy-section + .policy-section {
+				border-top: 1px solid rgb(var(--gray-light));
+			}
+
+			.policy-section > h2 {
+				margin-bottom: 0.4rem;
+				font-size: clamp(2rem, 5vw, 3rem);
+				letter-spacing: -0.035em;
+			}
+
+			.section-note {
+				margin: 0 0 2.5rem;
+				color: rgb(var(--gray));
+				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-size: 0.86rem;
+			}
+
+			.policy-section h3 {
+				margin-top: 2.5rem;
+				font-size: 1.45rem;
+				letter-spacing: -0.015em;
+			}
+
+			.policy-section p,
+			.policy-section li {
+				font-size: 0.98rem;
+				line-height: 1.8;
+			}
+
+			.policy-section ul {
+				padding-left: 1.4rem;
+			}
+
+			.policy-section li + li {
+				margin-top: 0.65rem;
+			}
+
+			.notice {
+				padding: 1.25rem 1.4rem;
+				border-left: 4px solid var(--accent);
+				border-radius: 0 12px 12px 0;
+				background: rgba(var(--gray-light), 0.35);
+			}
+
+			.table-wrap {
+				max-width: 100%;
+				overflow-x: auto;
+				margin: 1.5rem 0 2rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 12px;
+				background: rgba(var(--cream), 0.6);
+			}
+
+			.table-wrap:focus-visible {
+				outline: 3px solid var(--accent);
+				outline-offset: 3px;
+			}
+
+			table {
+				display: table;
+				width: 100%;
+				min-width: 680px;
+				margin: 0;
+			}
+
+			th,
+			td {
+				padding: 0.8rem 0.9rem;
+				white-space: normal;
+				vertical-align: top;
+			}
+
+			code {
+				white-space: nowrap;
+			}
+
+			.back-to-top {
+				display: inline-flex;
+				margin-top: 2rem;
+				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-size: 0.8rem;
+				font-weight: 700;
+			}
+
+			@media (max-width: 720px) {
+				main {
+					padding-top: 3rem;
+				}
+
+				.policy-hero {
+					padding-bottom: 2.5rem;
+				}
+
+				.policy-section {
+					padding: 2.75rem 0;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main id="top">
+			<header class="policy-hero">
+				<p class="eyebrow">Privacy &amp; data</p>
+				<h1>นโยบายความเป็นส่วนตัว<br /><span lang="en">Privacy Policy</span></h1>
+				<p class="intro">
+					หน้านี้อธิบายว่า blog.icerust.dev ใช้ข้อมูลใด เพราะเหตุใด เก็บไว้นานเท่าใด
+					และคุณควบคุมข้อมูลได้อย่างไร — <span lang="en"
+						>This page explains what data blog.icerust.dev uses, why it is used, how long it is
+						kept, and the choices available to you.</span
+					>
+				</p>
+				<p class="updated">ปรับปรุงล่าสุด / Last updated: 24 August 2026</p>
+				<nav class="language-links" aria-label="เลือกภาษา / Choose a language">
+					<a href="#privacy-th">ภาษาไทย</a>
+					<a href="#privacy-en" lang="en">English</a>
+				</nav>
+			</header>
+
+			<article id="privacy-th" class="policy-section" lang="th" aria-labelledby="thai-heading">
+				<h2 id="thai-heading">ภาษาไทย</h2>
+				<p class="section-note">นโยบายสำหรับผู้เข้าชมเว็บไซต์ blog.icerust.dev</p>
+
+				<h3>1. ผู้ควบคุมข้อมูลและขอบเขต</h3>
+				<p>
+					<strong>Vorrapong Kertnat</strong> เป็นผู้ควบคุมข้อมูลส่วนบุคคลสำหรับเว็บไซต์นี้
+					หากมีคำถามหรือประสงค์ใช้สิทธิ โปรดติดต่อ <a href={`mailto:${CONTACT_EMAIL}`}
+						>{CONTACT_EMAIL}</a
+					> นโยบายนี้ใช้กับการเข้าชมเว็บไซต์ การตั้งค่าความยินยอม และการติดต่อทางอีเมล
+				</p>
+
+				<h3>2. ข้อมูลที่อาจได้รับ</h3>
+				<ul>
+					<li>
+						<strong>ข้อมูลทางเทคนิคและความปลอดภัย:</strong> เมื่อเปิดเว็บไซต์ Cloudflare
+						ในฐานะ CDN/ผู้ให้บริการความปลอดภัยและผู้ให้บริการโฮสติ้งของเว็บไซต์อาจประมวลผล
+						IP address, วันเวลาและ URL ที่ร้องขอ, referrer,
+						ข้อมูล browser/device หรือ user agent ตลอดจนข้อมูลวินิจฉัยและสัญญาณด้านความปลอดภัย
+						เพื่อส่งเนื้อหา ป้องกันการโจมตี และรักษาความพร้อมใช้งาน
+					</li>
+					<li>
+						<strong>การติดต่อทางอีเมล:</strong> เมื่อคุณส่งอีเมล อาจได้รับชื่อ ที่อยู่อีเมล
+						เนื้อหาข้อความ ไฟล์แนบ และข้อมูลวันเวลาที่เกี่ยวข้อง โดยรับและจัดการผ่าน Gmail
+					</li>
+					<li>
+						<strong>การตั้งค่าความยินยอม:</strong> browser ของคุณบันทึก version ของประกาศ
+						สถานะอนุญาต Analytics และเวลาที่ปรับปรุงไว้ใน localStorage ชื่อ
+						<code>icerust_consent_v2</code> เพื่อจดจำตัวเลือก
+					</li>
+					<li>
+						<strong>Google Analytics 4 (GA4):</strong> ทำงานหลังคุณอนุญาต Analytics เท่านั้น
+						และอาจรับตัวระบุ client แบบนามแฝง, URL/ชื่อหน้า/referrer, ตำแหน่งโดยประมาณ,
+						ข้อมูล browser/device และเหตุการณ์ page view, scroll, outbound click และ download
+						เว็บไซต์ไม่ตั้งใจส่งชื่อ อีเมล หรือ User-ID ไปยัง GA4 และปิด Google Signals,
+						การปรับโฆษณาให้เหมาะกับบุคคล และการเชื่อม Google Ads
+					</li>
+				</ul>
+				<p class="notice">
+					ก่อนอนุญาต Analytics เว็บไซต์ใช้ Basic Consent Mode: ไม่โหลด Google tag
+					ไม่ส่งคำขอวัดผลให้ Google และไม่สร้างคุกกี้ GA
+				</p>
+
+				<h3>3. วัตถุประสงค์และฐานการประมวลผล</h3>
+				<ul>
+					<li>ส่งมอบและรักษาความปลอดภัยของเว็บไซต์ แก้ปัญหา และป้องกันการใช้งานที่เป็นอันตราย โดยอาศัยความจำเป็นในการให้บริการและประโยชน์โดยชอบด้วยกฎหมาย</li>
+					<li>ตอบคำถามและดำเนินการตามที่คุณร้องขอทางอีเมล โดยอาศัยคำขอของคุณและประโยชน์โดยชอบด้วยกฎหมายในการสื่อสารและเก็บหลักฐานที่จำเป็น</li>
+					<li>จดจำและปฏิบัติตามตัวเลือกความเป็นส่วนตัวของคุณด้วย storage ที่จำเป็น</li>
+					<li>วัดการใช้งานเพื่อปรับปรุงเนื้อหาด้วย GA4 โดยอาศัยความยินยอม ซึ่งคุณถอนเมื่อใดก็ได้</li>
+				</ul>
+
+				<h3>4. คุกกี้และ localStorage</h3>
+				<div class="table-wrap" tabindex="0" role="region" aria-label="ตารางคุกกี้และ localStorage เลื่อนแนวนอนได้">
+					<table>
+						<caption class="sr-only">รายละเอียดคุกกี้และ localStorage</caption>
+						<thead>
+							<tr>
+								<th scope="col">ชื่อ</th>
+								<th scope="col">ประเภท</th>
+								<th scope="col">วัตถุประสงค์</th>
+								<th scope="col">อายุสูงสุด</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>icerust_consent_v2</code></td>
+								<td>localStorage · จำเป็น</td>
+								<td>จดจำสถานะยินยอม version และเวลาที่เลือก</td>
+								<td>180 วัน</td>
+							</tr>
+							<tr>
+								<td><code>_ga</code></td>
+								<td>คุกกี้ · Analytics</td>
+								<td>แยกแยะ browser/client แบบนามแฝงเพื่อสร้างสถิติ</td>
+								<td>180 วันหลังอนุญาต</td>
+							</tr>
+							<tr>
+								<td><code>_ga_&lt;stream-id&gt;</code></td>
+								<td>คุกกี้ · Analytics</td>
+								<td>เก็บสถานะ session ของ GA4 โดย suffix จะแตกต่างตาม Web Stream</td>
+								<td>180 วันหลังอนุญาต</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<p>
+					คุกกี้ Analytics กำหนด <code>cookie_update: false</code> จึงไม่นับอายุใหม่ทุกครั้งที่เปิดหน้า
+					คุณอาจลบข้อมูลเหล่านี้ก่อนกำหนดผ่านการตั้งค่า browser ได้
+				</p>
+
+				<h3>5. ผู้ให้บริการและการโอนข้อมูล</h3>
+				<ul>
+					<li>
+						<strong>Cloudflare</strong> ให้บริการเครือข่าย/CDN และความปลอดภัย
+						และประมวลผล traffic กับ customer logs ตาม <a href="https://www.cloudflare.com/policies/privacy/"
+							>นโยบายความเป็นส่วนตัวของ Cloudflare</a
+						>
+					</li>
+					<li>
+						<strong>Google</strong> ให้บริการ GA4 และ Gmail ตาม <a href="https://policies.google.com/privacy"
+							>นโยบายความเป็นส่วนตัวของ Google</a
+						> browser จะเชื่อมต่อกับ GA4 หลังคุณอนุญาตเท่านั้น Google ระบุว่า GA4 ใช้ raw IP
+						ระหว่างรับข้อมูลเพื่อเลือก data center และหาตำแหน่งโดยประมาณ
+						จากนั้นทิ้งก่อนบันทึกข้อมูลลงใน Analytics ดู <a
+							href="https://support.google.com/analytics/answer/11598602"
+							>รายละเอียดการเก็บข้อมูลตามภูมิภาค</a
+						>
+					</li>
+				</ul>
+				<p>
+					ผู้ให้บริการเหล่านี้มีโครงสร้างพื้นฐานทั่วโลก ข้อมูลจึงอาจถูกประมวลผลนอกประเทศไทย
+					ภายใต้ข้อกำหนดและมาตรการคุ้มครองของผู้ให้บริการที่เกี่ยวข้อง เว็บไซต์ไม่ขายข้อมูลส่วนบุคคล
+				</p>
+
+				<h3>6. ระยะเวลาจัดเก็บ</h3>
+				<ul>
+					<li>ตัวเลือกความยินยอมและคุกกี้ GA มีอายุสูงสุด 180 วัน เว้นแต่คุณลบหรือถอนความยินยอมก่อน</li>
+					<li>GA4 ตั้งการเก็บข้อมูลระดับ user และ event ไว้ 2 เดือนและไม่ reset เมื่อมีกิจกรรมใหม่ ข้อมูลสรุปในรายงานมาตรฐานอาจคงอยู่ตามการทำงานของ Google Analytics</li>
+					<li>ข้อมูลทางเทคนิค/ความปลอดภัยเก็บตามระยะเวลาที่จำเป็นและการตั้งค่าของ Cloudflare/ผู้ให้บริการโฮสติ้ง แล้วลบหรือทำให้ไม่สามารถระบุตัวบุคคลได้เมื่อไม่จำเป็น</li>
+					<li>อีเมลเก็บเท่าที่จำเป็นต่อการตอบคำถาม ติดตามเรื่อง และปฏิบัติตามหน้าที่ทางกฎหมาย จากนั้นจะลบเมื่อไม่มีความจำเป็นดังกล่าว</li>
+				</ul>
+
+				<h3>7. สิทธิของคุณ</h3>
+				<p>
+					ภายใต้กฎหมายคุ้มครองข้อมูลที่ใช้บังคับ รวมถึง PDPA คุณอาจมีสิทธิขอเข้าถึงและรับสำเนา
+					ขอแก้ไข ขอให้ลบ ทำลาย หรือทำให้ไม่สามารถระบุตัวบุคคล ขอจำกัดหรือคัดค้านการประมวลผล
+					ขอโอนข้อมูลในกรณีที่ใช้สิทธิได้ และถอนความยินยอมโดยไม่กระทบความชอบด้วยกฎหมายก่อนถอน
+					คุณยังมีสิทธิร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล โปรดส่งคำขอพร้อมรายละเอียดเพียงพอสำหรับตรวจสอบตัวตนและดำเนินการไปที่ <a
+						href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
+					>
+				</p>
+
+				<h3>8. การเลือกและถอนความยินยอม</h3>
+				<p>
+					คุณเลือก “Reject non-essential” ได้โดยไม่เสียการใช้งานเนื้อหาหลัก หรือเปิด Cookie Settings
+					จาก footer เพื่อเปลี่ยนตัวเลือก เมื่อถอน Analytics เว็บไซต์จะหยุดส่งเหตุการณ์ใหม่ ลบคุกกี้
+					<code>_ga</code>/<code>_ga_*</code> ที่เว็บไซต์เข้าถึงได้ และ reload หน้าเพื่อ unload Google tag
+					การล้าง localStorage จะทำให้เว็บไซต์ถามตัวเลือกใหม่ในครั้งถัดไป
+				</p>
+
+				<h3>9. ลิงก์ภายนอกและความปลอดภัย</h3>
+				<p>
+					เว็บไซต์มีลิงก์ไปยังบริการภายนอก เช่น GitHub, LinkedIn และ Medium
+					บริการเหล่านั้นมีนโยบายและการประมวลผลของตนเอง โปรดตรวจสอบก่อนใช้งาน
+					มีการใช้มาตรการทางเทคนิคและการจัดการที่เหมาะสมเพื่อลดความเสี่ยง
+					แต่ไม่มีการส่งข้อมูลผ่านอินเทอร์เน็ตที่รับประกันความปลอดภัยได้ทั้งหมด
+				</p>
+
+				<h3>10. การเปลี่ยนแปลงและการติดต่อ</h3>
+				<p>
+					อาจปรับนโยบายนี้เมื่อบริการหรือข้อกำหนดเปลี่ยนไป โดยจะแสดงวันที่ปรับปรุงล่าสุดบนหน้านี้
+					หากการเปลี่ยนแปลงมีนัยสำคัญ จะใช้วิธีแจ้งเพิ่มเติมตามความเหมาะสม ติดต่อได้ที่ <a
+						href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a
+					>
+				</p>
+
+				<a class="back-to-top" href="#top">กลับด้านบน ↑</a>
+			</article>
+
+			<article id="privacy-en" class="policy-section" lang="en" aria-labelledby="english-heading">
+				<h2 id="english-heading">English</h2>
+				<p class="section-note">Policy for visitors to blog.icerust.dev</p>
+
+				<h3>1. Controller and scope</h3>
+				<p>
+					<strong>Vorrapong Kertnat</strong> is the personal data controller for this website.
+					For questions or rights requests, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+					This policy covers visits to the website, consent choices, and email correspondence.
+				</p>
+
+				<h3>2. Data that may be received</h3>
+				<ul>
+					<li>
+						<strong>Technical and security data:</strong> when you open the website, Cloudflare
+						as the CDN/security provider and the site's hosting provider may process an IP address,
+						request time and URL, referrer, browser/device
+						or user-agent data, diagnostics, and security signals to deliver content, prevent attacks,
+						and maintain availability.
+					</li>
+					<li>
+						<strong>Email correspondence:</strong> if you send an email, the information received may
+						include your name, email address, message, attachments, and related timestamps. Messages
+						are received and handled through Gmail.
+					</li>
+					<li>
+						<strong>Consent preference:</strong> your browser stores the notice version, Analytics
+						choice, and update time in local storage under <code>icerust_consent_v2</code> so the site
+						can remember your choice.
+					</li>
+					<li>
+						<strong>Google Analytics 4 (GA4):</strong> only after you permit Analytics, GA4 may receive
+						a pseudonymous client identifier, page URL/title/referrer, approximate location,
+						browser/device information, and page-view, scroll, outbound-click, and download events.
+						The site does not intend to send names, email addresses, or a User-ID to GA4. Google
+						Signals, ads personalization, and Google Ads linking are disabled.
+					</li>
+				</ul>
+				<p class="notice">
+					Before you permit Analytics, the site uses Basic Consent Mode: it does not load the Google
+					tag, send measurement requests to Google, or create GA cookies.
+				</p>
+
+				<h3>3. Purposes and legal bases</h3>
+				<ul>
+					<li>Deliver and secure the website, troubleshoot faults, and prevent harmful use, based on service necessity and legitimate interests.</li>
+					<li>Answer your email and act on your request, based on your request and legitimate interests in communicating and keeping necessary records.</li>
+					<li>Remember and respect your privacy choice using necessary browser storage.</li>
+					<li>Measure usage with GA4 to improve content, based on consent that you can withdraw at any time.</li>
+				</ul>
+
+				<h3>4. Cookies and local storage</h3>
+				<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable cookies and local storage table">
+					<table>
+						<caption class="sr-only">Cookie and local storage details</caption>
+						<thead>
+							<tr>
+								<th scope="col">Name</th>
+								<th scope="col">Type</th>
+								<th scope="col">Purpose</th>
+								<th scope="col">Maximum lifetime</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>icerust_consent_v2</code></td>
+								<td>Local storage · Necessary</td>
+								<td>Remembers the consent status, version, and choice time.</td>
+								<td>180 days</td>
+							</tr>
+							<tr>
+								<td><code>_ga</code></td>
+								<td>Cookie · Analytics</td>
+								<td>Distinguishes a pseudonymous browser/client for statistics.</td>
+								<td>180 days after consent</td>
+							</tr>
+							<tr>
+								<td><code>_ga_&lt;stream-id&gt;</code></td>
+								<td>Cookie · Analytics</td>
+								<td>Maintains GA4 session state; the suffix varies by Web Stream.</td>
+								<td>180 days after consent</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<p>
+					Analytics cookies use <code>cookie_update: false</code>, so their lifetime is not restarted
+					on every page load. You can clear these items earlier through your browser settings.
+				</p>
+
+				<h3>5. Providers and international processing</h3>
+				<ul>
+					<li>
+						<strong>Cloudflare</strong> provides network/CDN and security services and
+						processes traffic and customer logs under the <a href="https://www.cloudflare.com/policies/privacy/"
+							>Cloudflare Privacy Policy</a
+						>.
+					</li>
+					<li>
+						<strong>Google</strong> provides GA4 and Gmail under the <a href="https://policies.google.com/privacy"
+							>Google Privacy Policy</a
+						>. Your browser connects to GA4 only after consent. Google states that GA4 uses raw IP
+						addresses during collection to select a data center and derive approximate location,
+						then discards them before data is logged in Analytics. See Google's <a href="https://support.google.com/analytics/answer/11598602"
+							>regional data collection explanation</a
+						>.
+					</li>
+				</ul>
+				<p>
+					These providers operate global infrastructure, so data may be processed outside Thailand
+					under their applicable terms and transfer safeguards. This website does not sell personal data.
+				</p>
+
+				<h3>6. Retention</h3>
+				<ul>
+					<li>Your consent preference and GA cookies last for no more than 180 days unless you clear them or withdraw consent first.</li>
+					<li>GA4 user-level and event-level retention is set to two months without resetting on new activity. Aggregated data in standard reports may remain as part of Google Analytics' reporting design.</li>
+					<li>Technical/security data is kept only as needed and according to the applicable Cloudflare/hosting-provider settings, then deleted or de-identified when no longer necessary.</li>
+					<li>Email is kept while needed to answer, follow up, and meet applicable record-keeping obligations, then deleted when those purposes no longer apply.</li>
+				</ul>
+
+				<h3>7. Your rights</h3>
+				<p>
+					Subject to applicable data protection law, including Thailand's PDPA, you may have rights
+					to access and obtain a copy, correct, erase/destroy or anonymize, restrict or object to
+					processing, receive or transfer portable data where applicable, and withdraw consent
+					without affecting processing that was lawful before withdrawal. You may also complain to
+					the Personal Data Protection Committee. Send a request with enough information to verify
+					your identity and handle the request to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+				</p>
+
+				<h3>8. Choices and withdrawal</h3>
+				<p>
+					You can choose “Reject non-essential” without losing access to the site's main content, or
+					open Cookie Settings in the footer to change your choice. Withdrawing Analytics stops new
+					events, removes accessible <code>_ga</code>/<code>_ga_*</code> cookies, and reloads the page to
+					unload the Google tag. Clearing local storage causes the site to ask for your choice again.
+				</p>
+
+				<h3>9. External links and security</h3>
+				<p>
+					The site links to external services such as GitHub, LinkedIn, and Medium. Those services
+					have their own policies and processing practices; review them before use. Reasonable
+					technical and organizational measures are used to reduce risk, but no internet transmission
+					can be guaranteed completely secure.
+				</p>
+
+				<h3>10. Changes and contact</h3>
+				<p>
+					This policy may be updated when the services or requirements change. The latest revision
+					date will appear on this page, and an additional notice will be used where appropriate for
+					material changes. Contact <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with questions.
+				</p>
+
+				<a class="back-to-top" href="#top">Back to top ↑</a>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>

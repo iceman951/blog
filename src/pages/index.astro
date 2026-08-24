@@ -4,7 +4,7 @@ import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import Header from "../components/Header.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { CONTACT_EMAIL, SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
 const latestPosts = (await getCollection("blog"))
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -452,6 +452,7 @@ const latestPosts = (await getCollection("blog"))
                     </p>
                 </div>
                 <div class="social-links">
+                    <a href={`mailto:${CONTACT_EMAIL}`}>Email</a>
                     <a
                         href="https://github.com/iceman951"
                         target="_blank"

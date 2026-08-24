@@ -1,0 +1,166 @@
+---
+interface Props {
+	measurementId?: string | null;
+}
+
+const configuredMeasurementId =
+	Astro.props.measurementId ?? import.meta.env.PUBLIC_GA_MEASUREMENT_ID ?? null;
+const candidateMeasurementId =
+	typeof configuredMeasurementId === 'string'
+		? configuredMeasurementId.trim().toUpperCase()
+		: '';
+const measurementIdSuffix = candidateMeasurementId.slice(2);
+const isPlaceholder =
+	/^(?:X+|0+|TEST+)$/.test(measurementIdSuffix) ||
+	/(?:PLACEHOLDER|MEASUREMENT|ANALYTICS)/.test(measurementIdSuffix);
+const measurementId =
+	/^G-[A-Z0-9]{6,20}$/.test(candidateMeasurementId) && !isPlaceholder
+		? candidateMeasurementId
+		: null;
+---
+
+{
+	measurementId && (
+		<meta
+			name="google-analytics-measurement-id"
+			content={measurementId}
+			data-icerust-google-analytics
+		/>
+	)
+}
+
+<script>
+	type ConsentState = {
+		analytics: boolean;
+		decided: boolean;
+		updatedAt: string | null;
+	};
+
+	type GoogleAnalyticsRuntime = {
+		measurementId: string;
+		configured: boolean;
+		consentDefaultsSet: boolean;
+		lastAnalyticsConsent: boolean | null;
+		listenerAttached: boolean;
+		loaderAdded: boolean;
+	};
+
+	type AnalyticsWindow = typeof window & {
+		dataLayer?: unknown[];
+		gtag?: (...args: unknown[]) => void;
+		icerustConsent?: {
+			get: () => ConsentState;
+			open: () => void;
+		};
+		__icerustGoogleAnalytics?: GoogleAnalyticsRuntime;
+	};
+
+	const marker = document.querySelector<HTMLMetaElement>(
+		'meta[data-icerust-google-analytics]',
+	);
+	const measurementId = marker?.content.trim() ?? '';
+
+	if (measurementId) {
+		const analyticsWindow = window as AnalyticsWindow;
+		const runtime = (analyticsWindow.__icerustGoogleAnalytics ??= {
+			measurementId,
+			configured: false,
+			consentDefaultsSet: false,
+			lastAnalyticsConsent: null,
+			listenerAttached: false,
+			loaderAdded: false,
+		});
+
+		analyticsWindow.dataLayer ??= [];
+		analyticsWindow.gtag ??= function gtag() {
+			analyticsWindow.dataLayer?.push(arguments);
+		};
+
+		const setDefaultConsent = () => {
+			if (runtime.consentDefaultsSet) return;
+
+			analyticsWindow.gtag?.('consent', 'default', {
+				analytics_storage: 'denied',
+				ad_storage: 'denied',
+				ad_user_data: 'denied',
+				ad_personalization: 'denied',
+			});
+			runtime.consentDefaultsSet = true;
+		};
+
+		const addGoogleTagLoader = () => {
+			if (runtime.loaderAdded) return;
+
+			const existingLoader = Array.from(document.scripts).some((script) => {
+				if (!script.src) return false;
+
+				try {
+					const source = new URL(script.src, document.baseURI);
+					return (
+						source.origin === 'https://www.googletagmanager.com' &&
+						source.pathname === '/gtag/js'
+					);
+				} catch {
+					return false;
+				}
+			});
+
+			if (!existingLoader) {
+				const loader = document.createElement('script');
+				loader.async = true;
+				loader.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+				loader.dataset.icerustGoogleAnalytics = measurementId;
+				document.head.append(loader);
+			}
+
+			runtime.loaderAdded = true;
+		};
+
+		const configureGoogleAnalytics = () => {
+			if (runtime.configured) return;
+
+			runtime.configured = true;
+			analyticsWindow.gtag?.('js', new Date());
+			analyticsWindow.gtag?.('config', measurementId, {
+				allow_google_signals: false,
+				allow_ad_personalization_signals: false,
+				cookie_expires: 60 * 60 * 24 * 180,
+				cookie_update: false,
+				send_page_view: true,
+			});
+			addGoogleTagLoader();
+		};
+
+		const applyAnalyticsConsent = (analyticsAllowed: boolean) => {
+			if (runtime.lastAnalyticsConsent === analyticsAllowed) return;
+
+			runtime.lastAnalyticsConsent = analyticsAllowed;
+			analyticsWindow.gtag?.('consent', 'update', {
+				analytics_storage: analyticsAllowed ? 'granted' : 'denied',
+				ad_storage: 'denied',
+				ad_user_data: 'denied',
+				ad_personalization: 'denied',
+			});
+
+			if (analyticsAllowed) configureGoogleAnalytics();
+		};
+
+		setDefaultConsent();
+
+		if (!runtime.listenerAttached) {
+			window.addEventListener('icerust:consent-change', (event) => {
+				const consentEvent = event as CustomEvent<{ analytics?: unknown }>;
+				applyAnalyticsConsent(consentEvent.detail?.analytics === true);
+			});
+			runtime.listenerAttached = true;
+		}
+
+		let currentConsent: ConsentState | null = null;
+		try {
+			currentConsent = analyticsWindow.icerustConsent?.get() ?? null;
+		} catch {
+			// Storage or the consent API may be unavailable; denied is the safe default.
+		}
+		applyAnalyticsConsent(currentConsent?.analytics === true);
+	}
+</script>
