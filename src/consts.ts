@@ -7,4 +7,4 @@ export const SITE_DESCRIPTION =
 export const CONTACT_EMAIL = 'k.vorrapong@gmail.com';
 
 // Replace with the GA4 Web Stream ID (G-XXXXXXXXXX). Blank keeps analytics disabled.
-export const GA_MEASUREMENT_ID = '';
+export const GA_MEASUREMENT_ID = 'G-B0BZXW6R4M';

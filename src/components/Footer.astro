@@ -5,16 +5,40 @@ import ConsentManager from './ConsentManager.astro';
 const today = new Date();
 ---
 
-<footer>
-	<p class="copyright">&copy; {today.getFullYear()} Vorrapong Kertnat. All rights reserved.</p>
-	<nav class="utility-links" aria-label="Privacy and contact">
-		<a href="/privacy/">Privacy Policy</a>
-		<a href={`mailto:${CONTACT_EMAIL}`}>Email</a>
-		<button type="button" data-open-consent-settings>Cookie settings</button>
+<footer data-ui-language-region lang="en">
+	<p class="copyright">
+		&copy; {today.getFullYear()} Vorrapong Kertnat.{' '}
+		<span data-ui-language-copy="en" lang="en">All rights reserved.</span>
+		<span data-ui-language-copy="th" lang="th">สงวนลิขสิทธิ์</span>
+	</p>
+	<nav
+		class="utility-links"
+		aria-label="Privacy and contact"
+		data-ui-en-aria-label="Privacy and contact"
+		data-ui-th-aria-label="ความเป็นส่วนตัวและช่องทางติดต่อ"
+	>
+		<a href="/privacy/">
+			<span data-ui-language-copy="en" lang="en">Privacy Policy</span>
+			<span data-ui-language-copy="th" lang="th">นโยบายความเป็นส่วนตัว</span>
+		</a>
+		<a href={`mailto:${CONTACT_EMAIL}`}>
+			<span data-ui-language-copy="en" lang="en">Email</span>
+			<span data-ui-language-copy="th" lang="th">อีเมล</span>
+		</a>
+		<button type="button" data-open-consent-settings>
+			<span data-ui-language-copy="en" lang="en">Cookie settings</span>
+			<span data-ui-language-copy="th" lang="th">ตั้งค่าคุกกี้</span>
+		</button>
 	</nav>
 	<div class="social-links">
-		<a href="https://github.com/iceman951" target="_blank" rel="noopener noreferrer">
-			<span class="sr-only">ICE on GitHub</span>
+		<a
+			href="https://github.com/iceman951"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="ICE on GitHub"
+			data-ui-en-aria-label="ICE on GitHub"
+			data-ui-th-aria-label="ICE บน GitHub"
+		>
 			<svg viewBox="0 0 24 24" aria-hidden="true" width="32" height="32" astro-icon="social/github"
 				><path
 					fill="currentColor"
@@ -22,8 +46,14 @@ const today = new Date();
 				></path></svg
 			>
 		</a>
-		<a href="https://www.linkedin.com/in/vorrapong/" target="_blank" rel="noopener noreferrer">
-			<span class="sr-only">ICE on LinkedIn</span>
+		<a
+			href="https://www.linkedin.com/in/vorrapong/"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="ICE on LinkedIn"
+			data-ui-en-aria-label="ICE on LinkedIn"
+			data-ui-th-aria-label="ICE บน LinkedIn"
+		>
 			<svg viewBox="0 0 24 24" aria-hidden="true" width="32" height="32" astro-icon="social/linkedin"
 				><path
 					fill="currentColor"
@@ -31,8 +61,14 @@ const today = new Date();
 				></path></svg
 			>
 		</a>
-		<a href="https://medium.com/@iceman951" target="_blank" rel="noopener noreferrer">
-			<span class="sr-only">ICE on Medium</span>
+		<a
+			href="https://medium.com/@iceman951"
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="ICE on Medium"
+			data-ui-en-aria-label="ICE on Medium"
+			data-ui-th-aria-label="ICE บน Medium"
+		>
 			<svg viewBox="0 0 24 24" aria-hidden="true" width="32" height="32" astro-icon="social/medium"
 				><path
 					fill="currentColor"

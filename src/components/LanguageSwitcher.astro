@@ -1,0 +1,192 @@
+<div
+	class="language-switcher"
+	role="group"
+	aria-label="Choose interface language"
+	data-ui-en-aria-label="Choose interface language"
+	data-ui-th-aria-label="เลือกภาษาสำหรับส่วนติดต่อ"
+>
+	<button type="button" data-ui-language-option="th" aria-pressed="false">
+		<span lang="th">ไทย</span>
+	</button>
+	<button type="button" data-ui-language-option="en" aria-pressed="true">
+		<span lang="en">English</span>
+	</button>
+</div>
+
+<script>
+	type UiLanguage = 'en' | 'th';
+
+	const storageKey = 'icerust_ui_language_v1';
+	const root = document.documentElement;
+	const normalizeLanguage = (value: string | null | undefined): UiLanguage =>
+		value === 'th' ? 'th' : 'en';
+
+	const persistLanguage = (language: UiLanguage) => {
+		try {
+			window.localStorage.setItem(storageKey, language);
+		} catch {
+			// Keep the in-memory choice when browser storage is unavailable.
+		}
+	};
+
+	const syncPrivacyHash = (language: UiLanguage) => {
+		if (!root.hasAttribute('data-ui-language-document')) return;
+
+		const nextHash = `#privacy-${language}`;
+		if (window.location.hash === nextHash) return;
+
+		window.history.replaceState(
+			window.history.state,
+			'',
+			`${window.location.pathname}${window.location.search}${nextHash}`,
+		);
+	};
+
+	const localizeAttribute = (
+		language: UiLanguage,
+		selector: string,
+		attribute: 'aria-label' | 'aria-describedby',
+		englishDataKey: 'uiEnAriaLabel' | 'uiEnAriaDescribedby',
+		thaiDataKey: 'uiThAriaLabel' | 'uiThAriaDescribedby',
+	) => {
+		document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+			const value = element.dataset[language === 'th' ? thaiDataKey : englishDataKey];
+			if (value === undefined) {
+				element.removeAttribute(attribute);
+				return;
+			}
+			element.setAttribute(attribute, value);
+		});
+	};
+
+	const applyLanguage = (
+		language: UiLanguage,
+		options: { persist?: boolean; updateHash?: boolean } = {},
+	) => {
+		root.dataset.uiLanguage = language;
+
+		if (root.hasAttribute('data-ui-language-document')) {
+			root.lang = language;
+		}
+
+		document.querySelectorAll<HTMLElement>('[data-ui-language-region]').forEach((region) => {
+			region.lang = language;
+		});
+
+		document.querySelectorAll<HTMLElement>('[data-ui-language-copy]').forEach((copy) => {
+			copy.hidden = copy.dataset.uiLanguageCopy !== language;
+		});
+
+		document.querySelectorAll<HTMLElement>('[data-ui-language-panel]').forEach((panel) => {
+			panel.hidden = panel.dataset.uiLanguagePanel !== language;
+		});
+
+		document.querySelectorAll<HTMLButtonElement>('[data-ui-language-option]').forEach((button) => {
+			button.setAttribute(
+				'aria-pressed',
+				String(button.dataset.uiLanguageOption === language),
+			);
+		});
+
+		localizeAttribute(
+			language,
+			'[data-ui-en-aria-label], [data-ui-th-aria-label]',
+			'aria-label',
+			'uiEnAriaLabel',
+			'uiThAriaLabel',
+		);
+		localizeAttribute(
+			language,
+			'[data-ui-en-aria-describedby], [data-ui-th-aria-describedby]',
+			'aria-describedby',
+			'uiEnAriaDescribedby',
+			'uiThAriaDescribedby',
+		);
+
+		if (options.persist) persistLanguage(language);
+		if (options.updateHash) syncPrivacyHash(language);
+
+		window.dispatchEvent(
+			new CustomEvent('icerust:language-change', { detail: { language } }),
+		);
+	};
+
+	const initialLanguage = normalizeLanguage(root.dataset.uiLanguage);
+	applyLanguage(initialLanguage);
+
+	document.querySelectorAll<HTMLButtonElement>('[data-ui-language-option]').forEach((button) => {
+		button.addEventListener('click', () => {
+			const language = normalizeLanguage(button.dataset.uiLanguageOption);
+			applyLanguage(language, { persist: true, updateHash: true });
+		});
+	});
+
+	if (root.hasAttribute('data-ui-language-document')) {
+		window.addEventListener('hashchange', () => {
+			const language =
+				window.location.hash === '#privacy-th'
+					? 'th'
+					: window.location.hash === '#privacy-en'
+						? 'en'
+						: null;
+			if (!language || root.dataset.uiLanguage === language) return;
+			applyLanguage(language, { persist: true });
+		});
+	}
+</script>
+
+<style>
+	.language-switcher {
+		display: inline-flex;
+		flex: 0 0 auto;
+		overflow: hidden;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 999px;
+		background: rgba(var(--cream), 0.75);
+		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+	}
+
+	button {
+		display: inline-flex;
+		min-width: 44px;
+		min-height: 44px;
+		align-items: center;
+		justify-content: center;
+		padding: 0.45rem 0.75rem;
+		border: 0;
+		background: transparent;
+		color: rgb(var(--gray-dark));
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 700;
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	button + button {
+		border-left: 1px solid rgb(var(--gray-light));
+	}
+
+	button[aria-pressed='true'] {
+		background: var(--accent);
+		color: rgb(var(--cream));
+	}
+
+	button:hover:not([aria-pressed='true']) {
+		background: rgba(var(--gray-light), 0.5);
+	}
+
+	button:focus-visible {
+		position: relative;
+		z-index: 1;
+		outline: 3px solid var(--accent-dark);
+		outline-offset: -3px;
+	}
+
+	@media (max-width: 360px) {
+		button {
+			padding-inline: 0.58rem;
+			font-size: 0.67rem;
+		}
+	}
+</style>

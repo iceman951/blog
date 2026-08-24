@@ -21,6 +21,41 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
+<script is:inline>
+	(() => {
+		const storageKey = 'icerust_ui_language_v1';
+		const root = document.documentElement;
+		const isLanguageDocument = root.hasAttribute('data-ui-language-document');
+		const hashLanguage = isLanguageDocument
+			? window.location.hash === '#privacy-th'
+				? 'th'
+				: window.location.hash === '#privacy-en'
+					? 'en'
+					: null
+			: null;
+		let language = hashLanguage || 'en';
+
+		if (!hashLanguage) {
+			try {
+				const storedLanguage = window.localStorage.getItem(storageKey);
+				language = storedLanguage === 'th' || storedLanguage === 'en' ? storedLanguage : 'en';
+			} catch {
+				language = 'en';
+			}
+		}
+
+		root.dataset.uiLanguage = language;
+		if (isLanguageDocument) root.lang = language;
+
+		if (hashLanguage) {
+			try {
+				window.localStorage.setItem(storageKey, hashLanguage);
+			} catch {
+				// The selected language still applies when storage is unavailable.
+			}
+		}
+	})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link

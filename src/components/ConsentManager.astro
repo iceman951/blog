@@ -9,50 +9,56 @@
     `window.icerustConsent.open()`.
 -->
 
-<div class="consent-manager" data-consent-manager>
+<div class="consent-manager" data-consent-manager data-ui-language-region lang="en">
 	<section
 		class="consent-banner"
 		data-consent-banner
 		aria-labelledby="consent-banner-title"
-		aria-describedby="consent-banner-description-th consent-banner-description-en"
+		aria-describedby="consent-banner-description-en"
+		data-ui-en-aria-describedby="consent-banner-description-en"
+		data-ui-th-aria-describedby="consent-banner-description-th"
 		hidden
 	>
 		<div class="consent-copy">
 			<h2 id="consent-banner-title">
-				<span lang="th">ความเป็นส่วนตัวของคุณ</span>
-				<span aria-hidden="true"> / </span>
-				<span>Your privacy</span>
+				<span data-ui-language-copy="en" lang="en">Your privacy</span>
+				<span data-ui-language-copy="th" lang="th">ความเป็นส่วนตัวของคุณ</span>
 			</h2>
-			<p id="consent-banner-description-th" lang="th">
-				เว็บไซต์นี้ใช้พื้นที่จัดเก็บที่จำเป็นเพื่อจดจำตัวเลือกของคุณ และจะเปิด Google
-				Analytics เฉพาะเมื่อคุณยินยอมเท่านั้น
-			</p>
-			<p id="consent-banner-description-en">
+			<p id="consent-banner-description-en" data-ui-language-copy="en" lang="en">
 				This site uses necessary storage to remember your choice. Google Analytics only
 				loads after you consent.
 			</p>
+			<p
+				id="consent-banner-description-th"
+				data-ui-language-copy="th"
+				lang="th"
+			>
+				เว็บไซต์นี้ใช้พื้นที่จัดเก็บที่จำเป็นเพื่อจดจำตัวเลือกของคุณ และจะเปิด Google
+				Analytics เฉพาะเมื่อคุณยินยอมเท่านั้น
+			</p>
 			<a href="/privacy/">
-				<span lang="th">อ่านนโยบายความเป็นส่วนตัว</span>
-				<span aria-hidden="true"> / </span>
-				<span>Read the Privacy Policy</span>
+				<span data-ui-language-copy="en" lang="en">Read the Privacy Policy</span>
+				<span data-ui-language-copy="th" lang="th">อ่านนโยบายความเป็นส่วนตัว</span>
 			</a>
 		</div>
 
-		<div class="consent-actions" aria-label="Privacy choices">
+		<div
+			class="consent-actions"
+			aria-label="Privacy choices"
+			data-ui-en-aria-label="Privacy choices"
+			data-ui-th-aria-label="ตัวเลือกความเป็นส่วนตัว"
+		>
 			<button class="primary" type="button" data-consent-accept>
-				<span lang="th">ยอมรับทั้งหมด</span>
-				<span aria-hidden="true"> / </span>
-				<span>Accept all</span>
+				<span data-ui-language-copy="en" lang="en">Accept all</span>
+				<span data-ui-language-copy="th" lang="th">ยอมรับทั้งหมด</span>
 			</button>
 			<button type="button" data-consent-reject>
-				<span lang="th">ปฏิเสธที่ไม่จำเป็น</span>
-				<span aria-hidden="true"> / </span>
-				<span>Reject non-essential</span>
+				<span data-ui-language-copy="en" lang="en">Reject non-essential</span>
+				<span data-ui-language-copy="th" lang="th">ปฏิเสธที่ไม่จำเป็น</span>
 			</button>
 			<button class="text-button" type="button" data-consent-settings>
-				<span lang="th">ตั้งค่า</span>
-				<span aria-hidden="true"> / </span>
-				<span>Settings</span>
+				<span data-ui-language-copy="en" lang="en">Settings</span>
+				<span data-ui-language-copy="th" lang="th">ตั้งค่า</span>
 			</button>
 		</div>
 	</section>
@@ -61,70 +67,114 @@
 		class="consent-dialog"
 		data-consent-dialog
 		aria-labelledby="consent-dialog-title"
-		aria-describedby="consent-dialog-description"
+		aria-describedby="consent-dialog-description-en"
+		data-ui-en-aria-describedby="consent-dialog-description-en"
+		data-ui-th-aria-describedby="consent-dialog-description-th"
 	>
 		<form class="consent-dialog-content" data-consent-form>
 			<div class="dialog-heading">
 				<div>
-					<p class="eyebrow">Privacy controls</p>
+					<p class="eyebrow">
+						<span data-ui-language-copy="en" lang="en">Privacy controls</span>
+						<span data-ui-language-copy="th" lang="th"
+							>การควบคุมความเป็นส่วนตัว</span
+						>
+					</p>
 					<h2 id="consent-dialog-title">
-						<span lang="th">ตั้งค่าความเป็นส่วนตัว</span>
-						<span aria-hidden="true"> / </span>
-						<span>Privacy settings</span>
+						<span data-ui-language-copy="en" lang="en">Privacy settings</span>
+						<span data-ui-language-copy="th" lang="th">ตั้งค่าความเป็นส่วนตัว</span>
 					</h2>
 				</div>
 				<button
 					class="close-button"
 					type="button"
 					data-consent-close
-					aria-label="ปิดหน้าต่างตั้งค่า / Close privacy settings"
+					aria-label="Close privacy settings"
+					data-ui-en-aria-label="Close privacy settings"
+					data-ui-th-aria-label="ปิดหน้าต่างตั้งค่า"
 				>
 					<span aria-hidden="true">×</span>
 				</button>
 			</div>
 
-			<p id="consent-dialog-description" class="dialog-description">
-				<span lang="th">เลือกข้อมูลที่อนุญาตให้เว็บไซต์ใช้ได้ คุณเปลี่ยนใจภายหลังได้เสมอ</span>
-				<br />
-				<span>You can choose what this site may use and change your choice at any time.</span>
+			<p
+				id="consent-dialog-description-en"
+				class="dialog-description"
+				data-ui-language-copy="en"
+				lang="en"
+			>
+				You can choose what this site may use and change your choice at any time.
+			</p>
+			<p
+				id="consent-dialog-description-th"
+				class="dialog-description"
+				data-ui-language-copy="th"
+				lang="th"
+			>
+				เลือกข้อมูลที่อนุญาตให้เว็บไซต์ใช้ได้ คุณเปลี่ยนใจภายหลังได้เสมอ
 			</p>
 
 			<div class="consent-options">
 				<div class="consent-option">
 					<div>
 						<h3>
-							<span lang="th">จำเป็น</span>
-							<span aria-hidden="true"> / </span>
-							<span>Necessary</span>
+							<span data-ui-language-copy="en" lang="en">Necessary</span>
+							<span data-ui-language-copy="th" lang="th">จำเป็น</span>
 						</h3>
-						<p id="necessary-description">
-							<span lang="th">ใช้เพื่อจดจำตัวเลือกความเป็นส่วนตัวนี้ ปิดไม่ได้</span>
-							<span aria-hidden="true"> / </span>
-							<span>Remembers this privacy choice and cannot be disabled.</span>
+						<p id="necessary-description-en" data-ui-language-copy="en" lang="en">
+							Remembers this privacy choice and cannot be disabled.
+						</p>
+						<p
+							id="necessary-description-th"
+							data-ui-language-copy="th"
+							lang="th"
+						>
+							ใช้เพื่อจดจำตัวเลือกความเป็นส่วนตัวนี้ ปิดไม่ได้
 						</p>
 					</div>
 					<label class="switch">
-						<span class="sr-label">Necessary storage is always active</span>
-						<input type="checkbox" checked disabled aria-describedby="necessary-description" />
+						<input
+							type="checkbox"
+							checked
+							disabled
+							aria-label="Necessary storage is always active"
+							data-ui-en-aria-label="Necessary storage is always active"
+							data-ui-th-aria-label="พื้นที่จัดเก็บที่จำเป็นเปิดใช้งานอยู่เสมอ"
+							aria-describedby="necessary-description-en"
+							data-ui-en-aria-describedby="necessary-description-en"
+							data-ui-th-aria-describedby="necessary-description-th"
+						/>
 						<span class="switch-track" aria-hidden="true"></span>
 					</label>
 				</div>
 
 				<div class="consent-option">
 					<div>
-						<h3>Analytics</h3>
-						<p id="analytics-description">
-							<span lang="th">ช่วยให้เข้าใจการใช้งานเว็บไซต์ผ่าน Google Analytics</span>
-							<span aria-hidden="true"> / </span>
-							<span>Helps understand site usage through Google Analytics.</span>
+						<h3>
+							<span data-ui-language-copy="en" lang="en">Analytics</span>
+							<span data-ui-language-copy="th" lang="th">การวิเคราะห์</span>
+						</h3>
+						<p id="analytics-description-en" data-ui-language-copy="en" lang="en">
+							Helps understand site usage through Google Analytics.
+						</p>
+						<p
+							id="analytics-description-th"
+							data-ui-language-copy="th"
+							lang="th"
+						>
+							ช่วยให้เข้าใจการใช้งานเว็บไซต์ผ่าน Google Analytics
 						</p>
 					</div>
 					<label class="switch">
-						<span class="sr-label">Allow Analytics</span>
 						<input
 							type="checkbox"
 							data-consent-analytics
-							aria-describedby="analytics-description"
+							aria-label="Allow Analytics"
+							data-ui-en-aria-label="Allow Analytics"
+							data-ui-th-aria-label="อนุญาต Analytics"
+							aria-describedby="analytics-description-en"
+							data-ui-en-aria-describedby="analytics-description-en"
+							data-ui-th-aria-describedby="analytics-description-th"
 						/>
 						<span class="switch-track" aria-hidden="true"></span>
 					</label>
@@ -133,19 +183,16 @@
 
 			<div class="dialog-actions">
 				<button type="button" data-dialog-reject>
-					<span lang="th">ปฏิเสธที่ไม่จำเป็น</span>
-					<span aria-hidden="true"> / </span>
-					<span>Reject non-essential</span>
+					<span data-ui-language-copy="en" lang="en">Reject non-essential</span>
+					<span data-ui-language-copy="th" lang="th">ปฏิเสธที่ไม่จำเป็น</span>
 				</button>
 				<button type="submit" class="primary">
-					<span lang="th">บันทึกตัวเลือก</span>
-					<span aria-hidden="true"> / </span>
-					<span>Save choices</span>
+					<span data-ui-language-copy="en" lang="en">Save choices</span>
+					<span data-ui-language-copy="th" lang="th">บันทึกตัวเลือก</span>
 				</button>
 				<button type="button" class="text-button" data-dialog-accept>
-					<span lang="th">ยอมรับทั้งหมด</span>
-					<span aria-hidden="true"> / </span>
-					<span>Accept all</span>
+					<span data-ui-language-copy="en" lang="en">Accept all</span>
+					<span data-ui-language-copy="th" lang="th">ยอมรับทั้งหมด</span>
 				</button>
 			</div>
 		</form>
@@ -172,6 +219,9 @@
 		open: () => void;
 	};
 
+	type UiLanguage = "en" | "th";
+	type ConsentStatusMessage = "storage-failed" | "withdrawal-unconfirmed";
+
 	type ConsentWindow = Window &
 		typeof globalThis & {
 			gtag?: (...args: unknown[]) => void;
@@ -183,6 +233,20 @@
 	const CONSENT_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
 	const CONSENT_CHANGE_EVENT = "icerust:consent-change";
 	const CONSENT_OPEN_EVENT = "icerust:consent-open";
+	const UI_LANGUAGE_CHANGE_EVENT = "icerust:language-change";
+	const CONSENT_STATUS_MESSAGES: Record<
+		ConsentStatusMessage,
+		Record<UiLanguage, string>
+	> = {
+		"storage-failed": {
+			en: "This browser could not remember your choice, so you may be asked again next time.",
+			th: "บันทึกตัวเลือกในเบราว์เซอร์ไม่ได้ ระบบจะถามอีกครั้งในครั้งถัดไป",
+		},
+		"withdrawal-unconfirmed": {
+			en: "Analytics is disabled for this page, but the browser could not safely confirm the saved withdrawal.",
+			th: "ปิด Analytics สำหรับหน้านี้แล้ว แต่เบราว์เซอร์ไม่อนุญาตให้ยืนยันการถอนความยินยอมอย่างปลอดภัย",
+		},
+	};
 
 	const consentWindow = window as ConsentWindow;
 	const manager = document.querySelector<HTMLElement>("[data-consent-manager]");
@@ -202,11 +266,18 @@
 			updatedAt: null,
 		};
 		let restoreFocusTo: HTMLElement | null = null;
+		let currentStatusMessage: ConsentStatusMessage | null = null;
 
 		const getSnapshot = (): ConsentSnapshot => ({ ...state });
 
-		const announce = (message: string) => {
-			if (status) status.textContent = message;
+		const getUiLanguage = (): UiLanguage =>
+			document.documentElement.dataset.uiLanguage === "th" ? "th" : "en";
+
+		const announce = (message: ConsentStatusMessage | null) => {
+			currentStatusMessage = message;
+			if (status) {
+				status.textContent = message ? CONSENT_STATUS_MESSAGES[message][getUiLanguage()] : "";
+			}
 		};
 
 		const removeStoredConsent = () => {
@@ -334,7 +405,7 @@
 		};
 
 		const saveChoice = (analytics: boolean) => {
-			announce("");
+			announce(null);
 			const wasAnalyticsEnabled = state.decided && state.analytics;
 			const decision: StoredConsent = {
 				version: CONSENT_VERSION,
@@ -362,9 +433,7 @@
 			emitConsent();
 
 			if (!persisted) {
-				announce(
-					"บันทึกตัวเลือกในเบราว์เซอร์ไม่ได้ ระบบจะถามอีกครั้งในครั้งถัดไป / This browser could not remember your choice, so you may be asked again next time.",
-				);
+				announce("storage-failed");
 			}
 
 			if (!analytics && wasAnalyticsEnabled) {
@@ -373,9 +442,7 @@
 				if (storedState === "denied") {
 					window.location.reload();
 				} else {
-					announce(
-						"ปิด Analytics สำหรับหน้านี้แล้ว แต่เบราว์เซอร์ไม่อนุญาตให้ยืนยันการถอนความยินยอมอย่างปลอดภัย / Analytics is disabled for this page, but the browser could not safely confirm the saved withdrawal.",
-					);
+					announce("withdrawal-unconfirmed");
 				}
 			}
 		};
@@ -416,6 +483,11 @@
 		});
 
 		consentWindow.addEventListener(CONSENT_OPEN_EVENT, openSettings);
+		consentWindow.addEventListener(UI_LANGUAGE_CHANGE_EVENT, () => {
+			if (currentStatusMessage && status) {
+				status.textContent = CONSENT_STATUS_MESSAGES[currentStatusMessage][getUiLanguage()];
+			}
+		});
 
 		const storedConsent = readStoredConsent();
 		if (storedConsent) {
@@ -481,10 +553,6 @@
 	.consent-copy p {
 		max-width: 48rem;
 		margin: 0;
-	}
-
-	.consent-copy p + p {
-		margin-top: 0.25rem;
 	}
 
 	.consent-copy a {

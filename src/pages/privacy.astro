@@ -10,7 +10,7 @@ const description =
 ---
 
 <!doctype html>
-<html lang="th">
+<html lang="en" data-ui-language-document>
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
@@ -56,31 +56,8 @@ const description =
 				font-size: 0.78rem;
 			}
 
-			.language-links {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.75rem;
-				margin-top: 1.75rem;
-			}
-
-			.language-links a {
-				display: inline-flex;
-				padding: 0.55rem 0.9rem;
-				border: 1px solid rgb(var(--gray-light));
-				border-radius: 999px;
-				background: rgba(var(--cream), 0.65);
-				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
-				font-size: 0.82rem;
-				font-weight: 700;
-				text-decoration: none;
-			}
-
 			.policy-section {
 				padding: 3.5rem 0;
-			}
-
-			.policy-section + .policy-section {
-				border-top: 1px solid rgb(var(--gray-light));
 			}
 
 			.policy-section > h2 {
@@ -180,25 +157,44 @@ const description =
 	</head>
 	<body>
 		<Header />
-		<main id="top">
+		<main
+			id="top"
+			data-ui-language-region
+			aria-label="Privacy Policy"
+			aria-describedby="privacy-hero-intro-en privacy-hero-updated-en"
+			data-ui-en-aria-label="Privacy Policy"
+			data-ui-th-aria-label="นโยบายความเป็นส่วนตัว"
+			data-ui-en-aria-describedby="privacy-hero-intro-en privacy-hero-updated-en"
+			data-ui-th-aria-describedby="privacy-hero-intro-th privacy-hero-updated-th"
+		>
 			<header class="policy-hero">
-				<p class="eyebrow">Privacy &amp; data</p>
-				<h1>นโยบายความเป็นส่วนตัว<br /><span lang="en">Privacy Policy</span></h1>
-				<p class="intro">
-					หน้านี้อธิบายว่า blog.icerust.dev ใช้ข้อมูลใด เพราะเหตุใด เก็บไว้นานเท่าใด
-					และคุณควบคุมข้อมูลได้อย่างไร — <span lang="en"
-						>This page explains what data blog.icerust.dev uses, why it is used, how long it is
-						kept, and the choices available to you.</span
-					>
-				</p>
-				<p class="updated">ปรับปรุงล่าสุด / Last updated: 24 August 2026</p>
-				<nav class="language-links" aria-label="เลือกภาษา / Choose a language">
-					<a href="#privacy-th">ภาษาไทย</a>
-					<a href="#privacy-en" lang="en">English</a>
-				</nav>
+				<div data-ui-language-copy="en" lang="en">
+					<p class="eyebrow">Privacy &amp; data</p>
+					<h1>Privacy Policy</h1>
+					<p id="privacy-hero-intro-en" class="intro">
+						This page explains what data blog.icerust.dev uses, why it is used, how long it is
+						kept, and the choices available to you.
+					</p>
+					<p id="privacy-hero-updated-en" class="updated">Last updated: 24 August 2026</p>
+				</div>
+				<div data-ui-language-copy="th" lang="th">
+					<p class="eyebrow">ความเป็นส่วนตัวและข้อมูล</p>
+					<h1>นโยบายความเป็นส่วนตัว</h1>
+					<p id="privacy-hero-intro-th" class="intro">
+						หน้านี้อธิบายว่า blog.icerust.dev ใช้ข้อมูลใด เพราะเหตุใด เก็บไว้นานเท่าใด
+						และคุณควบคุมข้อมูลได้อย่างไร
+					</p>
+					<p id="privacy-hero-updated-th" class="updated">ปรับปรุงล่าสุด: 24 สิงหาคม 2026</p>
+				</div>
 			</header>
 
-			<article id="privacy-th" class="policy-section" lang="th" aria-labelledby="thai-heading">
+			<article
+				id="privacy-th"
+				class="policy-section"
+				lang="th"
+				aria-labelledby="thai-heading"
+				data-ui-language-panel="th"
+			>
 				<h2 id="thai-heading">ภาษาไทย</h2>
 				<p class="section-note">นโยบายสำหรับผู้เข้าชมเว็บไซต์ blog.icerust.dev</p>
 
@@ -262,6 +258,12 @@ const description =
 							</tr>
 						</thead>
 						<tbody>
+							<tr>
+								<td><code>icerust_ui_language_v1</code></td>
+								<td>พื้นที่จัดเก็บในเบราว์เซอร์ · การตั้งค่า</td>
+								<td>จดจำว่าข้อความส่วนติดต่อร่วมของเว็บไซต์จะแสดงเป็นภาษาไทยหรืออังกฤษ</td>
+								<td>จนกว่าจะเปลี่ยนค่าหรือล้างข้อมูลในเบราว์เซอร์</td>
+							</tr>
 							<tr>
 								<td><code>icerust_consent_v2</code></td>
 								<td>localStorage · จำเป็น</td>
@@ -357,7 +359,13 @@ const description =
 				<a class="back-to-top" href="#top">กลับด้านบน ↑</a>
 			</article>
 
-			<article id="privacy-en" class="policy-section" lang="en" aria-labelledby="english-heading">
+			<article
+				id="privacy-en"
+				class="policy-section"
+				lang="en"
+				aria-labelledby="english-heading"
+				data-ui-language-panel="en"
+			>
 				<h2 id="english-heading">English</h2>
 				<p class="section-note">Policy for visitors to blog.icerust.dev</p>
 
@@ -421,6 +429,12 @@ const description =
 							</tr>
 						</thead>
 						<tbody>
+							<tr>
+								<td><code>icerust_ui_language_v1</code></td>
+								<td>Local storage · Preference</td>
+								<td>Remembers whether shared site interface text is shown in Thai or English.</td>
+								<td>Until changed or browser data is cleared.</td>
+							</tr>
 							<tr>
 								<td><code>icerust_consent_v2</code></td>
 								<td>Local storage · Necessary</td>
