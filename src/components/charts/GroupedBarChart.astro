@@ -1,0 +1,87 @@
+---
+import { PALETTE, SERIES, SERIES_STROKE, barPath, fmt, linear, ticks } from '../../lib/chart';
+import ChartFrame from './ChartFrame.astro';
+
+interface Props {
+	title: string;
+	ariaLabel: string;
+	note?: string;
+	/** Group label -> one value per series, in `series` order. */
+	groups: { label: string; values: number[] }[];
+	series: string[];
+	unit?: string;
+	digits?: number;
+}
+
+const { title, ariaLabel, note, groups, series, unit = '', digits = 3 } = Astro.props;
+
+const W = 720;
+const H = 420;
+const LEFT = 68;
+const RIGHT = 20;
+const TOP = 44;
+const BOTTOM = 52;
+
+const maxV = Math.max(...groups.flatMap((g) => g.values));
+const axis = ticks(0, maxV * 1.05, 5);
+const y = linear(0, Math.max(...axis), H - BOTTOM, TOP);
+const plotW = W - LEFT - RIGHT;
+const groupW = plotW / groups.length;
+// 2px surface gap between adjacent fills, per the mark spec.
+const barW = Math.min(26, (groupW - 18) / series.length - 2);
+---
+
+<ChartFrame title={title} ariaLabel={ariaLabel} note={note} width={W} height={H}>
+	{
+		series.map((name, s) => (
+			<g>
+				<rect x={LEFT + s * 108} y={12} width={11} height={11} rx="2" fill={SERIES[s % SERIES.length]} stroke={SERIES_STROKE[SERIES[s % SERIES.length]] ?? 'none'} />
+				<text x={LEFT + s * 108 + 17} y={22} font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+					{name}
+				</text>
+			</g>
+		))
+	}
+
+	{
+		axis.map((t) => (
+			<g>
+				<line x1={LEFT} y1={y(t)} x2={W - RIGHT} y2={y(t)} stroke={PALETTE.grid} stroke-width="1" />
+				<text x={LEFT - 10} y={y(t) + 4} text-anchor="end" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+					{fmt(t, digits)}
+				</text>
+			</g>
+		))
+	}
+
+	{
+		groups.map((g, i) => {
+			const gx = LEFT + i * groupW;
+			const inner = series.length * (barW + 2) - 2;
+			const start = gx + (groupW - inner) / 2;
+			return (
+				<g>
+					{g.values.map((v, s) => {
+						const bx = start + s * (barW + 2);
+						const by = y(v);
+						const fill = SERIES[s % SERIES.length];
+						return (
+							<g>
+								<path d={barPath(bx, by, barW, H - BOTTOM - by, 4)} fill={fill} stroke={SERIES_STROKE[fill] ?? 'none'} stroke-width="1" />
+								<text x={bx + barW / 2} y={by - 6} text-anchor="middle" font-size="10" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+									{fmt(v, digits)}
+								</text>
+							</g>
+						);
+					})}
+					<text x={gx + groupW / 2} y={H - BOTTOM + 20} text-anchor="middle" font-size="12.5" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+						{g.label}
+					</text>
+				</g>
+			);
+		})
+	}
+
+	<line x1={LEFT} y1={H - BOTTOM} x2={W - RIGHT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
+	{unit && <text x={LEFT - 10} y={TOP - 12} text-anchor="end" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">{unit}</text>}
+</ChartFrame>

@@ -1,0 +1,81 @@
+---
+import { NEUTRAL, PALETTE, SERIES, SERIES_STROKE, fmt, linear } from '../../lib/chart';
+import ChartFrame from './ChartFrame.astro';
+
+interface Props {
+	title: string;
+	ariaLabel: string;
+	note?: string;
+	/** Each bar's segments must be given in `segments` order. */
+	bars: { label: string; values: number[] }[];
+	segments: string[];
+	unit?: string;
+	digits?: number;
+	/** Segments from this index on are residual buckets, drawn neutral. */
+	neutralFrom?: number;
+}
+
+const { title, ariaLabel, note, bars, segments, unit = '', digits = 1, neutralFrom = SERIES.length } = Astro.props;
+
+const colorFor = (i: number) => (i < neutralFrom ? SERIES[i % SERIES.length] : NEUTRAL[(i - neutralFrom) % NEUTRAL.length]);
+
+const W = 720;
+const LEFT = 118;
+const RIGHT = 74;
+const TOP = 44;
+const ROW_H = 46;
+const H = TOP + bars.length * ROW_H + 30;
+
+const totals = bars.map((b) => b.values.reduce((a, v) => a + v, 0));
+const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
+---
+
+<ChartFrame title={title} ariaLabel={ariaLabel} note={note} width={W} height={H}>
+	{
+		segments.map((name, i) => (
+			<g>
+				<rect x={LEFT + (i % 3) * 128} y={4 + Math.floor(i / 3) * 18} width={11} height={11} rx="2" fill={colorFor(i)} stroke={SERIES_STROKE[colorFor(i)] ?? 'none'} />
+				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+					{name}
+				</text>
+			</g>
+		))
+	}
+
+	{
+		bars.map((bar, i) => {
+			const y = TOP + i * ROW_H + 8;
+			const h = ROW_H - 22;
+			let cursor = LEFT;
+			const total = totals[i];
+			return (
+				<g>
+					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+						{bar.label}
+					</text>
+					{bar.values.map((v, s) => {
+						// 2px surface gap keeps adjacent fills legibly separate.
+						const w = Math.max(x(v) - LEFT - 2, 0);
+						const bx = cursor;
+						cursor += w + 2;
+						const pct = (v / total) * 100;
+						return (
+							<g>
+								<rect x={bx} y={y} width={w} height={h} fill={colorFor(s)} stroke={SERIES_STROKE[colorFor(s)] ?? 'none'} stroke-width="1" rx="2" />
+								{pct >= 9 && (
+									<text x={bx + w / 2} y={y + h / 2 + 4} text-anchor="middle" font-size="11" font-weight="700" fill={PALETTE.surface} font-family="var(--font-sans), system-ui, sans-serif">
+										{pct.toFixed(0)}%
+									</text>
+								)}
+							</g>
+						);
+					})}
+					<text x={W - RIGHT + 8} y={y + h / 2 + 4} font-size="12" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+						{fmt(total, digits)}
+						{unit}
+					</text>
+				</g>
+			);
+		})
+	}
+</ChartFrame>

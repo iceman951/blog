@@ -1,0 +1,99 @@
+---
+import { PALETTE, barPath, fmt, linear, ticks } from '../../lib/chart';
+import ChartFrame from './ChartFrame.astro';
+
+interface Row {
+	label: string;
+	value: number;
+	/** Standard deviation, drawn as a whisker. Never a confidence interval. */
+	sd?: number;
+	highlight?: boolean;
+}
+
+interface Props {
+	title: string;
+	ariaLabel: string;
+	note?: string;
+	rows: Row[];
+	unit?: string;
+	digits?: number;
+	color?: string;
+}
+
+const { title, ariaLabel, note, rows, unit = '', digits = 2, color = PALETTE.accent } = Astro.props;
+
+const W = 720;
+const LEFT = 118;
+const RIGHT = 92;
+const TOP = 16;
+const ROW_H = 38;
+const H = TOP + rows.length * ROW_H + 34;
+
+const maxV = Math.max(...rows.map((r) => r.value + (r.sd ?? 0)));
+const axis = ticks(0, maxV, 5);
+const x = linear(0, Math.max(...axis), LEFT, W - RIGHT);
+const baseline = H - 34;
+---
+
+<ChartFrame title={title} ariaLabel={ariaLabel} note={note} width={W} height={H}>
+	{
+		axis.map((t) => (
+			<g>
+				<line x1={x(t)} y1={TOP} x2={x(t)} y2={baseline} stroke={PALETTE.grid} stroke-width="1" />
+				<text
+					x={x(t)}
+					y={baseline + 18}
+					text-anchor="middle"
+					font-size="11"
+					fill={PALETTE.muted}
+					font-family="var(--font-sans), system-ui, sans-serif"
+				>
+					{fmt(t, digits)}
+				</text>
+			</g>
+		))
+	}
+
+	{
+		rows.map((row, i) => {
+			const y = TOP + i * ROW_H + 6;
+			const h = ROW_H - 18;
+			const w = Math.max(x(row.value) - LEFT, 2);
+			return (
+				<g>
+					<text
+						x={LEFT - 10}
+						y={y + h / 2 + 4}
+						text-anchor="end"
+						font-size="13"
+						fill={PALETTE.ink}
+						font-weight={row.highlight ? 700 : 400}
+						font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif"
+					>
+						{row.label}
+					</text>
+					<path d={barPath(LEFT, y, w, h, 4, true)} fill={color} />
+					{row.sd !== undefined && row.sd > 0 && (
+						<g stroke={PALETTE.ink} stroke-width="1.5" opacity="0.55">
+							<line x1={x(row.value - row.sd)} y1={y + h / 2} x2={x(row.value + row.sd)} y2={y + h / 2} />
+							<line x1={x(row.value - row.sd)} y1={y + h / 2 - 4} x2={x(row.value - row.sd)} y2={y + h / 2 + 4} />
+							<line x1={x(row.value + row.sd)} y1={y + h / 2 - 4} x2={x(row.value + row.sd)} y2={y + h / 2 + 4} />
+						</g>
+					)}
+					<text
+						x={x(row.value + (row.sd ?? 0)) + 8}
+						y={y + h / 2 + 4}
+						font-size="12"
+						fill={PALETTE.muted}
+						font-family="var(--font-sans), system-ui, sans-serif"
+					>
+						{fmt(row.value, digits)}
+						{unit}
+					</text>
+				</g>
+			);
+		})
+	}
+
+	<line x1={LEFT} y1={TOP} x2={LEFT} y2={baseline} stroke={PALETTE.muted} stroke-width="1" />
+</ChartFrame>

@@ -1,0 +1,58 @@
+---
+interface Props {
+	title: string;
+	/** Sentence describing what the chart shows, for screen readers. */
+	ariaLabel: string;
+	note?: string;
+	width?: number;
+	height?: number;
+}
+
+const { title, ariaLabel, note, width = 720, height = 420 } = Astro.props;
+---
+
+<figure class="chart">
+	<p class="chart-title">{title}</p>
+	<div class="chart-scroll">
+		<svg
+			viewBox={`0 0 ${width} ${height}`}
+			role="img"
+			aria-label={ariaLabel}
+			preserveAspectRatio="xMidYMid meet"
+		>
+			<slot />
+		</svg>
+	</div>
+	{note && <figcaption class="chart-note">{note}</figcaption>}
+</figure>
+
+<style>
+	.chart {
+		margin: 0 0 2.5em;
+	}
+	.chart-title {
+		margin: 0 0 0.6em;
+		color: rgb(var(--black));
+		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+		font-size: 0.85rem;
+		font-weight: 700;
+		line-height: 1.35;
+	}
+	/* Wide charts scroll inside their own box; the page never scrolls sideways. */
+	.chart-scroll {
+		overflow-x: auto;
+	}
+	.chart-scroll svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		min-width: 320px;
+	}
+	.chart-note {
+		margin: 0.7em 0 0;
+		color: rgb(var(--gray));
+		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+		font-size: 0.78rem;
+		line-height: 1.5;
+	}
+</style>

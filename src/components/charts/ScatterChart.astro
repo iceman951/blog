@@ -1,0 +1,132 @@
+---
+import { PALETTE, fmt, linear, ticks } from '../../lib/chart';
+import ChartFrame from './ChartFrame.astro';
+
+interface Point {
+	label: string;
+	x: number;
+	y: number;
+	/** Faint points are individual measurements; solid ones are means. */
+	faint?: boolean;
+}
+
+interface Props {
+	title: string;
+	ariaLabel: string;
+	note?: string;
+	points: Point[];
+	xLabel: string;
+	yLabel: string;
+	xDigits?: number;
+	yDigits?: number;
+	color?: string;
+}
+
+const {
+	title,
+	ariaLabel,
+	note,
+	points,
+	xLabel,
+	yLabel,
+	xDigits = 0,
+	yDigits = 3,
+	color = PALETTE.accent,
+} = Astro.props;
+
+const W = 720;
+const H = 440;
+const LEFT = 78;
+const RIGHT = 28;
+const TOP = 18;
+const BOTTOM = 62;
+
+const xs = points.map((p) => p.x);
+const ys = points.map((p) => p.y);
+const xAxis = ticks(Math.min(...xs) * 0.9, Math.max(...xs) * 1.05, 5);
+const yAxis = ticks(Math.min(...ys) * 0.9, Math.max(...ys) * 1.08, 5);
+const x = linear(Math.min(...xAxis), Math.max(...xAxis), LEFT, W - RIGHT);
+const y = linear(Math.min(...yAxis), Math.max(...yAxis), H - BOTTOM, TOP);
+
+/**
+ * Direct labels carry identity here, so they must not overlap: the fast
+ * frameworks cluster within a few percent and would otherwise collide.
+ * Greedy placement — try above, then below, then further out.
+ */
+const OFFSETS = [-14, 22, -30, 38, -46, 54];
+const placed: { x0: number; x1: number; y0: number; y1: number }[] = [];
+const labels = points
+	.filter((p) => !p.faint)
+	.slice()
+	.sort((a, b) => a.x - b.x)
+	.map((p) => {
+		const w = p.label.length * 6.6 + 6;
+		const cx = Math.min(Math.max(x(p.x), LEFT + w / 2), W - RIGHT - w / 2);
+		for (const dy of OFFSETS) {
+			const cy = y(p.y) + dy;
+			if (cy < TOP + 10 || cy > H - BOTTOM - 4) continue;
+			const box = { x0: cx - w / 2, x1: cx + w / 2, y0: cy - 11, y1: cy + 4 };
+			const hits = placed.some((q) => box.x0 < q.x1 && box.x1 > q.x0 && box.y0 < q.y1 && box.y1 > q.y0);
+			if (!hits) {
+				placed.push(box);
+				return { text: p.label, x: cx, y: cy };
+			}
+		}
+		return { text: p.label, x: cx, y: Math.max(y(p.y) - 14, TOP + 10) };
+	});
+---
+
+<ChartFrame title={title} ariaLabel={ariaLabel} note={note} width={W} height={H}>
+	{
+		yAxis.map((t) => (
+			<g>
+				<line x1={LEFT} y1={y(t)} x2={W - RIGHT} y2={y(t)} stroke={PALETTE.grid} stroke-width="1" />
+				<text x={LEFT - 10} y={y(t) + 4} text-anchor="end" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+					{fmt(t, yDigits)}
+				</text>
+			</g>
+		))
+	}
+	{
+		xAxis.map((t) => (
+			<text x={x(t)} y={H - BOTTOM + 20} text-anchor="middle" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+				{fmt(t, xDigits)}
+			</text>
+		))
+	}
+
+	{
+		points.map((p) => (
+			<circle
+				cx={x(p.x)}
+				cy={y(p.y)}
+				r={p.faint ? 4 : 7}
+				fill={color}
+				opacity={p.faint ? 0.28 : 1}
+				stroke={PALETTE.surface}
+				stroke-width="2"
+			/>
+		))
+	}
+	{
+		labels.map((l) => (
+			<text
+				x={l.x}
+				y={l.y}
+				text-anchor="middle"
+				font-size="12"
+				font-weight="700"
+				fill={PALETTE.ink}
+				font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif"
+			>
+				{l.text}
+			</text>
+		))
+	}
+
+	<line x1={LEFT} y1={TOP} x2={LEFT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
+	<line x1={LEFT} y1={H - BOTTOM} x2={W - RIGHT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
+
+	<text x={(LEFT + W - RIGHT) / 2} y={H - 14} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">{xLabel}</text>
+	<text x={16} y={(TOP + H - BOTTOM) / 2} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif" transform={`rotate(-90 16 ${(TOP + H - BOTTOM) / 2})`}>{yLabel}</text>
+</ChartFrame>
