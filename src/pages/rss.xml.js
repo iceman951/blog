@@ -3,7 +3,8 @@ import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export async function GET(context) {
-	const posts = await getCollection('blog');
+	// English only — Thai translations would otherwise duplicate every entry.
+	const posts = (await getCollection('blog')).filter((post) => post.data.lang === 'en');
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,

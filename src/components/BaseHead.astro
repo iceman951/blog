@@ -5,6 +5,7 @@ import '../styles/global.css';
 import type { ImageMetadata } from 'astro';
 import FallbackImage from '../assets/blog-placeholder-1.jpg';
 import { GA_MEASUREMENT_ID, SITE_TITLE } from '../consts';
+import type { UiLanguage } from '../i18n';
 import { Font } from 'astro:assets';
 import GoogleAnalytics from './GoogleAnalytics.astro';
 
@@ -12,11 +13,17 @@ interface Props {
 	title: string;
 	description: string;
 	image?: ImageMetadata;
+	lang?: UiLanguage;
+	/** Pathnames of this page in each language, when translations exist. */
+	translations?: Partial<Record<UiLanguage, string>>;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = FallbackImage } = Astro.props;
+const { title, description, image = FallbackImage, lang = 'en', translations } = Astro.props;
+
+const OG_LOCALE: Record<UiLanguage, string> = { en: 'en_US', th: 'th_TH' };
+const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 ---
 
 <!-- Global Metadata -->
@@ -74,6 +81,18 @@ const { title, description, image = FallbackImage } = Astro.props;
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
+<!-- Translations -->
+{
+	alternates.map(([code, path]) => (
+		<link rel="alternate" hreflang={code} href={new URL(path, Astro.site)} />
+	))
+}
+{
+	translations?.en && (
+		<link rel="alternate" hreflang="x-default" href={new URL(translations.en, Astro.site)} />
+	)
+}
+
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="description" content={description} />
@@ -84,6 +103,12 @@ const { title, description, image = FallbackImage } = Astro.props;
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:locale" content={OG_LOCALE[lang]} />
+{
+	alternates
+		.filter(([code]) => code !== lang)
+		.map(([code]) => <meta property="og:locale:alternate" content={OG_LOCALE[code]} />)
+}
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />

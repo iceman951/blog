@@ -111,12 +111,34 @@
 		);
 	};
 
+	/**
+	 * Pages that exist as a separate document per language (blog posts) advertise
+	 * their counterparts on <html>. Everywhere else the switcher only toggles
+	 * panels, exactly as before.
+	 */
+	const translationTarget = (language: UiLanguage) => {
+		const target =
+			language === 'th' ? root.dataset.translationTh : root.dataset.translationEn;
+		if (!target) return null;
+
+		const strip = (path: string) => path.replace(/\/+$/, '');
+		return strip(target) === strip(window.location.pathname) ? null : target;
+	};
+
 	const initialLanguage = normalizeLanguage(root.dataset.uiLanguage);
 	applyLanguage(initialLanguage);
 
 	document.querySelectorAll<HTMLButtonElement>('[data-ui-language-option]').forEach((button) => {
 		button.addEventListener('click', () => {
 			const language = normalizeLanguage(button.dataset.uiLanguageOption);
+
+			const target = translationTarget(language);
+			if (target) {
+				persistLanguage(language);
+				window.location.assign(target);
+				return;
+			}
+
 			applyLanguage(language, { persist: true, updateHash: true });
 		});
 	});

@@ -5,10 +5,12 @@ import Footer from "../../components/Footer.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import type { UiLanguage } from "../../i18n";
+import { postsForLanguage } from "../../lib/posts";
 
-const posts = (await getCollection("blog")).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const all = await getCollection("blog");
+// Both languages ship in the same document; CSS hides the inactive panel.
+const panels: UiLanguage[] = ["en", "th"];
 ---
 
 <!doctype html>
@@ -91,32 +93,39 @@ const posts = (await getCollection("blog")).sort(
         <Header />
         <main>
             <section>
-                <ul>
-                    {
-                        posts.map((post) => (
-                            <li>
-                                <a href={`/blog/${post.id}/`}>
-                                    {post.data.heroImage && (
-                                        <img
-                                            src={post.data.heroImage.src}
-                                            width={720}
-                                            height={360}
-                                            alt=""
-                                            loading="lazy"
-                                            decoding="async"
-                                        />
-                                    )}
-                                    <h4 class="title">{post.data.title}</h4>
-                                    <p class="date">
-                                        <FormattedDate
-                                            date={post.data.pubDate}
-                                        />
-                                    </p>
-                                </a>
-                            </li>
-                        ))
-                    }
-                </ul>
+                {
+                    panels.map((lang) => (
+                        <div data-ui-language-panel={lang} lang={lang}>
+                            <ul>
+                                {postsForLanguage(all, lang).map((post) => (
+                                    <li>
+                                        <a href={`/blog/${post.id}/`}>
+                                            {post.data.heroImage && (
+                                                <img
+                                                    src={post.data.heroImage.src}
+                                                    width={720}
+                                                    height={360}
+                                                    alt=""
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            )}
+                                            <h4 class="title">
+                                                {post.data.title}
+                                            </h4>
+                                            <p class="date">
+                                                <FormattedDate
+                                                    date={post.data.pubDate}
+                                                    lang={lang}
+                                                />
+                                            </p>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                }
             </section>
         </main>
         <Footer />

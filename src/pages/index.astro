@@ -6,9 +6,12 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Header from "../components/Header.astro";
 import { CONTACT_EMAIL, SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
-const latestPosts = (await getCollection("blog"))
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 3);
+import type { UiLanguage } from "../i18n";
+import { postsForLanguage } from "../lib/posts";
+
+const all = await getCollection("blog");
+// Both languages ship in the same document; CSS hides the inactive panel.
+const panels: UiLanguage[] = ["en", "th"];
 ---
 
 <!doctype html>
@@ -408,38 +411,47 @@ const latestPosts = (await getCollection("blog"))
                     >
                 </div>
                 {
-                    latestPosts.length > 0 ? (
-                        <ul class="post-list">
-                            {latestPosts.map((post) => (
-                                <li class="post-card">
-                                    <a href={`/blog/${post.id}/`}>
-                                        {post.data.heroImage && (
-                                            <img
-                                                src={post.data.heroImage.src}
-                                                width={720}
-                                                height={360}
-                                                alt=""
-                                                loading="lazy"
-                                                decoding="async"
-                                            />
-                                        )}
-                                        <div>
-                                            <h3>{post.data.title}</h3>
-                                            <p class="post-meta">
-                                                <FormattedDate
-                                                    date={post.data.pubDate}
-                                                />
-                                            </p>
-                                        </div>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p class="empty-state">
-                            The first article is on its way.
-                        </p>
-                    )
+                    panels.map((lang) => {
+                        const latestPosts = postsForLanguage(all, lang).slice(0, 3);
+
+                        return (
+                            <div data-ui-language-panel={lang} lang={lang}>
+                                {latestPosts.length > 0 ? (
+                                    <ul class="post-list">
+                                        {latestPosts.map((post) => (
+                                            <li class="post-card">
+                                                <a href={`/blog/${post.id}/`}>
+                                                    {post.data.heroImage && (
+                                                        <img
+                                                            src={post.data.heroImage.src}
+                                                            width={720}
+                                                            height={360}
+                                                            alt=""
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <h3>{post.data.title}</h3>
+                                                        <p class="post-meta">
+                                                            <FormattedDate
+                                                                date={post.data.pubDate}
+                                                                lang={lang}
+                                                            />
+                                                        </p>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p class="empty-state">
+                                        The first article is on its way.
+                                    </p>
+                                )}
+                            </div>
+                        );
+                    })
                 }
             </section>
 

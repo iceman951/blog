@@ -1,20 +1,34 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import type { UiLanguage } from '../../i18n';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
-}
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
-const { Content } = await render(post);
+	return posts.map((post) => {
+		// Siblings sharing a translationKey are the same post in another language.
+		const translations = Object.fromEntries(
+			posts
+				.filter((other) => other.data.translationKey && other.data.translationKey === post.data.translationKey)
+				.map((other) => [other.data.lang, `/blog/${other.id}/`]),
+		) as Partial<Record<UiLanguage, string>>;
+
+		return {
+			params: { slug: post.id },
+			props: { ...post, translations },
+		};
+	});
+}
+
+type Props = CollectionEntry<'blog'> & {
+	translations: Partial<Record<UiLanguage, string>>;
+};
+
+const { translations, ...post } = Astro.props;
+const { Content } = await render(post as CollectionEntry<'blog'>);
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} translations={translations}>
 	<Content />
 </BlogPost>
