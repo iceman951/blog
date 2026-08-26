@@ -1,6 +1,6 @@
 ---
-title: 'What a request costs in joules'
-description: 'Express is 2.3x slower than Elysia on a MacBook Air M5. It is not 2.3x more energy per request — it is 1.8x, because it draws less power. Measuring millijoules per HTTP request on a fanless laptop, and finding out that most of them belong to the load generator.'
+title: 'The slowest framework drew the least power'
+description: 'I measured what an HTTP request costs in joules on a fanless MacBook Air M5. Express is 2.3x slower than Elysia but only 1.8x hungrier — because it cannot draw as much power. Then I found out the load generator was using four times more CPU than the server it was measuring.'
 pubDate: 'Aug 26 2026'
 heroImage: '../../assets/energy-per-request-m5.svg'
 lang: 'en'
