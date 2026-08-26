@@ -8,6 +8,16 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Content and SEO
+
+The sitemap's `<lastmod>` comes from post frontmatter, not from git. When revising a
+published post, add or bump `updatedDate` — otherwise Google keeps seeing the original
+`pubDate` and has no reason to recrawl.
+
+Posts sharing a `translationKey` become an hreflang set in the sitemap. The pathname rule
+(`foo.th.mdx` -> `/blog/th/foo/`) is written twice: `generateId` in `src/content.config.ts`
+and `scripts/blog-sitemap-entries.mjs`. Change one, change the other.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build

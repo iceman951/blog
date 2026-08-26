@@ -4,7 +4,7 @@
 import '../styles/global.css';
 import type { ImageMetadata } from 'astro';
 import FallbackImage from '../assets/blog-placeholder-1.jpg';
-import { GA_MEASUREMENT_ID, SITE_TITLE } from '../consts';
+import { GA_MEASUREMENT_ID, GOOGLE_SITE_VERIFICATION, SITE_TITLE } from '../consts';
 import type { UiLanguage } from '../i18n';
 import { Font } from 'astro:assets';
 import GoogleAnalytics from './GoogleAnalytics.astro';
@@ -21,6 +21,16 @@ interface Props {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const { title, description, image = FallbackImage, lang = 'en', translations } = Astro.props;
+
+// Env var wins so the token can live in the host's settings instead of the repo.
+// Anything that doesn't look like a real token renders nothing, so a placeholder
+// never ships as a broken tag.
+const verificationToken = (
+	import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION ?? GOOGLE_SITE_VERIFICATION
+).trim();
+const googleSiteVerification = /^[A-Za-z0-9_-]{20,}$/.test(verificationToken)
+	? verificationToken
+	: null;
 
 const OG_LOCALE: Record<UiLanguage, string> = { en: 'en_US', th: 'th_TH' };
 const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
@@ -72,6 +82,11 @@ const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 	href={new URL('rss.xml', Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
+{
+	googleSiteVerification && (
+		<meta name="google-site-verification" content={googleSiteVerification} />
+	)
+}
 <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
 
 <Font cssVariable="--font-serif" preload />

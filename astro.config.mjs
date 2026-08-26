@@ -3,11 +3,26 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
+import { blogSitemapEntries } from './scripts/blog-sitemap-entries.mjs';
+
+const SITE = 'https://blog.icerust.dev';
+
+// Freshness and hreflang pairing for the posts; other pages pass through untouched,
+// since a made-up lastmod on a static page is noise rather than a recrawl signal.
+const blogEntries = blogSitemapEntries(SITE);
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://blog.icerust.dev',
-	integrations: [mdx(), sitemap()],
+	site: SITE,
+	integrations: [
+		mdx(),
+		sitemap({
+			serialize(item) {
+				const entry = blogEntries.get(new URL(item.url).pathname);
+				return entry ? { ...item, ...entry } : item;
+			},
+		}),
+	],
 	fonts: [
 		{
 			provider: fontProviders.google(),
