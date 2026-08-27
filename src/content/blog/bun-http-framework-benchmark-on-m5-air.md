@@ -2,6 +2,7 @@
 title: 'Benchmarking Bun HTTP frameworks on a MacBook Air M5'
 description: 'Reversing the order of the target list reversed the ranking. What a fanless laptop actually measures when you benchmark eight Bun HTTP frameworks back to back, and what the numbers look like once you stop doing that.'
 pubDate: 'Aug 23 2026'
+updatedDate: 'Aug 27 2026'
 heroImage: '../../assets/bun-framework-throughput-m5.svg'
 ---
 
@@ -15,13 +16,15 @@ Everything below is the mean of five measurements per framework, each taken in i
 
 | | |
 | --- | --- |
-| Model | MacBook Air (Mac17,3) |
+| Model | <a href="https://amzn.to/4cZp5pZ" rel="sponsored nofollow noopener" target="_blank">MacBook Air (Mac17,3)</a> |
 | Chip | Apple M5 — 10 cores, 4 performance + 6 efficiency |
 | Memory | 24 GB unified |
 | OS | macOS 26.6.2 (25G83) |
 | Bun | 1.4.0 |
 | bombardier | 2.0.2 darwin/arm64 |
 | Room temperature | 25 °C |
+
+<p class="affiliate-note">The model above is an Amazon affiliate link — as an Amazon Associate I earn from qualifying purchases, at no extra cost to you.</p>
 
 Run on AC power with the editor and dev server shut down, and `pmset -g therm` reporting no thermal or performance warnings before or after any run.
 

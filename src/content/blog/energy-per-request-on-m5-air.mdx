@@ -2,6 +2,7 @@
 title: 'The slowest framework drew the least power'
 description: 'I measured what an HTTP request costs in joules on a fanless MacBook Air M5. Express is 2.3x slower than Elysia but only 1.8x hungrier — because it cannot draw as much power. Then I found out the load generator was using four times more CPU than the server it was measuring.'
 pubDate: 'Aug 26 2026'
+updatedDate: 'Aug 27 2026'
 heroImage: '../../assets/energy-per-request-m5.svg'
 lang: 'en'
 translationKey: 'energy-per-request-m5'
@@ -29,13 +30,15 @@ The short answer is that it is **1.8×**, not 2.3×, and the reason is that Expr
 
 | | |
 | --- | --- |
-| Model | MacBook Air (Mac17,3) |
+| Model | <a href="https://amzn.to/4cZp5pZ" rel="sponsored nofollow noopener" target="_blank">MacBook Air (Mac17,3)</a> |
 | Chip | Apple M5 — 10 cores, 4 Super + 6 Efficiency |
 | Memory | 24 GB unified |
 | OS | macOS 26.6.2 (25G83) |
 | Bun | 1.4.0 |
 | bombardier | 2.0.2 darwin/arm64 |
 | Room temperature | 22 °C |
+
+<p class="affiliate-note">The model above is an Amazon affiliate link — as an Amazon Associate I earn from qualifying purchases, at no extra cost to you.</p>
 
 macOS 26 calls the performance cores "Super" rather than "Performance", which matters later — it is why my first attempt to read per-cluster frequency returned nothing.
 

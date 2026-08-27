@@ -2,6 +2,7 @@
 title: 'Framework ที่ช้าที่สุด กลับดึงกำลังไฟน้อยที่สุด'
 description: 'ผมลองวัดพลังงานต่อ HTTP request ของ 5 Framework บน Bun ผลคือ Express ช้ากว่า Elysia 2.3 เท่า แต่ใช้พลังงานมากกว่าเพียง 1.8 เท่า และตัวยิงโหลดกลับใช้ CPU มากกว่าเซิร์ฟเวอร์ที่กำลังทดสอบเสียอีก'
 pubDate: 'Aug 26 2026'
+updatedDate: 'Aug 27 2026'
 heroImage: '../../assets/energy-per-request-m5.svg'
 lang: 'th'
 translationKey: 'energy-per-request-m5'
@@ -46,13 +47,15 @@ export const route = (f, r) => agg[f].byRoute[r];
 
 | | |
 | --- | --- |
-| รุ่น | MacBook Air (Mac17,3) |
+| รุ่น | <a href="https://s.lazada.co.th/s.Z8RpWV?c=t&t=p-iHY4gQ2-s2EEW6lJ" rel="sponsored nofollow noopener" target="_blank">MacBook Air (Mac17,3)</a> |
 | ชิป | Apple M5 — 10 คอร์, 4 Super + 6 Efficiency |
 | แรม | 24 GB unified |
 | ระบบปฏิบัติการ | macOS 26.6.2 (25G83) |
 | Bun | 1.4.0 |
 | bombardier | 2.0.2 darwin/arm64 |
 | อุณหภูมิห้อง | 22 °C |
+
+<p class="affiliate-note">ลิงก์ชื่อรุ่นด้านบนเป็นลิงก์ Lazada affiliate ครับ กดซื้อผ่านลิงก์นี้ราคาไม่ต่างจากเดิม แต่บล็อกจะได้ค่าคอมมิชชันเล็กน้อย</p>
 
 macOS 26 เรียกคอร์ประสิทธิภาพสูงว่า "Super" แทนคำว่า "Performance" เรื่องนี้ดูเหมือนเป็นแค่ชื่อ แต่มีผลตอนอ่านข้อมูลจริง เพราะโค้ดรอบแรกของผมมองหา `P-Cluster` แล้วได้ค่าว่างกลับมาแบบเงียบ ๆ
 

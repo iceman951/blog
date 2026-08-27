@@ -164,6 +164,16 @@ hr {
 	}
 }
 
+/* Affiliate disclosure under a table. Small print in the same voice as .chart-note,
+   pulled up so it reads as a caption on the table rather than a paragraph of its own. */
+.prose .affiliate-note {
+	margin: -1.4em 0 2.5em;
+	color: rgb(var(--gray));
+	font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+	font-size: 0.78rem;
+	line-height: 1.5;
+}
+
 .sr-only {
 	border: 0;
 	padding: 0;
