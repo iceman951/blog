@@ -1,0 +1,18 @@
+{
+	// Deploy config for the static site. Its presence is the point: without a wrangler
+	// config, `wrangler deploy` enters auto-config, runs `astro add cloudflare` and
+	// rebuilds — and the adapter it installs does not support Astro 7.2.9, so the
+	// build fails. Because CI runs `npx wrangler`, that broke on a wrangler release
+	// without any change to this repository.
+	//
+	// The site is fully prerendered, so this is an assets-only Worker with no
+	// entrypoint. Compatibility settings match the previously deployed version.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "blog",
+	"compatibility_date": "2026-08-26",
+	"compatibility_flags": ["global_fetch_strictly_public"],
+	"assets": {
+		"directory": "./dist",
+		"html_handling": "auto-trailing-slash"
+	}
+}
