@@ -118,6 +118,11 @@ Thai is a first-class script here, not a fallback.
   `req/s`). The font stack is ordered so Latin falls to the serif and Thai to Noto Serif Thai,
   and both are set at sizes where their x-heights read as one paragraph.
 - `word-break` stays default; Thai has no spaces between words and must wrap on its own rules.
+- **The Thai subset must be requested explicitly.** The font provider's default subset list is
+  Latin-oriented, and a Thai family fetched without `subsets: ['thai', 'latin']` ships with its
+  Thai glyphs stripped — the site renders Thai from a system fallback and looks fine while doing
+  it. Verify after any font change: a built page must contain a `unicode-range` covering
+  `U+0E01-0E5B`.
 
 ---
 

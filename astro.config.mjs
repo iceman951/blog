@@ -56,6 +56,9 @@ export default defineConfig({
 			cssVariable: '--font-thai',
 			weights: [400, 700],
 			styles: ['normal'],
+			// Without this the build emits only the Latin subset of a Thai family, and
+			// every Thai glyph on the site falls through to a system font instead.
+			subsets: ['thai', 'latin'],
 			fallbacks: ['Sarabun', 'sans-serif'],
 		},
 	],

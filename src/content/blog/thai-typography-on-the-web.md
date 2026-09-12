@@ -1,6 +1,6 @@
 ---
 title: 'Thai is not a font fallback'
-description: 'Seven things that break when you set Thai text with a layout tuned for English: a heading weight that resolves differently per script, leading that fits Latin and not Thai, word counts that come out near zero, and a date that reads 2569.'
+description: 'Eight things that break when you set Thai text with a layout tuned for English: a heading weight that resolves differently per script, leading that fits Latin and not Thai, word counts that come out near zero, and a date that reads 2569.'
 pubDate: 'Sep 13 2026'
 updatedDate: 'Sep 13 2026'
 tags: ['Typography', 'Thai', 'CSS']
@@ -10,21 +10,22 @@ translationKey: 'thai-typography-on-the-web'
 
 Most writing about non-Latin web typography is about CJK. Thai gets a line in the font stack and a shrug. That is roughly what I had been doing on this blog: every article here exists in English and Thai, and the Thai side had been inheriting a layout designed around an English serif.
 
-It mostly looked fine. "Mostly fine" is how this kind of problem hides — the text is legible, nothing overlaps badly enough to notice at a glance, so nobody files a bug. These are the seven things I found when I actually looked, in rough order of how much they matter.
+It mostly looked fine. "Mostly fine" is how this kind of problem hides — the text is legible, nothing overlaps badly enough to notice at a glance, so nobody files a bug. These are the eight things I found when I actually looked, in rough order of how much they matter — the last one added after this post was published, because writing it is what uncovered it.
 
-> **Correction, same day.** The first version of this post said Thai headings were
-> getting a *synthesized* bold. That was wrong, and section 1 has been rewritten. The
-> symptom was real, the mechanism was not — CSS font matching had picked a real 700
-> face, which is a weight mismatch between the two scripts rather than a fake bold.
-> I found it fact-checking my own post against the CSS font matching rules. The
-> practical advice did not change; the reason for it did.
+> **Corrected twice, same day.** The first version said Thai headings were getting a
+> *synthesized* bold; that was wrong, and section 1 is rewritten — CSS font matching had
+> selected a real 700 face, which is a weight mismatch between scripts, not a fake bold.
+> Checking that claim then turned up something worse, which is now section 8: the build was
+> shipping only the Latin subset of my Thai font, so Thai was rendering from a system
+> fallback the whole time. Both fixes are in the repository. I am leaving the trail visible
+> because the second error is the more instructive one.
 
 ## 1. One heading weight, two different faces
 
 This is the one that changed my layout the most.
 
-My headings ask for `font-weight: 600`, which suits the Latin serif. Both families are
-loaded as discrete faces, not variable fonts, and this is what the build actually emits:
+My headings ask for `font-weight: 600`, which suits the Latin serif. Each family is a single
+variable font file, declared at two discrete weights, and this is what the build actually emits:
 
 ```
 Source Serif 4    font-weight: 400, 600
@@ -32,7 +33,13 @@ Noto Serif Thai   font-weight: 400, 700
 ```
 
 Latin has a 600. Thai does not — not because the family lacks one (Noto Serif Thai ships
-100 through 900) but because I only loaded two weights of it.
+100 through 900) but because I only declared two weights of it.
+
+Worth noting what that declaration costs, because it surprised me: all of those weights point
+at **the same woff2 file**. Adding 600 to the list emits a third `@font-face` against the same
+URL and downloads nothing extra. "Load fewer weights" is good advice for static fonts and
+almost meaningless for a variable one — what you are choosing is how many points on the axis
+the browser is allowed to match, not how many bytes you ship.
 
 So what does the browser do with a 600 it cannot find? Not what I assumed. The CSS font
 matching rules say that when the requested weight is **above 500**, the browser first looks
@@ -40,7 +47,9 @@ for available weights *at or above* the request, in ascending order. 600 is abov
 available, so Thai renders in a **real 700 face**.
 
 That means one heading was setting Latin at 600 and Thai at 700 — a weight mismatch between
-two scripts in the same line, not a rendering artefact. And it compounds, because Thai carries
+two scripts in the same line, not a rendering artefact. (With the caveat from section 8: until
+I fixed the subset, that Thai 700 was coming from a system font rather than from the family I
+thought I had loaded.) And it compounds, because Thai carries
 more visual weight per character than a Latin serif at the same nominal weight. At 3rem the
 Thai heading did not just look slightly bolder; it looked like it was shouting.
 
@@ -166,6 +175,58 @@ A related one I hit in the same pass, on the English side, and it is stranger th
 Same code, same input, two answers. The abbreviation comes from CLDR data bundled with the runtime's ICU, and newer data spells out `Sept` for `en-GB`; my machine and the build container were not on the same version. So the date column was one character wider for one month a year, but only in production.
 
 The site was also disagreeing with itself: article headers went through `toLocaleDateString`, while listings used a hardcoded array of month names, so the same post could be `SEPT` at the top of the article and `SEP` in the index. Both now come from one table of three-letter abbreviations, which is deterministic across runtimes — for a twelve-item list that never changes, locale machinery was buying me nothing and costing me a difference I could not see locally.
+
+## 8. The font was never loaded for Thai
+
+I found this one by checking the section above. The weight analysis only means anything if
+Noto Serif Thai is the font actually drawing the Thai glyphs — so I went to look at the
+`@font-face` rules the build emits, and every single one of them looked like this:
+
+```
+unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, ...
+```
+
+That is Latin. There was no face anywhere in the built site whose range covered
+**U+0E01–U+0E5B**, the Thai block. I had configured a Thai font, referenced it in every stack,
+written rules targeting `:lang(th)` — and shipped a build that could not render a single Thai
+character from it. Every Thai glyph on this site was coming from whatever the operating system
+picked after the stack ran out.
+
+The cause is a default. My font provider configuration never specified subsets, and the default
+subset list is Latin-oriented, so a Thai family was fetched with its Thai glyphs stripped:
+
+```js
+{
+	name: 'Noto Serif Thai',
+	cssVariable: '--font-thai',
+	weights: [400, 700],
+	styles: ['normal'],
+	subsets: ['thai', 'latin'],
+}
+```
+
+After that line, the build emits a second file whose range reads
+`U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC` — the Thai block plus the combining
+marks and the dotted circle that renders an orphaned mark. That file is what should have been
+there all along.
+
+Two things make this worth more than an embarrassing footnote.
+
+The first is that **it looked fine**. macOS picked a competent Thai system font, so the pages
+rendered legible Thai and I spent an evening tuning leading and weights for a typeface that was
+never being used. Every visual judgement I made in the sections above was made against the
+fallback.
+
+The second is the general shape: **the font stack you wrote is not the font stack that
+shipped.** The check that catches it takes ten seconds — search your built output for the
+Unicode range of your script and confirm something covers it:
+
+```sh
+grep -o "unicode-range:[^;]*" dist/**/*.html | grep "U+0E"
+```
+
+If that comes back empty while your site has Thai text on it, the font in your CSS is
+decoration.
 
 ## What I would do differently next time
 
