@@ -21,13 +21,13 @@ const description =
 
 			.policy-hero {
 				padding-bottom: 3.5rem;
-				border-bottom: 1px solid rgb(var(--gray-light));
+				border-bottom: 1px solid var(--line-light);
 			}
 
 			.eyebrow {
 				margin: 0 0 1rem;
-				color: var(--accent-dark);
-				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				color: var(--ink-muted);
+				font-family: var(--stack-meta);
 				font-size: 0.75rem;
 				font-weight: 700;
 				letter-spacing: 0.14em;
@@ -37,22 +37,20 @@ const description =
 			h1 {
 				max-width: 760px;
 				margin-bottom: 1.25rem;
-				font-size: clamp(2.7rem, 8vw, 5rem);
-				letter-spacing: -0.05em;
 			}
 
 			.intro {
 				max-width: 740px;
 				margin: 0;
-				color: rgb(var(--gray-dark));
+				color: var(--ink-soft);
 				font-size: 1.1rem;
 				line-height: 1.75;
 			}
 
 			.updated {
 				margin: 1rem 0 0;
-				color: rgb(var(--gray));
-				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				color: var(--ink-muted);
+				font-family: var(--stack-meta);
 				font-size: 0.78rem;
 			}
 
@@ -62,14 +60,12 @@ const description =
 
 			.policy-section > h2 {
 				margin-bottom: 0.4rem;
-				font-size: clamp(2rem, 5vw, 3rem);
-				letter-spacing: -0.035em;
 			}
 
 			.section-note {
 				margin: 0 0 2.5rem;
-				color: rgb(var(--gray));
-				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				color: var(--ink-muted);
+				font-family: var(--stack-meta);
 				font-size: 0.86rem;
 			}
 
@@ -95,22 +91,22 @@ const description =
 
 			.notice {
 				padding: 1.25rem 1.4rem;
-				border-left: 4px solid var(--accent);
+				border-left: 4px solid var(--vermilion);
 				border-radius: 0 12px 12px 0;
-				background: rgba(var(--gray-light), 0.35);
+				background: var(--paper-alt);
 			}
 
 			.table-wrap {
 				max-width: 100%;
 				overflow-x: auto;
 				margin: 1.5rem 0 2rem;
-				border: 1px solid rgb(var(--gray-light));
-				border-radius: 12px;
-				background: rgba(var(--cream), 0.6);
+				border: 1px solid var(--line-light);
+				border-radius: 0;
+				background: var(--paper-alt);
 			}
 
 			.table-wrap:focus-visible {
-				outline: 3px solid var(--accent);
+				outline: 3px solid var(--vermilion);
 				outline-offset: 3px;
 			}
 
@@ -135,7 +131,7 @@ const description =
 			.back-to-top {
 				display: inline-flex;
 				margin-top: 2rem;
-				font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+				font-family: var(--stack-meta);
 				font-size: 0.8rem;
 				font-weight: 700;
 			}

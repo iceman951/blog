@@ -1,0 +1,74 @@
+---
+/**
+ * Sumi-e mountain silhouette for the homepage hero. Layered ink washes — distant
+ * ridge, mid ridge, near peak — each fading downward the way wet ink bleeds into
+ * washi. Decorative only, so it is hidden from assistive technology.
+ */
+interface Props {
+	class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg
+	class:list={['ink-decoration', className]}
+	viewBox="0 0 640 340"
+	role="presentation"
+	aria-hidden="true"
+	focusable="false"
+>
+	<defs>
+		<linearGradient id="wash-far" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="#1e1c19" stop-opacity="0.34"></stop>
+			<stop offset="70%" stop-color="#1e1c19" stop-opacity="0.06"></stop>
+			<stop offset="100%" stop-color="#1e1c19" stop-opacity="0"></stop>
+		</linearGradient>
+		<linearGradient id="wash-mid" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="#1e1c19" stop-opacity="0.5"></stop>
+			<stop offset="75%" stop-color="#1e1c19" stop-opacity="0.08"></stop>
+			<stop offset="100%" stop-color="#1e1c19" stop-opacity="0"></stop>
+		</linearGradient>
+		<linearGradient id="wash-near" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="#1e1c19" stop-opacity="0.72"></stop>
+			<stop offset="60%" stop-color="#1e1c19" stop-opacity="0.2"></stop>
+			<stop offset="100%" stop-color="#1e1c19" stop-opacity="0.02"></stop>
+		</linearGradient>
+	</defs>
+
+	<!-- Distant ridge: lowest ink load, softest contour. -->
+	<path
+		d="M0 288 C60 268 96 246 138 214 C168 191 196 186 224 206 C252 226 274 244 300 258 C332 275 358 282 392 286 L392 300 L0 300 Z"
+		fill="url(#wash-far)"></path>
+
+	<!-- Mid ridge. -->
+	<path
+		d="M186 292 C232 278 268 250 304 208 C330 178 352 172 376 196 C398 218 418 240 446 256 C476 273 506 282 546 288 L546 300 L186 300 Z"
+		fill="url(#wash-mid)"></path>
+
+	<!-- Near peak: the only fully loaded brush on the page. -->
+	<path
+		d="M330 296 C372 280 404 250 438 196 C456 167 470 140 482 118 C494 140 508 166 526 194 C556 240 588 272 638 292 L638 300 L330 300 Z"
+		fill="url(#wash-near)"></path>
+
+	<!-- Snow break: paper left unpainted rather than painted white. -->
+	<path
+		d="M482 124 C476 140 470 152 462 166 C470 162 476 164 482 170 C490 164 496 162 502 166 C494 152 488 140 482 124 Z"
+		fill="#f4efe4"
+		fill-opacity="0.5"></path>
+
+	<!-- Dry-brush ground line, broken the way a loaded brush runs out. -->
+	<g stroke="#1e1c19" stroke-linecap="round" fill="none">
+		<path d="M24 302 C96 298 158 304 216 300" stroke-width="1.6" stroke-opacity="0.2"></path>
+		<path d="M268 306 C350 300 430 308 566 300" stroke-width="1.2" stroke-opacity="0.16"></path>
+		<path d="M120 314 C182 311 240 315 292 312" stroke-width="1" stroke-opacity="0.1"></path>
+	</g>
+</svg>
+
+<style>
+	svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		opacity: 0.5;
+	}
+</style>

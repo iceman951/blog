@@ -25,10 +25,20 @@ export default defineConfig({
 	],
 	fonts: [
 		{
+			// Mincho-style display face: carries the Latin headings and the 氷錆 mark
+			// in one download, which is why the Latin weights above were trimmed.
+			provider: fontProviders.google(),
+			name: 'Noto Serif JP',
+			cssVariable: '--font-display',
+			weights: [400, 600],
+			styles: ['normal'],
+			fallbacks: ['Hiragino Mincho ProN', 'Yu Mincho', 'Georgia', 'serif'],
+		},
+		{
 			provider: fontProviders.google(),
 			name: 'Source Serif 4',
 			cssVariable: '--font-serif',
-			weights: [400, 600, 700],
+			weights: [400, 600],
 			styles: ['normal', 'italic'],
 			fallbacks: ['Georgia', 'serif'],
 		},
@@ -36,7 +46,7 @@ export default defineConfig({
 			provider: fontProviders.google(),
 			name: 'Inter',
 			cssVariable: '--font-sans',
-			weights: [400, 500, 700],
+			weights: [400, 500],
 			styles: ['normal'],
 			fallbacks: ['system-ui', 'sans-serif'],
 		},

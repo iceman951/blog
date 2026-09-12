@@ -1,483 +1,308 @@
 ---
-import { getCollection } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
-import FormattedDate from "../components/FormattedDate.astro";
-import Header from "../components/Header.astro";
-import { CONTACT_EMAIL, SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import HankoMark from '../components/HankoMark.astro';
+import Header from '../components/Header.astro';
+import TagList from '../components/TagList.astro';
+import VerticalNote from '../components/VerticalNote.astro';
+import BrushDivider from '../components/ink/BrushDivider.astro';
+import InkMountains from '../components/ink/InkMountains.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import type { UiLanguage } from '../i18n';
+import { postsForLanguage } from '../lib/posts';
 
-import type { UiLanguage } from "../i18n";
-import { postsForLanguage } from "../lib/posts";
-
-const all = await getCollection("blog");
+const all = await getCollection('blog');
 // Both languages ship in the same document; CSS hides the inactive panel.
-const panels: UiLanguage[] = ["en", "th"];
+const panels: UiLanguage[] = ['en', 'th'];
+
+const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 ---
 
 <!doctype html>
 <html lang="en">
-    <head>
-        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-        <style>
-            main {
-                width: 960px;
-                padding-top: 4.5rem;
-            }
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero" aria-labelledby="intro-heading">
+				<div class="hero-copy">
+					<h1 id="intro-heading">
+						<span data-ui-language-copy="en" lang="en">Small Experiments<br />for a Better Future.</span>
+						<span data-ui-language-copy="th" lang="th">การทดลองเล็ก ๆ<br />เพื่ออนาคตที่ดีกว่า</span>
+					</h1>
+					<p class="hero-sub" lang="th">บันทึกเรื่องเทคโนโลยี ตลาด และการทดลอง</p>
+					<HankoMark />
+				</div>
 
-            .hero {
-                display: grid;
-                grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.7fr);
-                gap: 4rem;
-                align-items: end;
-                padding-bottom: 4.5rem;
-            }
+				<div class="hero-ink" aria-hidden="true">
+					<InkMountains />
+				</div>
 
-            .eyebrow,
-            .section-label {
-                margin: 0 0 1rem;
-                color: var(--accent-dark);
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.75rem;
-                font-weight: 700;
-                letter-spacing: 0.14em;
-                text-transform: uppercase;
-            }
+				<aside class="hero-note">
+					<hr class="rule-short" />
+					<p>
+						<span data-ui-language-copy="en" lang="en">Continuously<br />learning,<br />like water.</span>
+						<span data-ui-language-copy="th" lang="th">เรียนรู้ต่อเนื่อง<br />เหมือนสายน้ำ</span>
+					</p>
+				</aside>
+			</section>
 
-            h1 {
-                max-width: 720px;
-                margin-bottom: 1.25rem;
-                font-size: clamp(3rem, 8vw, 5.5rem);
-                letter-spacing: -0.055em;
-            }
+			<BrushDivider />
 
-            .name-accent {
-                color: var(--accent);
-            }
+			<section class="latest" aria-labelledby="latest-heading">
+				<hr class="rule-short" />
+				<p class="section-jp" lang="ja">最新の記事</p>
+				<h2 class="kicker" id="latest-heading">
+					<span data-ui-language-copy="en" lang="en">Latest writings</span>
+					<span data-ui-language-copy="th" lang="th">บทความล่าสุด</span>
+				</h2>
 
-            .intro {
-                max-width: 670px;
-                margin: 0;
-                color: rgb(var(--gray-dark));
-                font-size: 1.25rem;
-                line-height: 1.75;
-            }
+				{
+					panels.map((lang) => {
+						const latestPosts = postsForLanguage(all, lang).slice(0, 4);
 
-            .hero-actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem;
-                margin-top: 2rem;
-            }
+						return (
+							<div data-ui-language-panel={lang} lang={lang}>
+								<ol class="post-list">
+									{latestPosts.map((post) => (
+										<li class="post-row">
+											<a href={`/blog/${post.id}/`}>
+												<time class="date" datetime={post.data.pubDate.toISOString()}>
+													<span class="day">{post.data.pubDate.getDate()}</span>
+													<span class="month">{monthNames[post.data.pubDate.getMonth()]}</span>
+													<span class="year">{post.data.pubDate.getFullYear()}</span>
+												</time>
+												<span class="body">
+													<span class="title">{post.data.title}</span>
+													<TagList tags={post.data.tags} variant="inline" />
+												</span>
+												<span class="arrow" aria-hidden="true">—</span>
+											</a>
+										</li>
+									))}
+								</ol>
+							</div>
+						);
+					})
+				}
 
-            .button {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.4rem;
-                padding: 0.7rem 1.1rem;
-                border: 1px solid var(--accent);
-                border-radius: 999px;
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.85rem;
-                font-weight: 700;
-                text-decoration: none;
-                transition:
-                    transform 160ms ease,
-                    background-color 160ms ease;
-            }
+				<p class="all">
+					<a href="/blog">
+						<span data-ui-language-copy="en" lang="en">View all posts</span>
+						<span data-ui-language-copy="th" lang="th">ดูบทความทั้งหมด</span>
+						<span aria-hidden="true">⟶</span>
+					</a>
+				</p>
+			</section>
 
-            .button:hover {
-                transform: translateY(-2px);
-            }
-
-            .button.primary {
-                background: var(--accent);
-                color: rgb(var(--cream));
-            }
-
-            .button.secondary {
-                background: transparent;
-                color: var(--accent-dark);
-            }
-
-            .snapshot {
-                padding: 1.5rem;
-                border: 1px solid rgb(var(--gray-light));
-                border-radius: 18px;
-                background: rgba(var(--cream), 0.65);
-                box-shadow: var(--box-shadow);
-            }
-
-            .snapshot p {
-                margin: 0;
-                font-size: 0.95rem;
-                line-height: 1.6;
-            }
-
-            .snapshot p + p {
-                margin-top: 1rem;
-                padding-top: 1rem;
-                border-top: 1px solid rgb(var(--gray-light));
-            }
-
-            .snapshot strong {
-                display: block;
-                color: rgb(var(--black));
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.72rem;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-            }
-
-            .topics,
-            .latest {
-                padding: 4rem 0;
-                border-top: 1px solid rgb(var(--gray-light));
-            }
-
-            .section-heading {
-                display: flex;
-                justify-content: space-between;
-                gap: 2rem;
-                align-items: baseline;
-                margin-bottom: 2rem;
-            }
-
-            .section-heading h2 {
-                margin: 0;
-                font-size: clamp(2rem, 5vw, 3rem);
-                letter-spacing: -0.035em;
-            }
-
-            .section-heading a {
-                flex: none;
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.85rem;
-                font-weight: 700;
-            }
-
-            .topic-list {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-            }
-
-            .topic-list li {
-                padding: 1.25rem;
-                border: 1px solid rgb(var(--gray-light));
-                border-radius: 14px;
-                background: rgba(var(--cream), 0.45);
-            }
-
-            .topic-list strong {
-                display: block;
-                margin-bottom: 0.35rem;
-                color: rgb(var(--black));
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.9rem;
-            }
-
-            .topic-list span {
-                display: block;
-                color: rgb(var(--gray));
-                font-size: 0.82rem;
-                line-height: 1.55;
-            }
-
-            .post-list {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 1.5rem;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-            }
-
-            .post-card a {
-                display: block;
-                color: inherit;
-                text-decoration: none;
-            }
-
-            .post-card img {
-                width: 100%;
-                aspect-ratio: 2 / 1;
-                object-fit: cover;
-                margin-bottom: 1rem;
-                border-radius: 14px;
-                transition:
-                    transform 180ms ease,
-                    box-shadow 180ms ease;
-            }
-
-            .post-card a:hover img {
-                transform: translateY(-3px);
-                box-shadow: var(--box-shadow);
-            }
-
-            .post-card h3 {
-                margin-bottom: 0.6rem;
-                font-size: 1.2rem;
-                line-height: 1.35;
-            }
-
-            .post-card a:hover h3 {
-                color: var(--accent);
-            }
-
-            .post-meta {
-                margin: 0;
-                color: rgb(var(--gray));
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.75rem;
-            }
-
-            .empty-state {
-                color: rgb(var(--gray));
-            }
-
-            .connect {
-                display: flex;
-                justify-content: space-between;
-                gap: 2rem;
-                align-items: center;
-                padding: 2.5rem;
-                border-radius: 18px;
-                background: rgb(var(--black));
-                color: rgb(var(--cream));
-            }
-
-            .connect h2 {
-                margin: 0 0 0.35rem;
-                color: inherit;
-                font-size: 1.8rem;
-            }
-
-            .connect p {
-                margin: 0;
-                color: rgb(var(--gray-light));
-                font-size: 0.95rem;
-            }
-
-            .social-links {
-                display: flex;
-                gap: 1rem;
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-                font-size: 0.85rem;
-                font-weight: 700;
-            }
-
-            .social-links a {
-                color: rgb(var(--cream));
-            }
-
-            @media (max-width: 760px) {
-                main {
-                    padding-top: 3rem;
-                }
-
-                .hero {
-                    grid-template-columns: 1fr;
-                    gap: 2.5rem;
-                    padding-bottom: 3rem;
-                }
-
-                h1 {
-                    font-size: clamp(2.8rem, 16vw, 4.5rem);
-                }
-
-                .topic-list,
-                .post-list {
-                    grid-template-columns: 1fr;
-                }
-
-                .post-card a {
-                    display: grid;
-                    grid-template-columns: 120px 1fr;
-                    gap: 1rem;
-                    align-items: start;
-                }
-
-                .post-card img {
-                    margin: 0;
-                }
-
-                .connect {
-                    align-items: flex-start;
-                    flex-direction: column;
-                    padding: 1.5rem;
-                }
-            }
-
-            @media (max-width: 420px) {
-                .section-heading {
-                    align-items: flex-start;
-                    flex-direction: column;
-                    gap: 0.5rem;
-                }
-
-                .post-card a {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <Header />
-        <main>
-            <section class="hero" aria-labelledby="intro-heading">
-                <div>
-                    <p class="eyebrow">Full-stack developer · Bangkok</p>
-                    <h1 id="intro-heading">
-                        สวัสดีครับ — I'm <span class="name-accent">ICE.</span>
-                    </h1>
-                    <p class="intro">
-                        I'm Vorrapong Kertnat, a full-stack developer building
-                        software people rely on with TypeScript. I'm also
-                        studying Financial Engineering to better understand the
-                        mathematics behind the financial systems I work with.
-                    </p>
-                    <div class="hero-actions">
-                        <a class="button primary" href="/blog"
-                            >Read my writing <span aria-hidden="true">→</span
-                            ></a
-                        >
-                        <a class="button secondary" href="/about"
-                            >More about me</a
-                        >
-                    </div>
-                </div>
-
-                <aside class="snapshot" aria-label="Current status">
-                    <p>
-                        <strong>Currently building</strong>Internal systems at
-                        BAAC with Vue and ElysiaJS
-                    </p>
-                    <p>
-                        <strong>Currently learning</strong>Financial Engineering
-                        at UTCC
-                    </p>
-                    <p><strong>Based in</strong>Bangkok, Thailand</p>
-                </aside>
-            </section>
-
-            <section class="topics" aria-labelledby="topics-heading">
-                <p class="section-label">What I write about</p>
-                <div class="section-heading">
-                    <h2 id="topics-heading">
-                        Notes from building and learning
-                    </h2>
-                </div>
-                <ul class="topic-list">
-                    <li>
-                        <strong>TypeScript &amp; Backend</strong>
-                        <span
-                            >ElysiaJS, Bun, and APIs designed to remain
-                            maintainable.</span
-                        >
-                    </li>
-                    <li>
-                        <strong>DevSecOps</strong>
-                        <span
-                            >Containers, Kubernetes, GitOps, and security across
-                            the delivery pipeline.</span
-                        >
-                    </li>
-                    <li>
-                        <strong>Financial Engineering</strong>
-                        <span
-                            >Learning notes on portfolios, risk, and
-                            quantitative finance.</span
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            <section class="latest" aria-labelledby="latest-heading">
-                <p class="section-label">Latest writing</p>
-                <div class="section-heading">
-                    <h2 id="latest-heading">Latest articles</h2>
-                    <a href="/blog"
-                        >View all <span aria-hidden="true">→</span></a
-                    >
-                </div>
-                {
-                    panels.map((lang) => {
-                        const latestPosts = postsForLanguage(all, lang).slice(0, 3);
-
-                        return (
-                            <div data-ui-language-panel={lang} lang={lang}>
-                                {latestPosts.length > 0 ? (
-                                    <ul class="post-list">
-                                        {latestPosts.map((post) => (
-                                            <li class="post-card">
-                                                <a href={`/blog/${post.id}/`}>
-                                                    {post.data.heroImage && (
-                                                        <img
-                                                            src={post.data.heroImage.src}
-                                                            width={720}
-                                                            height={360}
-                                                            alt=""
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                        />
-                                                    )}
-                                                    <div>
-                                                        <h3>{post.data.title}</h3>
-                                                        <p class="post-meta">
-                                                            <FormattedDate
-                                                                date={post.data.pubDate}
-                                                                lang={lang}
-                                                            />
-                                                        </p>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p class="empty-state">
-                                        The first article is on its way.
-                                    </p>
-                                )}
-                            </div>
-                        );
-                    })
-                }
-            </section>
-
-            <section class="connect" aria-labelledby="connect-heading">
-                <div>
-                    <h2 id="connect-heading">Let's connect</h2>
-                    <p>
-                        Always happy to talk about software engineering,
-                        DevSecOps, or quantitative finance.
-                    </p>
-                </div>
-                <div class="social-links">
-                    <a href={`mailto:${CONTACT_EMAIL}`}>Email</a>
-                    <a
-                        href="https://github.com/iceman951"
-                        target="_blank"
-                        rel="noopener noreferrer">GitHub ↗</a
-                    >
-                    <a
-                        href="https://www.linkedin.com/in/vorrapong/"
-                        target="_blank"
-                        rel="noopener noreferrer">LinkedIn ↗</a
-                    >
-                </div>
-            </section>
-        </main>
-        <Footer />
-    </body>
+			<!-- 継続は力なり — "perseverance is strength". -->
+			<div class="margin-note">
+				<VerticalNote text="継続は力なり" />
+			</div>
+		</main>
+		<Footer />
+	</body>
 </html>
+
+<style>
+	main {
+		width: var(--frame);
+		position: relative;
+	}
+
+	.hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) 10rem;
+		align-items: center;
+		gap: var(--space-8);
+		padding: var(--space-16) 0 var(--space-24);
+	}
+
+	h1 {
+		margin: 0 0 var(--space-6);
+		font-size: clamp(2.6rem, 6vw, 4.2rem);
+		font-weight: 400;
+		line-height: 1.18;
+		letter-spacing: -0.02em;
+	}
+
+	.hero-sub {
+		margin: 0 0 var(--space-8);
+		color: var(--ink-soft);
+		font-size: 1rem;
+		line-height: 1.9;
+	}
+
+	.hero-ink {
+		align-self: center;
+	}
+
+	.hero-note {
+		align-self: end;
+		padding-bottom: var(--space-8);
+	}
+
+	.hero-note p {
+		margin: 0;
+		color: var(--ink-muted);
+		font-family: var(--stack-meta);
+		font-size: 0.8rem;
+		line-height: 1.7;
+	}
+
+	.latest {
+		padding: var(--space-16) 0 0;
+	}
+
+	.section-jp {
+		margin: 0 0 var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.35rem;
+		letter-spacing: 0.12em;
+	}
+
+	h2.kicker {
+		margin-bottom: var(--space-12);
+	}
+
+	.post-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		counter-reset: none;
+	}
+
+	.post-row {
+		margin: 0;
+		border-top: 1px solid var(--line-light);
+	}
+
+	.post-row:last-child {
+		border-bottom: 1px solid var(--line-light);
+	}
+
+	.post-row a {
+		display: grid;
+		grid-template-columns: 5.5rem minmax(0, 1fr) 2rem;
+		align-items: center;
+		gap: var(--space-8);
+		padding: var(--space-6) 0;
+		color: inherit;
+		text-decoration: none;
+		transition: background-color var(--duration) var(--ease);
+	}
+
+	.post-row a:hover {
+		background: var(--paper-alt);
+	}
+
+	.date {
+		display: block;
+		font-family: var(--stack-meta);
+		line-height: 1.15;
+		text-align: left;
+	}
+
+	.day {
+		display: block;
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.9rem;
+		font-weight: 400;
+	}
+
+	.month,
+	.year {
+		display: block;
+		color: var(--ink-muted);
+		font-size: 0.68rem;
+		letter-spacing: 0.16em;
+	}
+
+	.title {
+		display: block;
+		margin-bottom: var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.4rem;
+		line-height: 1.35;
+		transition: color var(--duration) var(--ease);
+	}
+
+	.post-row a:hover .title {
+		color: var(--vermilion);
+	}
+
+	.arrow {
+		color: var(--line);
+		text-align: right;
+	}
+
+	.all {
+		margin: var(--space-12) 0 0;
+		font-family: var(--stack-meta);
+		font-size: 0.85rem;
+	}
+
+	.all a {
+		color: var(--ink);
+		text-decoration: none;
+	}
+
+	.all a:hover {
+		color: var(--vermilion);
+	}
+
+	.all span[aria-hidden] {
+		margin-left: 0.6em;
+	}
+
+	.margin-note {
+		position: absolute;
+		right: -2.5rem;
+		bottom: 12rem;
+	}
+
+	@media (max-width: 1180px) {
+		.margin-note {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1180px) {
+		.hero {
+			grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+		}
+		.hero-note {
+			display: none;
+		}
+	}
+
+	@media (max-width: 860px) {
+		.hero {
+			grid-template-columns: 1fr;
+			gap: var(--space-8);
+			padding: var(--space-12) 0 var(--space-16);
+		}
+		.hero-ink {
+			max-width: 22rem;
+		}
+		.post-row a {
+			grid-template-columns: 3.6rem minmax(0, 1fr);
+			gap: var(--space-6);
+		}
+		.arrow {
+			display: none;
+		}
+		.day {
+			font-size: 1.5rem;
+		}
+		.title {
+			font-size: 1.15rem;
+		}
+	}
+</style>

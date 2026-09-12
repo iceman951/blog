@@ -1,0 +1,41 @@
+---
+/** Vermilion 氷錆 seal — "ice rust", the brand name written literally. */
+interface Props {
+	size?: 'sm' | 'md';
+	class?: string;
+}
+const { size = 'md', class: className } = Astro.props;
+---
+
+<span class:list={['hanko', size, className]} aria-hidden="true">
+	<span class="glyphs">氷<br />錆</span>
+</span>
+
+<style>
+	.hanko {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 1.5px solid var(--vermilion);
+		border-radius: 2px;
+		color: var(--vermilion);
+		font-family: var(--stack-display);
+		line-height: 1;
+		/* Hand-pressed seals are never quite square to the page. */
+		transform: rotate(-1.5deg);
+	}
+	.md {
+		width: 34px;
+		height: 34px;
+		font-size: 0.72rem;
+	}
+	.sm {
+		width: 22px;
+		height: 22px;
+		border-width: 1px;
+		font-size: 0.46rem;
+	}
+	.glyphs {
+		text-align: center;
+	}
+</style>

@@ -6,10 +6,11 @@
 	data-ui-th-aria-label="เลือกภาษาสำหรับส่วนติดต่อ"
 >
 	<button type="button" data-ui-language-option="th" aria-pressed="false">
-		<span lang="th">ไทย</span>
+		<span lang="en">TH</span>
 	</button>
+	<span class="divider" aria-hidden="true">|</span>
 	<button type="button" data-ui-language-option="en" aria-pressed="true">
-		<span lang="en">English</span>
+		<span lang="en">EN</span>
 	</button>
 </div>
 
@@ -161,54 +162,56 @@
 	.language-switcher {
 		display: inline-flex;
 		flex: 0 0 auto;
-		overflow: hidden;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 999px;
-		background: rgba(var(--cream), 0.75);
-		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+		align-items: center;
+		gap: 0.35rem;
+		font-family: var(--stack-meta);
+	}
+
+	.divider {
+		color: var(--line);
+		font-size: 0.78rem;
 	}
 
 	button {
 		display: inline-flex;
-		min-width: 44px;
+		min-width: 30px;
 		min-height: 44px;
 		align-items: center;
 		justify-content: center;
-		padding: 0.45rem 0.75rem;
+		padding: 0;
+		position: relative;
 		border: 0;
 		background: transparent;
-		color: rgb(var(--gray-dark));
+		color: var(--ink-muted);
 		font: inherit;
-		font-size: 0.72rem;
-		font-weight: 700;
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
 		line-height: 1;
 		cursor: pointer;
+		transition: color var(--duration) var(--ease);
 	}
 
-	button + button {
-		border-left: 1px solid rgb(var(--gray-light));
+	button:hover {
+		color: var(--ink);
 	}
 
+	/* The selected language is marked by a vermilion rule, not a filled chip. */
 	button[aria-pressed='true'] {
-		background: var(--accent);
-		color: rgb(var(--cream));
+		color: var(--ink);
 	}
 
-	button:hover:not([aria-pressed='true']) {
-		background: rgba(var(--gray-light), 0.5);
+	button[aria-pressed='true']::after {
+		position: absolute;
+		bottom: 0.7rem;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: var(--vermilion);
+		content: '';
 	}
 
 	button:focus-visible {
-		position: relative;
-		z-index: 1;
-		outline: 3px solid var(--accent-dark);
-		outline-offset: -3px;
-	}
-
-	@media (max-width: 360px) {
-		button {
-			padding-inline: 0.58rem;
-			font-size: 0.67rem;
-		}
+		outline: 2px solid var(--vermilion);
+		outline-offset: 2px;
 	}
 </style>

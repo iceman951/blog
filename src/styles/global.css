@@ -1,21 +1,69 @@
 /*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
+  ICERUST — Sumi-e Minimal / Wabi-sabi Editorial.
+  Tokens and base element styles. See DESIGN.md; this file is its implementation.
+*/
 
 :root {
-	--accent: #cc785c;
-	--accent-dark: #a6553b;
-	--cream: 250, 249, 245;
-	--black: 38, 35, 32;
-	--gray: 120, 110, 100;
-	--gray-light: 233, 227, 216;
-	--gray-dark: 61, 56, 50;
-	--gray-gradient: rgba(var(--gray-light), 40%), rgb(var(--cream));
-	--box-shadow:
-		0 2px 6px rgba(var(--black), 6%), 0 8px 24px rgba(var(--black), 8%),
-		0 16px 32px rgba(var(--black), 8%);
+	/* Paper and ink */
+	--paper: #f4efe4;
+	--paper-alt: #ebe4d6;
+	--paper-deep: #e3dbca;
+
+	--ink: #1e1c19;
+	--ink-soft: #4b4740;
+	--ink-muted: #777064;
+
+	--line: #c9bfae;
+	--line-light: #ddd5c8;
+
+	--vermilion: #a63d32;
+	--vermilion-dark: #843028;
+
+	--indigo: #263746;
+	--code-bg: #182128;
+	--code-text: #e8dfcd;
+
+	/* Spacing scale */
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+	--space-12: 3rem;
+	--space-16: 4rem;
+	--space-24: 6rem;
+	--space-32: 8rem;
+
+	/* Measure */
+	--measure-prose: 700px;
+	--measure-wide: 880px;
+	--measure-page: 960px;
+	--frame: 1180px;
+
+	/* Type stacks. Latin falls to the serif, Thai to Noto Serif Thai, in that order. */
+	--stack-display: var(--font-display), var(--font-serif), var(--font-thai), 'Hiragino Mincho ProN',
+		'Yu Mincho', Georgia, serif;
+	--stack-body: var(--font-serif), var(--font-thai), Georgia, serif;
+	--stack-meta: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+	--stack-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+	--duration: 200ms;
+	--ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+	/*
+	  Legacy aliases. Components not individually restyled still resolve to the
+	  new palette instead of the old cream-and-terracotta one.
+	*/
+	--accent: var(--vermilion);
+	--accent-dark: var(--vermilion-dark);
+	--cream: 244, 239, 228;
+	--black: 30, 28, 25;
+	--gray: 119, 112, 100;
+	--gray-light: 221, 213, 200;
+	--gray-dark: 75, 71, 64;
+	--gray-gradient: transparent, transparent;
+	--box-shadow: none;
 }
 
 /* English is the no-script fallback; the head bootstrap can select Thai pre-paint. */
@@ -35,143 +83,363 @@ html[data-ui-language='en'] [data-ui-language-panel='en'] {
 	display: block !important;
 }
 
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
 body {
-	font-family: var(--font-serif), var(--font-thai), Georgia, serif;
 	margin: 0;
 	padding: 0;
+	background-color: var(--paper);
+	/*
+	  Washi: two fibre directions and one uneven wash. Procedural, so it costs no
+	  request and stays crisp at any zoom. Deliberately near the threshold of sight.
+	*/
+	background-image:
+		radial-gradient(ellipse 120% 80% at 50% 0%, rgba(120, 112, 100, 0.05), transparent 70%),
+		repeating-linear-gradient(94deg, rgba(120, 112, 100, 0.018) 0 1px, transparent 1px 4px),
+		repeating-linear-gradient(4deg, rgba(120, 112, 100, 0.014) 0 1px, transparent 1px 7px);
+	background-attachment: fixed;
+	color: var(--ink-soft);
+	font-family: var(--stack-body);
+	font-size: 19px;
+	line-height: 1.75;
 	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat;
-	background-size: 100% 600px;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
-	font-size: 20px;
-	line-height: 1.7;
+	-webkit-font-smoothing: antialiased;
 }
+
 main {
-	width: 720px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
+	width: var(--measure-page);
+	max-width: calc(100% - 2.5rem);
+	margin: 0 auto;
+	padding: var(--space-16) 0 var(--space-24);
 }
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
-	line-height: 1.2;
-	font-weight: 700;
+	margin: 0 0 var(--space-4);
+	color: var(--ink);
+	font-family: var(--stack-display);
+	font-weight: 600;
+	line-height: 1.22;
+	letter-spacing: -0.015em;
 }
+
 h1 {
-	font-size: 3.052em;
+	font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+	line-height: 1.15;
+	letter-spacing: -0.025em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: clamp(1.6rem, 3vw, 2rem);
 }
 h3 {
-	font-size: 1.953em;
+	font-size: 1.35rem;
 }
 h4 {
-	font-size: 1.563em;
+	font-size: 1.15rem;
 }
 h5 {
-	font-size: 1.25em;
+	font-size: 1rem;
 }
-strong,
-b {
+
+/* Thai needs more leading than Latin; its stacked marks collide at Latin values. */
+:lang(th) h1,
+:lang(th) h2,
+:lang(th) h3 {
+	line-height: 1.45;
+	letter-spacing: 0;
+}
+
+/*
+  Noto Serif Thai has no 600, so headings would otherwise be faux-bolded to 700 and
+  smear the tone marks. Sub-heads take the real 700; display sizes stay at 400,
+  where Thai already carries enough weight and the Latin serif beside it is regular.
+*/
+:lang(th) h2,
+:lang(th) h3 {
 	font-weight: 700;
 }
-a {
-	color: var(--accent);
+
+:lang(th) h1 {
+	font-weight: 400;
 }
-a:hover {
-	color: var(--accent);
+
+:lang(th) p,
+:lang(th) li {
+	line-height: 1.95;
 }
+
 p {
-	margin-bottom: 1em;
+	margin: 0 0 var(--space-6);
 }
-.prose p {
-	margin-bottom: 2em;
+
+strong,
+b {
+	color: var(--ink);
+	font-weight: 600;
 }
-textarea {
-	width: 100%;
-	font-size: 16px;
+
+:lang(th) strong,
+:lang(th) b {
+	font-weight: 700;
 }
-input {
-	font-size: 16px;
+
+a {
+	color: var(--vermilion);
+	text-decoration-color: var(--line);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.22em;
+	transition: text-decoration-color var(--duration) var(--ease);
 }
+
+a:hover {
+	color: var(--vermilion-dark);
+	text-decoration-color: currentColor;
+}
+
+:focus-visible {
+	outline: 2px solid var(--vermilion);
+	outline-offset: 3px;
+}
+
+hr {
+	height: 1px;
+	border: 0;
+	margin: var(--space-12) 0;
+	background: var(--line-light);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 2px;
+}
+
+ul,
+ol {
+	margin: 0 0 var(--space-6);
+	padding-left: 1.3em;
+}
+
+li {
+	margin-bottom: var(--space-2);
+}
+
+blockquote {
+	margin: var(--space-8) 0;
+	padding-left: var(--space-6);
+	border-left: 2px solid var(--vermilion);
+	color: var(--ink);
+	font-size: 1.1rem;
+	font-style: italic;
+}
+
+blockquote p:last-child {
+	margin-bottom: 0;
+}
+
+:lang(th) blockquote {
+	font-style: normal;
+}
+
+/* ---------- Tables ---------- */
+
 table {
 	display: block;
 	max-width: 100%;
 	overflow-x: auto;
+	margin: 0 0 var(--space-8);
 	border-collapse: collapse;
-	margin-bottom: 2em;
-	font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
-	font-size: 0.75em;
+	border: 1px solid var(--line-light);
+	font-family: var(--stack-meta);
+	font-size: 0.78rem;
+	font-variant-numeric: tabular-nums;
 	line-height: 1.5;
-}
-th,
-td {
-	padding: 0.5em 0.9em;
-	text-align: left;
-	border-bottom: 1px solid rgb(var(--gray-light));
-	white-space: nowrap;
-}
-th {
-	border-bottom: 2px solid rgb(var(--gray));
-	color: rgb(var(--black));
-	font-weight: 700;
-}
-tbody tr:last-child td {
-	border-bottom: none;
-}
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 10px;
-}
-code {
-	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
-	border-radius: 4px;
-}
-pre {
-	padding: 1.5em;
-	border-radius: 10px;
-}
-pre > code {
-	all: unset;
-}
-blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0;
-	font-size: 1.333em;
-}
-hr {
-	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
-}
-@media (max-width: 720px) {
-	body {
-		font-size: 18px;
-	}
-	main {
-		padding: 1em;
-	}
 }
 
-/* Affiliate disclosure under a table. Small print in the same voice as .chart-note,
-   pulled up so it reads as a caption on the table rather than a paragraph of its own. */
-.prose .affiliate-note {
-	margin: -1.4em 0 2.5em;
-	color: rgb(var(--gray));
-	font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+th,
+td {
+	padding: 0.55em 0.9em;
+	border: 1px solid var(--line-light);
+	text-align: left;
+	white-space: nowrap;
+}
+
+th {
+	background: var(--paper-alt);
+	border-bottom-color: var(--line);
+	color: var(--ink);
+	font-weight: 500;
+	font-size: 0.68rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* Markdown writes numeric columns right-aligned; keep that and let digits align. */
+th[align='right'],
+td[align='right'] {
+	text-align: right;
+}
+
+/* ---------- Code ---------- */
+
+code {
+	padding: 0.12em 0.35em;
+	border: 1px solid var(--line-light);
+	background: var(--paper-alt);
+	color: var(--ink);
+	font-family: var(--stack-mono);
+	font-size: 0.82em;
+}
+
+pre {
+	margin: 0 0 var(--space-8);
+	padding: var(--space-6);
+	border-left: 2px solid var(--vermilion);
+	background: var(--code-bg) !important;
+	color: var(--code-text) !important;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	overflow-x: auto;
+}
+
+pre > code {
+	all: unset;
+	font-family: var(--stack-mono);
+}
+
+/*
+  A <pre> inside a table cell is a wrapped value (the recorded OS string), not a
+  code listing — it must stay on paper rather than becoming an ink block.
+*/
+td pre,
+th pre {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent !important;
+	color: inherit !important;
+	font-family: var(--stack-meta);
+	font-size: inherit;
+	line-height: inherit;
+	white-space: pre-wrap;
+}
+
+/* Shiki emits one .line per source line; number them without polluting a copy. */
+pre.astro-code code {
+	counter-reset: line;
+}
+
+pre.astro-code .line::before {
+	display: inline-block;
+	width: 1.6em;
+	margin-right: 1.2em;
+	counter-increment: line;
+	content: counter(line);
+	color: var(--ink-muted);
+	font-size: 0.85em;
+	text-align: right;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+pre.astro-code .line:last-child:empty::before {
+	content: none;
+}
+
+/* A code block wrapped by CodeBlock.astro gets a header bar and a copy button. */
+.code-block {
+	margin: 0 0 var(--space-8);
+}
+
+.code-block pre {
+	margin: 0;
+}
+
+.code-block__bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-4);
+	padding: 0.45rem var(--space-4) 0.45rem var(--space-6);
+	border-left: 2px solid var(--vermilion);
+	border-bottom: 1px solid rgba(232, 223, 205, 0.14);
+	background: var(--code-bg);
+	color: var(--ink-muted);
+	font-family: var(--stack-meta);
+	font-size: 0.66rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.code-block__copy {
+	padding: 0.25rem 0.5rem;
+	border: 1px solid rgba(232, 223, 205, 0.2);
+	background: transparent;
+	color: var(--code-text);
+	font: inherit;
+	letter-spacing: 0.1em;
+	cursor: pointer;
+	transition: background-color var(--duration) var(--ease);
+}
+
+.code-block__copy:hover {
+	background: rgba(232, 223, 205, 0.1);
+}
+
+/* ---------- Editorial primitives ---------- */
+
+.kicker {
+	margin: 0 0 var(--space-4);
+	color: var(--ink-muted);
+	font-family: var(--stack-meta);
+	font-size: 0.7rem;
+	font-weight: 500;
+	letter-spacing: 0.22em;
+	line-height: 1.6;
+	text-transform: uppercase;
+}
+
+.meta {
+	color: var(--ink-muted);
+	font-family: var(--stack-meta);
 	font-size: 0.78rem;
-	line-height: 1.5;
+	letter-spacing: 0.02em;
+}
+
+/* A short rule that opens a section, as in the reference layout. */
+.rule-short {
+	width: 28px;
+	height: 1px;
+	margin: 0 0 var(--space-4);
+	border: 0;
+	background: var(--ink-muted);
+}
+
+.scroll-table {
+	overflow-x: auto;
+}
+
+/* Affiliate disclosure under a table: small print, pulled up to read as a caption. */
+.prose .affiliate-note {
+	margin: -1.4em 0 var(--space-8);
+	color: var(--ink-muted);
+	font-family: var(--stack-meta);
+	font-size: 0.74rem;
+	line-height: 1.6;
 }
 
 .sr-only {
@@ -182,12 +450,54 @@ hr {
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
 	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
 	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 860px) {
+	main {
+		max-width: calc(100% - 2rem);
+		padding: var(--space-12) 0 var(--space-16);
+	}
+}
+
+@media (max-width: 560px) {
+	body {
+		font-size: 17px;
+	}
+	main {
+		max-width: calc(100% - 1.75rem);
+	}
+	pre {
+		padding: var(--space-4);
+	}
+	pre.astro-code .line::before {
+		width: 1.2em;
+		margin-right: 0.8em;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+@media print {
+	body {
+		background: #fff;
+	}
+	.code-block__bar,
+	.vertical-note,
+	.ink-decoration {
+		display: none !important;
+	}
 }

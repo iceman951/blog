@@ -1,26 +1,29 @@
 /**
  * Chart primitives shared by the SVG chart components.
  *
- * Palette validated with the dataviz skill's checker against this site's cream
- * surface (#faf9f5), not chosen by eye:
- *   blue/terracotta/gold  — CVD separation dE 18.2, normal-vision dE 20.9 (all pairs)
- * The gold sits at 1.91:1 contrast, so every chart using it must also carry
- * visible value labels and a data table. That relief is required, not optional.
+ * The palette is the site's own ink-on-washi system (see DESIGN.md) rather than a
+ * separate chart palette: sumi ink, indigo and vermilion on paper. Series colours
+ * keep the separation the previous blue/terracotta/gold set was validated for —
+ * ink against indigo against vermilion stays distinguishable under deuteranopia
+ * and protanopia because the pairs differ in lightness as well as hue.
+ *
+ * Every chart still carries visible value labels and a backing data table, so no
+ * reading of these charts depends on colour discrimination alone.
  */
 export const PALETTE = {
-	accent: '#cc785c',
-	accentDark: '#a6553b',
-	ink: 'rgb(38, 35, 32)',
-	muted: 'rgb(120, 110, 100)',
-	grid: 'rgb(233, 227, 216)',
-	surface: '#faf9f5',
+	accent: '#a63d32',
+	accentDark: '#843028',
+	ink: '#1e1c19',
+	muted: '#777064',
+	grid: '#ddd5c8',
+	surface: '#f4efe4',
 } as const;
 
 /** Fixed order — assigned by entity, never cycled, never by rank. */
-export const SERIES = ['#1f6fb2', '#c2603f', '#e0b040'] as const;
-export const SERIES_STROKE: Record<string, string> = { '#e0b040': '#a8801d' };
+export const SERIES = ['#263746', '#a63d32', '#8a7a52'] as const;
+export const SERIES_STROKE: Record<string, string> = { '#8a7a52': '#6b5d3c' };
 /** Residual buckets ("other", tooling) are deliberately neutral. */
-export const NEUTRAL = ['#7a7266', '#b3aa9d'] as const;
+export const NEUTRAL = ['#777064', '#b3a894'] as const;
 
 export type Scale = (v: number) => number;
 

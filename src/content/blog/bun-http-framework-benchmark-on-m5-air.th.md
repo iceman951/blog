@@ -3,6 +3,7 @@ title: 'วัด Bun HTTP Framework บน MacBook Air M5'
 description: 'แค่กลับลำดับรายการที่ทดสอบ อันดับก็พลิก นี่คือเรื่องที่โน้ตบุ๊กไม่มีพัดลมวัดได้จริง ๆ ตอนเรา benchmark framework แปดตัวติดกัน และตัวเลขหน้าตาเป็นอย่างไรเมื่อเลิกทำแบบนั้น'
 pubDate: 'Aug 23 2026'
 updatedDate: 'Sep 13 2026'
+tags: ['Bun', 'Benchmark', 'Performance']
 heroImage: '../../assets/bun-framework-throughput-m5.svg'
 lang: 'th'
 translationKey: 'bun-http-framework-benchmark-m5'

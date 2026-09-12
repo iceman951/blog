@@ -15,11 +15,12 @@ const RIGHT = 150;
 const TOP = 112;
 const BOTTOM = 54;
 
-const CREAM = '#faf9f5';
-const INK = '#262320';
-const GRAY = '#786e64';
-const GRID = '#e9e3d8';
-const ACCENT = '#cc785c';
+// Kept in sync by hand with src/styles/global.css — see DESIGN.md §2.
+const CREAM = '#f4efe4';
+const INK = '#1e1c19';
+const GRAY = '#777064';
+const GRID = '#ddd5c8';
+const ACCENT = '#a63d32';
 
 const order = data.aggregates.rankings.byMjPerReq as string[];
 const rows = order.map((fw) => ({

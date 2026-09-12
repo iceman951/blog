@@ -28,15 +28,19 @@ const { title, ariaLabel, note, width = 720, height = 420 } = Astro.props;
 
 <style>
 	.chart {
-		margin: 0 0 2.5em;
+		margin: 0 0 var(--space-12);
 	}
 	.chart-title {
-		margin: 0 0 0.6em;
-		color: rgb(var(--black));
-		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
-		font-size: 0.85rem;
-		font-weight: 700;
+		margin: 0 0 0.8em;
+		padding-bottom: 0.5em;
+		border-bottom: 1px solid var(--line-light);
+		color: var(--ink);
+		font-family: var(--stack-meta);
+		font-size: 0.72rem;
+		font-weight: 500;
+		letter-spacing: 0.14em;
 		line-height: 1.35;
+		text-transform: uppercase;
 	}
 	/* Wide charts scroll inside their own box; the page never scrolls sideways. */
 	.chart-scroll {
@@ -50,9 +54,9 @@ const { title, ariaLabel, note, width = 720, height = 420 } = Astro.props;
 	}
 	.chart-note {
 		margin: 0.7em 0 0;
-		color: rgb(var(--gray));
-		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
-		font-size: 0.78rem;
-		line-height: 1.5;
+		color: var(--ink-muted);
+		font-family: var(--stack-meta);
+		font-size: 0.74rem;
+		line-height: 1.6;
 	}
 </style>

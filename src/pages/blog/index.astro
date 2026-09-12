@@ -1,133 +1,212 @@
 ---
-import { getCollection } from "astro:content";
-import BaseHead from "../../components/BaseHead.astro";
-import Footer from "../../components/Footer.astro";
-import FormattedDate from "../../components/FormattedDate.astro";
-import Header from "../../components/Header.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
-import type { UiLanguage } from "../../i18n";
-import { postsForLanguage } from "../../lib/posts";
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import TagList from '../../components/TagList.astro';
+import PlumBranch from '../../components/ink/PlumBranch.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import type { UiLanguage } from '../../i18n';
+import { postsForLanguage } from '../../lib/posts';
 
-const all = await getCollection("blog");
+const all = await getCollection('blog');
 // Both languages ship in the same document; CSS hides the inactive panel.
-const panels: UiLanguage[] = ["en", "th"];
+const panels: UiLanguage[] = ['en', 'th'];
+
+const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 ---
 
 <!doctype html>
 <html lang="en">
-    <head>
-        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-        <style>
-            main {
-                width: 960px;
-            }
-            ul {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 2rem;
-                list-style-type: none;
-                margin: 0;
-                padding: 0;
-            }
-            ul li {
-                width: calc(50% - 1rem);
-            }
-            ul li * {
-                text-decoration: none;
-                transition: 0.2s ease;
-            }
-            ul li:first-child {
-                width: 100%;
-                margin-bottom: 1rem;
-                text-align: center;
-            }
-            ul li:first-child img {
-                width: 100%;
-            }
-            ul li:first-child .title {
-                font-size: 2.369rem;
-            }
-            ul li img {
-                margin-bottom: 0.5rem;
-                border-radius: 16px;
-            }
-            ul li a {
-                display: block;
-            }
-            .title {
-                margin: 0;
-                color: rgb(var(--black));
-                line-height: 1;
-            }
-            .date {
-                margin: 0;
-                color: rgb(var(--gray));
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-            }
-            ul li a:hover h4,
-            ul li a:hover .date {
-                color: rgb(var(--accent));
-            }
-            ul a:hover img {
-                box-shadow: var(--box-shadow);
-            }
-            @media (max-width: 720px) {
-                ul {
-                    gap: 0.5em;
-                }
-                ul li {
-                    width: 100%;
-                    text-align: center;
-                }
-                ul li:first-child {
-                    margin-bottom: 0;
-                }
-                ul li:first-child .title {
-                    font-size: 1.563em;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <Header />
-        <main>
-            <section>
-                {
-                    panels.map((lang) => (
-                        <div data-ui-language-panel={lang} lang={lang}>
-                            <ul>
-                                {postsForLanguage(all, lang).map((post) => (
-                                    <li>
-                                        <a href={`/blog/${post.id}/`}>
-                                            {post.data.heroImage && (
-                                                <img
-                                                    src={post.data.heroImage.src}
-                                                    width={720}
-                                                    height={360}
-                                                    alt=""
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                />
-                                            )}
-                                            <h4 class="title">
-                                                {post.data.title}
-                                            </h4>
-                                            <p class="date">
-                                                <FormattedDate
-                                                    date={post.data.pubDate}
-                                                    lang={lang}
-                                                />
-                                            </p>
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))
-                }
-            </section>
-        </main>
-        <Footer />
-    </body>
+	<head>
+		<BaseHead title={`Blog | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<header class="page-head">
+				<hr class="rule-short" />
+				<p class="section-jp" lang="ja">記事一覧</p>
+				<h1 class="kicker">
+					<span data-ui-language-copy="en" lang="en">All writings</span>
+					<span data-ui-language-copy="th" lang="th">บทความทั้งหมด</span>
+				</h1>
+			</header>
+
+			{
+				panels.map((lang) => {
+					const posts = postsForLanguage(all, lang);
+
+					return (
+						<div data-ui-language-panel={lang} lang={lang}>
+							<ol class="post-list">
+								{posts.map((post) => (
+									<li class="post-row">
+										<a href={`/blog/${post.id}/`}>
+											<time class="date" datetime={post.data.pubDate.toISOString()}>
+												<span class="day">{post.data.pubDate.getDate()}</span>
+												<span class="month">{monthNames[post.data.pubDate.getMonth()]}</span>
+												<span class="year">{post.data.pubDate.getFullYear()}</span>
+											</time>
+											<span class="body">
+												<span class="title">{post.data.title}</span>
+												<span class="excerpt">{post.data.description}</span>
+												<TagList tags={post.data.tags} variant="inline" />
+											</span>
+											<span class="arrow" aria-hidden="true">—</span>
+										</a>
+									</li>
+								))}
+							</ol>
+						</div>
+					);
+				})
+			}
+
+			<div class="decor" aria-hidden="true">
+				<PlumBranch corner="bottom-left" />
+			</div>
+		</main>
+		<Footer />
+	</body>
 </html>
+
+<style>
+	main {
+		position: relative;
+		padding-bottom: var(--space-32);
+	}
+
+	.page-head {
+		margin-bottom: var(--space-12);
+	}
+
+	.section-jp {
+		margin: 0 0 var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.35rem;
+		letter-spacing: 0.12em;
+	}
+
+	h1.kicker {
+		margin: 0;
+		font-size: 0.7rem;
+	}
+
+	.post-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.post-row {
+		margin: 0;
+		border-top: 1px solid var(--line-light);
+	}
+
+	.post-row:last-child {
+		border-bottom: 1px solid var(--line-light);
+	}
+
+	.post-row a {
+		display: grid;
+		grid-template-columns: 5.5rem minmax(0, 1fr) 2rem;
+		align-items: start;
+		gap: var(--space-8);
+		padding: var(--space-8) 0;
+		color: inherit;
+		text-decoration: none;
+		transition: background-color var(--duration) var(--ease);
+	}
+
+	.post-row a:hover {
+		background: var(--paper-alt);
+	}
+
+	.date {
+		display: block;
+		padding-top: 0.35rem;
+		font-family: var(--stack-meta);
+		line-height: 1.15;
+	}
+
+	.day {
+		display: block;
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.9rem;
+	}
+
+	.month,
+	.year {
+		display: block;
+		color: var(--ink-muted);
+		font-size: 0.68rem;
+		letter-spacing: 0.16em;
+	}
+
+	.title {
+		display: block;
+		margin-bottom: var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.5rem;
+		line-height: 1.3;
+		transition: color var(--duration) var(--ease);
+	}
+
+	.post-row a:hover .title {
+		color: var(--vermilion);
+	}
+
+	.excerpt {
+		display: block;
+		max-width: 60ch;
+		margin-bottom: var(--space-3);
+		color: var(--ink-soft);
+		font-size: 0.92rem;
+		line-height: 1.7;
+	}
+
+	.arrow {
+		padding-top: 0.6rem;
+		color: var(--line);
+		text-align: right;
+	}
+
+	.decor {
+		position: absolute;
+		bottom: 0;
+		left: -6rem;
+		width: 260px;
+		height: 200px;
+		pointer-events: none;
+	}
+
+	@media (max-width: 1180px) {
+		.decor {
+			display: none;
+		}
+	}
+
+	@media (max-width: 860px) {
+		.post-row a {
+			grid-template-columns: 3.6rem minmax(0, 1fr);
+			gap: var(--space-6);
+			padding: var(--space-6) 0;
+		}
+		.arrow {
+			display: none;
+		}
+		.day {
+			font-size: 1.5rem;
+		}
+		.title {
+			font-size: 1.2rem;
+		}
+		.excerpt {
+			font-size: 0.86rem;
+		}
+	}
+</style>

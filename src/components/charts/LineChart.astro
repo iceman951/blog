@@ -40,7 +40,7 @@ const path = (pts: { x: number; y: number }[]) =>
 			series.map((s, i) => (
 				<g>
 					<line x1={LEFT + i * 130} y1={17} x2={LEFT + i * 130 + 18} y2={17} stroke={SERIES[i % SERIES.length]} stroke-width="2" />
-					<text x={LEFT + i * 130 + 24} y={21} font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+					<text x={LEFT + i * 130 + 24} y={21} font-size="12" fill={PALETTE.ink} font-family="var(--stack-meta)">
 						{s.name}
 					</text>
 				</g>
@@ -79,6 +79,6 @@ const path = (pts: { x: number; y: number }[]) =>
 
 	<line x1={LEFT} y1={TOP} x2={LEFT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
 	<line x1={LEFT} y1={H - BOTTOM} x2={W - RIGHT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
-	<text x={(LEFT + W - RIGHT) / 2} y={H - 12} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">{xLabel}</text>
-	<text x={15} y={(TOP + H - BOTTOM) / 2} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif" transform={`rotate(-90 15 ${(TOP + H - BOTTOM) / 2})`}>{yLabel}</text>
+	<text x={(LEFT + W - RIGHT) / 2} y={H - 12} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--stack-meta)">{xLabel}</text>
+	<text x={15} y={(TOP + H - BOTTOM) / 2} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--stack-meta)" transform={`rotate(-90 15 ${(TOP + H - BOTTOM) / 2})`}>{yLabel}</text>
 </ChartFrame>

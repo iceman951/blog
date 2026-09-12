@@ -1,122 +1,249 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
-import FormattedDate from "../components/FormattedDate.astro";
-import Header from "../components/Header.astro";
-import { t, type UiLanguage } from "../i18n";
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import HankoMark from '../components/HankoMark.astro';
+import TagList from '../components/TagList.astro';
+import VerticalNote from '../components/VerticalNote.astro';
+import PlumBranch from '../components/ink/PlumBranch.astro';
+import { t, type UiLanguage } from '../i18n';
 
-type Props = CollectionEntry<"blog">["data"] & {
-    /** Pathnames of this post in each language, when a translation exists. */
-    translations?: Partial<Record<UiLanguage, string>>;
+type Props = CollectionEntry<'blog'>['data'] & {
+	/** Pathnames of this post in each language, when a translation exists. */
+	translations?: Partial<Record<UiLanguage, string>>;
+	/** Rounded reading time; omitted for pages that are not articles. */
+	readingMinutes?: number;
+	/** Small uppercase label above the title. */
+	kicker?: string;
+	/** The article marginalia reads as a note on the writing, so pages opt out. */
+	marginNote?: boolean;
 };
 
 const {
-    title,
-    description,
-    pubDate,
-    updatedDate,
-    heroImage,
-    lang = "en",
-    translations,
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags,
+	lang = 'en',
+	translations,
+	readingMinutes,
+	kicker,
+	marginNote = true,
 } = Astro.props;
+
+const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาที' : readingMinutes + ' min read';
 ---
 
-<html
-    lang={lang}
-    data-translation-en={translations?.en}
-    data-translation-th={translations?.th}
->
-    <head>
-        <BaseHead
-            title={title}
-            description={description}
-            lang={lang}
-            translations={translations}
-        />
-        <style>
-            main {
-                width: calc(100% - 2em);
-                max-width: 100%;
-                margin: 0;
-            }
-            .hero-image {
-                width: 100%;
-            }
-            .hero-image img {
-                display: block;
-                margin: 0 auto;
-                border-radius: 16px;
-                box-shadow: var(--box-shadow);
-            }
-            .prose {
-                width: 720px;
-                max-width: calc(100% - 2em);
-                margin: auto;
-                padding: 1em;
-                color: rgb(var(--gray-dark));
-            }
-            .title {
-                margin-bottom: 1em;
-                padding: 1em 0;
-                text-align: center;
-                line-height: 1;
-            }
-            .title h1 {
-                margin: 0 0 0.5em 0;
-            }
-            .date {
-                margin-bottom: 0.5em;
-                color: rgb(var(--gray));
-                font-family:
-                    var(--font-sans), var(--font-thai), system-ui, sans-serif;
-            }
-            .last-updated-on {
-                font-style: italic;
-            }
-        </style>
-    </head>
+<html lang={lang} data-translation-en={translations?.en} data-translation-th={translations?.th}>
+	<head>
+		<BaseHead title={title} description={description} lang={lang} translations={translations} />
+	</head>
 
-    <body>
-        <Header />
-        <main>
-            <article>
-                <div class="hero-image">
-                    {
-                        heroImage && (
-                            <img
-                                src={heroImage.src}
-                                width={1020}
-                                height={510}
-                                alt=""
-                                decoding="async"
-                            />
-                        )
-                    }
-                </div>
-                <div class="prose">
-                    <div class="title">
-                        <div class="date">
-                            <FormattedDate date={pubDate} lang={lang} />
-                            {
-                                updatedDate && (
-                                    <div class="last-updated-on">
-                                        {t(lang, "lastUpdated")}{" "}
-                                        <FormattedDate
-                                            date={updatedDate}
-                                            lang={lang}
-                                        />
-                                    </div>
-                                )
-                            }
-                        </div>
-                        <h1>{title}</h1>
-                        <hr />
-                    </div>
-                    <slot />
-                </div>
-            </article>
-        </main>
-        <Footer />
-    </body>
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="decor" aria-hidden="true">
+					<PlumBranch corner="top-right" />
+				</div>
+
+				<header class="article-header">
+					<p class="meta line">
+						<FormattedDate date={pubDate} lang={lang} variant="editorial" />
+						{readingMinutes ? <span class="dot">·</span> : null}
+						{readingMinutes ? <span>{readLabel}</span> : null}
+					</p>
+					{kicker && <p class="kicker">{kicker}</p>}
+					<h1>{title}</h1>
+					<TagList tags={tags} />
+					{
+						updatedDate && (
+							<p class="meta updated">
+								{t(lang, 'lastUpdated')} <FormattedDate date={updatedDate} lang={lang} />
+							</p>
+						)
+					}
+				</header>
+
+				{
+					heroImage && (
+						<figure class="hero-image">
+							<img src={heroImage.src} width={1020} height={510} alt="" decoding="async" />
+						</figure>
+					)
+				}
+
+				<div class="prose">
+					<slot />
+				</div>
+
+				<footer class="article-foot">
+					<p class="meta">
+						<span data-ui-language-copy="en" lang="en">Keep building. Keep learning.</span>
+						<span data-ui-language-copy="th" lang="th">สร้างต่อไป เรียนรู้ต่อไป</span>
+					</p>
+					<HankoMark size="sm" />
+				</footer>
+			</article>
+
+			{
+				/* 技術は旅である — "technology is a journey". */
+				marginNote && (
+					<div class="margin-note">
+						<VerticalNote text="技術は旅である" />
+					</div>
+				)
+			}
+		</main>
+		<Footer />
+	</body>
 </html>
+
+<script>
+	// Shiki renders a bare <pre data-language>. Wrapping it here keeps the header
+	// bar and copy control out of the content pipeline entirely.
+	document.querySelectorAll<HTMLPreElement>('pre.astro-code').forEach((pre) => {
+		const wrapper = document.createElement('div');
+		wrapper.className = 'code-block';
+		pre.parentNode?.insertBefore(wrapper, pre);
+
+		const bar = document.createElement('div');
+		bar.className = 'code-block__bar';
+
+		const language = document.createElement('span');
+		language.textContent = pre.dataset.language ?? 'code';
+
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'code-block__copy';
+		button.setAttribute('aria-live', 'polite');
+		button.textContent = 'Copy';
+		button.addEventListener('click', async () => {
+			try {
+				// innerText excludes the CSS-generated line numbers, so what lands on
+				// the clipboard is still runnable.
+				await navigator.clipboard.writeText(pre.innerText);
+				button.textContent = 'Copied';
+			} catch {
+				button.textContent = 'Press Ctrl+C';
+			}
+			window.setTimeout(() => (button.textContent = 'Copy'), 1600);
+		});
+
+		bar.append(language, button);
+		wrapper.append(bar, pre);
+	});
+</script>
+
+<style>
+	main {
+		width: var(--measure-wide);
+		position: relative;
+	}
+	.decor {
+		position: absolute;
+		inset: 0 -6rem auto auto;
+		width: 260px;
+		height: 200px;
+		pointer-events: none;
+	}
+	.article-header {
+		max-width: var(--measure-prose);
+		margin-bottom: var(--space-12);
+		animation: rise 320ms var(--ease) both;
+	}
+	.line {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 0 0 var(--space-6);
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-size: 0.72rem;
+	}
+	.dot {
+		color: var(--line);
+	}
+	h1 {
+		margin: 0 0 var(--space-6);
+		max-width: 18ch;
+		font-size: clamp(2.2rem, 5vw, 3.15rem);
+	}
+	:global(:lang(th)) h1 {
+		max-width: 24ch;
+	}
+	.updated {
+		margin: var(--space-4) 0 0;
+		font-style: italic;
+	}
+	.hero-image {
+		margin: 0 0 var(--space-16);
+	}
+	.hero-image img {
+		display: block;
+		width: 100%;
+		border: 1px solid var(--line-light);
+	}
+	.prose {
+		max-width: var(--measure-prose);
+	}
+	/* Wide objects break out of the reading measure but never past the frame. */
+	.prose :global(table),
+	.prose :global(.scroll-table),
+	.prose :global(figure.chart) {
+		width: min(var(--measure-wide), calc(100vw - 2.5rem));
+	}
+	.article-foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-6);
+		max-width: var(--measure-prose);
+		margin-top: var(--space-16);
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--line-light);
+	}
+	.article-foot p {
+		margin: 0;
+	}
+	.margin-note {
+		position: absolute;
+		top: 20rem;
+		right: -3.5rem;
+	}
+
+	@media (max-width: 1180px) {
+		.margin-note {
+			display: none;
+		}
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	@media (max-width: 1180px) {
+		.decor {
+			display: none;
+		}
+	}
+	@media (max-width: 860px) {
+		.hero-image {
+			margin-bottom: var(--space-12);
+		}
+		.article-header {
+			margin-bottom: var(--space-8);
+		}
+	}
+</style>

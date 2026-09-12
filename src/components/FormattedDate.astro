@@ -4,17 +4,25 @@ import { dateLocale, type UiLanguage } from '../i18n';
 interface Props {
 	date: Date;
 	lang?: UiLanguage;
+	/** `editorial` prints "23 AUG 2026"; the default keeps the locale's own form. */
+	variant?: 'default' | 'editorial';
 }
 
-const { date, lang = 'en' } = Astro.props;
+const { date, lang = 'en', variant = 'default' } = Astro.props;
+
+const editorial = date
+	.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })
+	.toUpperCase();
 ---
 
 <time datetime={date.toISOString()}>
 	{
-		date.toLocaleDateString(dateLocale(lang), {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
+		variant === 'editorial'
+			? editorial
+			: date.toLocaleDateString(dateLocale(lang), {
+					year: 'numeric',
+					month: 'short',
+					day: 'numeric',
+				})
 	}
 </time>

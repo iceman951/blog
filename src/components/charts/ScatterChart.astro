@@ -117,7 +117,7 @@ const labels = points
 				font-size="12"
 				font-weight="700"
 				fill={PALETTE.ink}
-				font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif"
+				font-family="var(--stack-meta)"
 			>
 				{l.text}
 			</text>
@@ -127,6 +127,6 @@ const labels = points
 	<line x1={LEFT} y1={TOP} x2={LEFT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
 	<line x1={LEFT} y1={H - BOTTOM} x2={W - RIGHT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
 
-	<text x={(LEFT + W - RIGHT) / 2} y={H - 14} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">{xLabel}</text>
-	<text x={16} y={(TOP + H - BOTTOM) / 2} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif" transform={`rotate(-90 16 ${(TOP + H - BOTTOM) / 2})`}>{yLabel}</text>
+	<text x={(LEFT + W - RIGHT) / 2} y={H - 14} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--stack-meta)">{xLabel}</text>
+	<text x={16} y={(TOP + H - BOTTOM) / 2} text-anchor="middle" font-size="12" fill={PALETTE.ink} font-family="var(--stack-meta)" transform={`rotate(-90 16 ${(TOP + H - BOTTOM) / 2})`}>{yLabel}</text>
 </ChartFrame>

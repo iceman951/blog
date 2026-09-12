@@ -3,6 +3,7 @@ title: 'Benchmarking Bun HTTP frameworks on a MacBook Air M5'
 description: 'Reversing the order of the target list reversed the ranking. What a fanless laptop actually measures when you benchmark eight Bun HTTP frameworks back to back, and what the numbers look like once you stop doing that.'
 pubDate: 'Aug 23 2026'
 updatedDate: 'Sep 13 2026'
+tags: ['Bun', 'Benchmark', 'Performance']
 heroImage: '../../assets/bun-framework-throughput-m5.svg'
 lang: 'en'
 translationKey: 'bun-http-framework-benchmark-m5'

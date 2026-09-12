@@ -1,5 +1,4 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
 import Layout from '../layouts/BlogPost.astro';
 import { CONTACT_EMAIL } from '../consts';
 ---
@@ -8,10 +7,11 @@ import { CONTACT_EMAIL } from '../consts';
 	title="About Me"
 	description="Vorrapong Kertnat (ICE) — full-stack developer at BAAC in Bangkok, currently studying Financial Engineering at UTCC."
 	pubDate={new Date('August 18 2026')}
-	heroImage={AboutHeroImage}
+	kicker="Colophon / About"
+	marginNote={false}
 >
 	<p>
-		สวัสดีครับ — I'm <strong>Vorrapong Kertnat</strong>, everyone calls me <strong style="background:linear-gradient(135deg,#67e8f9,#a78bfa 35%,#f9a8d4);-webkit-background-clip:text;background-clip:text;color:#0000;letter-spacing:.08em;font-weight:800">ICE</strong>
+		สวัสดีครับ — I'm <strong>Vorrapong Kertnat</strong>, everyone calls me <strong class="alias">ICE</strong>
 	</p>
 
 	<p>
@@ -123,3 +123,11 @@ import { CONTACT_EMAIL } from '../consts';
 	</ul>
 
 </Layout>
+
+<style>
+	/* The alias is set in the display face rather than a gradient fill. */
+	.alias {
+		font-family: var(--stack-display);
+		letter-spacing: 0.12em;
+	}
+</style>

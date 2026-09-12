@@ -35,7 +35,7 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 		segments.map((name, i) => (
 			<g>
 				<rect x={LEFT + (i % 3) * 128} y={4 + Math.floor(i / 3) * 18} width={11} height={11} rx="2" fill={colorFor(i)} stroke={SERIES_STROKE[colorFor(i)] ?? 'none'} />
-				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--stack-meta)">
 					{name}
 				</text>
 			</g>
@@ -50,7 +50,7 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 			const total = totals[i];
 			return (
 				<g>
-					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--font-sans), var(--font-thai), system-ui, sans-serif">
+					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--stack-meta)">
 						{bar.label}
 					</text>
 					{bar.values.map((v, s) => {

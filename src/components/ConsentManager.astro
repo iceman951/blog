@@ -513,7 +513,7 @@
 	.consent-manager,
 	.consent-manager button,
 	.consent-manager input {
-		font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+		font-family: var(--stack-meta);
 	}
 
 	.consent-banner {
@@ -530,11 +530,11 @@
 		box-sizing: border-box;
 		margin-inline: auto;
 		padding: 1.25rem;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 16px;
-		background: rgb(var(--cream));
-		box-shadow: var(--box-shadow);
-		color: rgb(var(--gray-dark));
+		border: 1px solid var(--line-light);
+		border-radius: 0;
+		background: var(--paper);
+
+		color: var(--ink-soft);
 		font-size: 0.9rem;
 		line-height: 1.55;
 	}
@@ -572,10 +572,10 @@
 	.consent-manager button {
 		min-height: 2.75rem;
 		padding: 0.62rem 0.9rem;
-		border: 1px solid rgb(var(--gray));
-		border-radius: 999px;
+		border: 1px solid var(--ink-muted);
+		border-radius: 0;
 		background: transparent;
-		color: rgb(var(--black));
+		color: var(--ink);
 		font-size: 0.8rem;
 		font-weight: 700;
 		line-height: 1.25;
@@ -583,31 +583,31 @@
 	}
 
 	.consent-manager button:hover {
-		border-color: rgb(var(--black));
-		background: rgba(var(--gray-light), 0.55);
+		border-color: var(--ink);
+		background: var(--paper-alt);
 	}
 
 	.consent-manager button.primary {
-		border-color: rgb(var(--black));
-		background: rgb(var(--black));
-		color: rgb(var(--cream));
+		border-color: var(--ink);
+		background: var(--ink);
+		color: var(--paper);
 	}
 
 	.consent-manager button.primary:hover {
-		background: rgb(var(--gray-dark));
+		background: var(--ink-soft);
 	}
 
 	.consent-manager button.text-button {
 		padding-inline: 0.35rem;
 		border-color: transparent;
-		border-radius: 4px;
-		color: var(--accent-dark);
+		border-radius: 0;
+		color: var(--vermilion-dark);
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
 	}
 
 	.consent-manager :where(button, a, input):focus-visible {
-		outline: 3px solid var(--accent);
+		outline: 3px solid var(--vermilion);
 		outline-offset: 3px;
 	}
 
@@ -616,18 +616,18 @@
 		max-height: min(42rem, calc(100dvh - 2rem));
 		box-sizing: border-box;
 		padding: 0;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 18px;
-		background: rgb(var(--cream));
-		box-shadow: var(--box-shadow);
-		color: rgb(var(--gray-dark));
+		border: 1px solid var(--line-light);
+		border-radius: 0;
+		background: var(--paper);
+
+		color: var(--ink-soft);
 		font-size: 0.9rem;
 		line-height: 1.55;
 		overflow: auto;
 	}
 
 	.consent-dialog::backdrop {
-		background: rgba(var(--black), 0.58);
+		background: rgba(30, 28, 25, 0.58);
 	}
 
 	.consent-dialog-content {
@@ -643,7 +643,7 @@
 
 	.eyebrow {
 		margin: 0 0 0.25rem;
-		color: var(--accent-dark);
+		color: var(--vermilion-dark);
 		font-size: 0.7rem;
 		font-weight: 700;
 		letter-spacing: 0.12em;
@@ -663,7 +663,7 @@
 	}
 
 	.consent-options {
-		border-block: 1px solid rgb(var(--gray-light));
+		border-block: 1px solid var(--line-light);
 	}
 
 	.consent-option {
@@ -675,7 +675,7 @@
 	}
 
 	.consent-option + .consent-option {
-		border-top: 1px solid rgb(var(--gray-light));
+		border-top: 1px solid var(--line-light);
 	}
 
 	.consent-option h3 {
@@ -685,7 +685,7 @@
 
 	.consent-option p {
 		margin: 0;
-		color: rgb(var(--gray));
+		color: var(--ink-muted);
 		font-size: 0.8rem;
 	}
 
@@ -708,9 +708,9 @@
 		display: block;
 		width: 3rem;
 		height: 1.7rem;
-		border: 1px solid rgb(var(--gray));
-		border-radius: 999px;
-		background: rgb(var(--gray-light));
+		border: 1px solid var(--ink-muted);
+		border-radius: 0;
+		background: var(--line-light);
 	}
 
 	.switch-track::after {
@@ -720,18 +720,18 @@
 		width: 1.2rem;
 		height: 1.2rem;
 		border-radius: 50%;
-		background: rgb(var(--gray-dark));
+		background: var(--ink-soft);
 		content: "";
 		transition: transform 150ms ease;
 	}
 
 	.switch input:checked + .switch-track {
-		border-color: var(--accent-dark);
-		background: var(--accent-dark);
+		border-color: var(--vermilion-dark);
+		background: var(--vermilion-dark);
 	}
 
 	.switch input:checked + .switch-track::after {
-		background: rgb(var(--cream));
+		background: var(--paper);
 		transform: translateX(1.3rem);
 	}
 
@@ -741,7 +741,7 @@
 	}
 
 	.switch input:focus-visible + .switch-track {
-		outline: 3px solid var(--accent);
+		outline: 3px solid var(--vermilion);
 		outline-offset: 3px;
 	}
 
@@ -776,11 +776,11 @@
 		overflow: visible;
 		clip: auto;
 		white-space: normal;
-		border: 1px solid rgb(var(--gray));
-		border-radius: 12px;
-		background: rgb(var(--cream));
-		box-shadow: var(--box-shadow);
-		color: rgb(var(--gray-dark));
+		border: 1px solid var(--ink-muted);
+		border-radius: 0;
+		background: var(--paper);
+
+		color: var(--ink-soft);
 		font-size: 0.8rem;
 		line-height: 1.5;
 		text-align: center;

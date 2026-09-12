@@ -1,0 +1,53 @@
+---
+/** Square-cornered tag chips. Pills are explicitly out (DESIGN.md §3). */
+interface Props {
+	tags?: readonly string[];
+	/** `inline` collapses to a middot-separated meta line for listings. */
+	variant?: 'chips' | 'inline';
+}
+const { tags, variant = 'chips' } = Astro.props;
+---
+
+{
+	tags && tags.length > 0 && (
+		<ul class:list={['tags', variant]}>
+			{tags.map((tag) => (
+				<li>{tag}</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-family: var(--stack-meta);
+	}
+	.tags li {
+		margin: 0;
+	}
+	.chips {
+		gap: var(--space-2);
+	}
+	.chips li {
+		padding: 0.2rem 0.55rem;
+		border: 1px solid var(--line-light);
+		background: var(--paper-alt);
+		color: var(--ink-soft);
+		font-size: 0.72rem;
+		letter-spacing: 0.04em;
+	}
+	.inline {
+		gap: 0.5em;
+		color: var(--ink-muted);
+		font-size: 0.75rem;
+	}
+	.inline li + li::before {
+		margin-right: 0.5em;
+		content: '·';
+	}
+</style>

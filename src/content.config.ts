@@ -24,6 +24,8 @@ const blog = defineCollection({
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
 			lang: z.enum(['en', 'th']).default('en'),
+			// Optional: posts without tags render exactly as before.
+			tags: z.array(z.string()).optional(),
 			// Posts sharing a translationKey are translations of one another.
 			translationKey: z.string().optional(),
 		}),

@@ -1,0 +1,79 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import HankoMark from '../components/HankoMark.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Not found | ${SITE_TITLE}`} description="This page does not exist." />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<hr class="rule-short" />
+			<p class="section-jp" lang="ja">道に迷う</p>
+			<h1>
+				<span data-ui-language-copy="en" lang="en">This page is not here.</span>
+				<span data-ui-language-copy="th" lang="th">ไม่พบหน้านี้ครับ</span>
+			</h1>
+			<p class="body">
+				<span data-ui-language-copy="en" lang="en">
+					The address may be mistyped, or the page may have moved. The writing is all still in one
+					place.
+				</span>
+				<span data-ui-language-copy="th" lang="th">
+					อาจพิมพ์ที่อยู่ผิด หรือหน้านั้นถูกย้ายไปแล้ว บทความทั้งหมดยังอยู่ที่เดิมครับ
+				</span>
+			</p>
+			<p class="links">
+				<a href="/blog">
+					<span data-ui-language-copy="en" lang="en">Read the blog</span>
+					<span data-ui-language-copy="th" lang="th">อ่านบล็อก</span>
+					<span aria-hidden="true">⟶</span>
+				</a>
+			</p>
+			<HankoMark />
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		width: var(--measure-prose);
+		padding-top: var(--space-24);
+	}
+	.section-jp {
+		margin: 0 0 var(--space-4);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.35rem;
+		letter-spacing: 0.12em;
+	}
+	h1 {
+		margin-bottom: var(--space-6);
+	}
+	.body {
+		max-width: 46ch;
+		color: var(--ink-soft);
+	}
+	.links {
+		margin-bottom: var(--space-12);
+		font-family: var(--stack-meta);
+		font-size: 0.85rem;
+	}
+	.links a {
+		color: var(--ink);
+		text-decoration: none;
+	}
+	.links a:hover {
+		color: var(--vermilion);
+	}
+	.links span[aria-hidden] {
+		margin-left: 0.5em;
+	}
+</style>
