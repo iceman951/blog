@@ -1,0 +1,94 @@
+---
+import LineChart from './LineChart.astro';
+
+interface Range { median: number; min: number; max: number; }
+interface Group {
+  scenario: string; connections: number; framework: string; repetitions: number;
+  successfulRps: Range; latencyMeanMs: Range; latencyMaxMs: number;
+  latencyPercentileMediansMs: Record<string, number | null>;
+  resources: Record<string, { cpuPercent: Range; peakRssBytes: Range }>;
+}
+interface Props {
+  lang: 'en' | 'th';
+  data: {
+    profile: string; sessionId: string; startedAt: string; endedAt: string;
+    policy: { frameworks: { elysia: string; hono: string }; bombardier: string };
+    environment: {
+      os: string; cpu: string; ramGiB: number; bun: string; postgres: string;
+      homebrewFormula: { name: string; version: string };
+      settings: { name: string; setting: string; unit: string | null }[];
+    };
+    groups: Group[];
+  };
+}
+const { data, lang } = Astro.props;
+if (data.profile !== 'full' || data.groups.length !== 32) throw new Error('Article requires a complete Full dataset');
+const th = lang === 'th';
+const text = (en: string, thai: string) => th ? thai : en;
+const fmt = (value: number | null | undefined) => value == null ? 'N/A' : value.toLocaleString(lang, { maximumFractionDigits: 2 });
+const workloads = ['get-user', 'list-users', 'user-orders', 'create-order'];
+const base = `/benchmarks/elysia-hono-postgres-on-m5-air/${data.sessionId}`;
+---
+
+<h2>{text('Recorded environment', 'สภาพแวดล้อมที่บันทึกจริง')}</h2>
+<p>Session: <code>{data.sessionId}</code><br />{data.startedAt} — {data.endedAt}</p>
+<table>
+  <thead><tr><th>{text('Item', 'รายการ')}</th><th>{text('Recorded value', 'ค่าที่บันทึก')}</th></tr></thead>
+  <tbody>
+    <tr><td>macOS</td><td><pre>{data.environment.os}</pre></td></tr>
+    <tr><td>CPU / RAM</td><td>{data.environment.cpu} / {data.environment.ramGiB} GiB</td></tr>
+    <tr><td>Bun / PostgreSQL</td><td>{data.environment.bun} / {data.environment.postgres}</td></tr>
+    <tr><td>Elysia / Hono</td><td>{data.policy.frameworks.elysia} / {data.policy.frameworks.hono}</td></tr>
+    <tr><td>Bombardier</td><td>{data.policy.bombardier}</td></tr>
+    <tr><td>Homebrew formula</td><td>{data.environment.homebrewFormula.name} {data.environment.homebrewFormula.version}</td></tr>
+  </tbody>
+</table>
+<details>
+  <summary>{text('PostgreSQL configuration', 'ค่า PostgreSQL ที่ใช้')}</summary>
+  <table><thead><tr><th>Setting</th><th>Value</th><th>Unit</th></tr></thead>
+    <tbody>{data.environment.settings.map(s => <tr><td><code>{s.name}</code></td><td>{s.setting}</td><td>{s.unit ?? '—'}</td></tr>)}</tbody>
+  </table>
+</details>
+
+<h2>{text('Successful throughput', 'Throughput ที่สำเร็จ')}</h2>
+<p>{text('Five repetitions per point; all runs contribute. The line-chart vertical axes do not necessarily begin at zero; compare the exact table values.', 'แต่ละจุดใช้ครบ 5 repetitions แกนตั้งของกราฟเส้นไม่ได้เริ่มที่ศูนย์เสมอ โปรดเทียบค่าจริงในตารางด้วย')}</p>
+{workloads.map(workload => <>
+  <LineChart title={workload} ariaLabel={`${workload}: successful requests per second versus concurrency`}
+    xLabel={text('Concurrent connections', 'จำนวน connections พร้อมกัน')} yLabel={text('Successful requests/s', 'Requests ที่สำเร็จ/วินาที')}
+    xDigits={0} yDigits={0} markers={true}
+    series={['elysia', 'hono'].map(name => ({ name, points: data.groups.filter(g => g.scenario === workload && g.framework === name)
+      .sort((a, b) => a.connections - b.connections).map(g => ({ x: g.connections, y: g.successfulRps.median })) }))} />
+  <div class="scroll-table"><table>
+    <thead><tr><th>c</th><th>Framework</th><th>Median req/s</th><th>Min–max req/s</th><th>Mean ms¹</th><th>p50 ms¹</th><th>p95 ms¹</th><th>p99 ms¹</th><th>Max ms</th></tr></thead>
+    <tbody>{data.groups.filter(g => g.scenario === workload).map(g => <tr>
+      <td>{g.connections}</td><td>{g.framework}</td><td>{fmt(g.successfulRps.median)}</td>
+      <td>{fmt(g.successfulRps.min)}–{fmt(g.successfulRps.max)}</td><td>{fmt(g.latencyMeanMs.median)}</td>
+      <td>{fmt(g.latencyPercentileMediansMs['50'])}</td><td>{fmt(g.latencyPercentileMediansMs['95'])}</td>
+      <td>{fmt(g.latencyPercentileMediansMs['99'])}</td><td>{fmt(g.latencyMaxMs)}</td>
+    </tr>)}</tbody>
+  </table></div>
+</>)}
+<p>{text('¹ Median of per-trial statistics, not a pooled latency distribution. HTTP and transport errors: zero across every included trial. Missing percentiles are N/A.', '¹ Median ของสถิติแต่ละ trial ไม่ใช่ latency distribution รวม HTTP และ transport errors เป็นศูนย์ทุก trial ที่รวมผล ค่าที่ไม่มีแสดง N/A')}</p>
+
+<h2>{text('Resource samples', 'การใช้ทรัพยากรจาก samples')}</h2>
+<p>{text('Median across repetitions. CPU: one fully used core = 100%. RSS: sampled peak in MiB; PostgreSQL totals can count shared pages more than once. These measurements do not prove absence of client saturation.', 'แสดง median ของ repetitions โดย CPU หนึ่ง core เต็ม = 100% และ RSS เป็น sampled peak หน่วย MiB ผลรวม PostgreSQL อาจนับ shared pages ซ้ำ ค่านี้ไม่ได้ยืนยันว่าตัวสร้างโหลดไม่เป็นคอขวด')}</p>
+<div class="scroll-table"><table>
+  <thead><tr><th>Workload</th><th>c</th><th>Framework</th><th>API CPU %</th><th>Load CPU %</th><th>PG CPU %</th><th>API MiB</th><th>Load MiB</th><th>PG MiB</th></tr></thead>
+  <tbody>{data.groups.map(g => <tr>
+    <td>{g.scenario}</td><td>{g.connections}</td><td>{g.framework}</td>
+    {['api', 'load', 'postgres'].map(k => <td>{fmt(g.resources[k].cpuPercent.median)}</td>)}
+    {['api', 'load', 'postgres'].map(k => <td>{fmt(g.resources[k].peakRssBytes.median / 1024 ** 2)}</td>)}
+  </tr>)}</tbody>
+</table></div>
+
+<h2>{text('Download the evidence', 'ดาวน์โหลดข้อมูลตรวจสอบ')}</h2>
+<ul>
+  <li><a href={`${base}/summary.csv`}>Summary CSV</a></li>
+  <li><a href={`${base}/raw-results.json`}>{text('Sanitized numeric raw results, all warm-ups and measurements', 'Raw results เฉพาะข้อมูลตัวเลข ทุก warm-up และ measurement')}</a></li>
+  <li><a href={`${base}/manifest.json`}>{text('Protocol, versions, source hashes and configuration', 'Protocol เวอร์ชัน source hashes และ configuration')}</a></li>
+</ul>
+<style>
+  .scroll-table { overflow-x: auto; }
+  pre { white-space: pre-wrap; font-size: inherit; }
+  table { font-variant-numeric: tabular-nums; }
+</style>

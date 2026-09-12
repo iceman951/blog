@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "2026-09-12T14-24-22-067Z-full-4423a21a",
+  "policy": {
+    "protocolVersion": 1,
+    "seed": 424242,
+    "bun": "1.4.0",
+    "bombardier": "2.0.2",
+    "frameworks": {
+      "elysia": "1.4.30",
+      "hono": "4.13.7"
+    },
+    "postgres": "18.6",
+    "baseURL": "http://127.0.0.1:3000",
+    "connections": [
+      1,
+      10,
+      50,
+      100
+    ],
+    "repetitions": 5,
+    "warmupRequests": 1000,
+    "settleSeconds": 5,
+    "durationSeconds": 30,
+    "cooldownSeconds": 15,
+    "timeoutSeconds": 10,
+    "processCount": 1,
+    "resetBeforeEveryTrial": true
+  },
+  "sourceHashes": {
+    "apps/elysia/app.ts": "ae5f5ee3de09ff27a396655fab4e73a0248f836901013ab903f7da5464fcc0c7",
+    "apps/elysia/server.ts": "f424b274eab552f712d6d870bf983ac5d8b0b63463396c6c7b2f1e0b789e2abd",
+    "apps/hono/app.ts": "20d30288477c4f08059d8b7d6c001587782699956d4266fd048475ce0c53d62d",
+    "apps/hono/server.ts": "eaa6a163ad2ec3c8704482bfab2150211b391a56fdfed65afd31e24538bd9b2a",
+    "bench/article.ts": "90db6e2c0d29b0b7618fa34edfa3fd7e09273230e1289efef0a01b268cf82baf",
+    "bench/check-baseline.ts": "b84ea535dbc4bddd36f90d03e708aee93922480c61266269dd83bfee6b78649a",
+    "bench/config.ts": "630bdd7dcc83b62d15ead9c20bdbeecd3c5f9af3031898c3a493dba5b6effe26",
+    "bench/lifecycle.ts": "a002f0138b053831c4cb880b4a57789bf924d83088ec190cb4541f014e866a1d",
+    "bench/metrics.ts": "30d18ba8f3e3ae8b4aa3ca633fec5bd031df13bf699553adac05aad4d4da40cd",
+    "bench/network-check.ts": "6c017e87fdf451c1c8b95ee48061f54a83768d49aa0679c727d758b3a8b6b7d0",
+    "bench/order.json": "6681ab25d08e246cb631e57e42a9f30a79bfab32f85290098982cb645de76beb",
+    "bench/plan.ts": "8e5a448cb33257270ca8f1e9326ad69caa08abf406f2c17c128d5cda8c6dc402",
+    "bench/process.ts": "43ddd78eac026b9e7ac94aa38e1c80b41a3faf3be0f4a79de2c102e124d2ab76",
+    "bench/report.ts": "ace1b588d226901f6150920991d4331555656ffeab792ddc222b97d2f8064c37",
+    "bench/resources.ts": "1d0b5a0ecec8f392ba856f810e4801f005f98d2533a6d1cf5341c432f8adf83e",
+    "bench/run.ts": "da3bc1a7326019a33b75c09dffe568a61fb3c48016bfc7a1a13638d471fd1b1f",
+    "bench/snapshot.ts": "c389b1e5c334012db6b07c6914edd46a270638f0e6f2d5f9e897f7642a5e70a9",
+    "bun.lock": "bce4d24f6214b30a3c7960b9b1b8ad33625c29222bc9409b83365361f6c04e7e",
+    "database/admin.ts": "58734e6b18a349a8c1f7e5d2b63182e85755efc39f1a22baadb421dd46722720",
+    "database/baseline.json": "b443ecf66fa3453854dece27fc1b0707bfda026f71eb277519d2e7736e4d17a8",
+    "database/indexes.sql": "708035e8c0547083423c31736d232d3b82655676961eae32bd1a3f3b01d3501f",
+    "database/record.ts": "5610dfb4eda3616b3b442170ee87205c18ea28dda59fd4483a8fac9841dcbc60",
+    "database/schema.sql": "f57510ef902ad939db22affa79d96558bef9afbb2159facc489b8fac683c2728",
+    "database/seed.sql": "10bf36f0204b3e0a6b4fbcacc266222d2a59444b1a327f5a00c7f9f9339d024a",
+    "database/setup.ts": "d30eadc2e6ae5596367a162a42c7af9affb761e564b541319cc4ffff64dca245",
+    "database/tables.sql": "191eb1a40149960925c016ef0972dd4b0ed10c3230dcb839e1dc9430b8cb455f",
+    "database/verify.sql": "d8559a61e49bf90cde993555136330192a1cbbd97dbb6cd05ed13b264a4dfd50",
+    "database/verify.ts": "3ac8a0ef59a5d1f400a9a9c3fcbb1826a1029d1c66706ccfd358a6d889f923fb",
+    "package.json": "1c80b9a3b7d30e1656fe72cb6a14e3d16f0ed7a32c50e49fa035ed3de25f708d",
+    "shared/db.ts": "d79453db6a895c8001057d6d3dfcde0289ef01276b655ede0c0e3027842605c2",
+    "shared/errors.ts": "e4369cbafa5d6377aa9b9ce1c2893d0e1244d599f1bef55ee026dc7df919269a",
+    "shared/http.ts": "d573f79e30cfcc6cf526457bb524b3227b49d2c78a38c92b8125fc33205c68a8",
+    "shared/queries.ts": "75d60dcaf1432546947ceec164e4ae40460e1df1e36ec859f7e1e11c8d350c45",
+    "shared/server.ts": "63cf075e065a376f1c8557e445f26c6b922233c50f9d04e47124b68ac4d12faa",
+    "tsconfig.json": "c02d6b5f58e42d721e6140e519d04b689eb90bac517e8ee68d36a24f56399b92"
+  },
+  "environment": {
+    "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83",
+    "cpu": "Apple M5",
+    "ramGiB": 24,
+    "physicalCores": 10,
+    "architecture": "arm64",
+    "bun": "1.4.0",
+    "postgres": "18.6",
+    "homebrewFormula": {
+      "name": "postgresql@18",
+      "version": "18.6"
+    },
+    "settings": [
+      {
+        "name": "autovacuum",
+        "setting": "on",
+        "unit": null
+      },
+      {
+        "name": "checkpoint_completion_target",
+        "setting": "0.9",
+        "unit": null
+      },
+      {
+        "name": "checkpoint_timeout",
+        "setting": "300",
+        "unit": "s"
+      },
+      {
+        "name": "effective_cache_size",
+        "setting": "524288",
+        "unit": "8kB"
+      },
+      {
+        "name": "fsync",
+        "setting": "on",
+        "unit": null
+      },
+      {
+        "name": "full_page_writes",
+        "setting": "on",
+        "unit": null
+      },
+      {
+        "name": "jit",
+        "setting": "on",
+        "unit": null
+      },
+      {
+        "name": "listen_addresses",
+        "setting": "localhost",
+        "unit": null
+      },
+      {
+        "name": "maintenance_work_mem",
+        "setting": "65536",
+        "unit": "kB"
+      },
+      {
+        "name": "max_connections",
+        "setting": "100",
+        "unit": null
+      },
+      {
+        "name": "max_parallel_workers_per_gather",
+        "setting": "2",
+        "unit": null
+      },
+      {
+        "name": "max_wal_size",
+        "setting": "1024",
+        "unit": "MB"
+      },
+      {
+        "name": "min_wal_size",
+        "setting": "80",
+        "unit": "MB"
+      },
+      {
+        "name": "port",
+        "setting": "5432",
+        "unit": null
+      },
+      {
+        "name": "random_page_cost",
+        "setting": "4",
+        "unit": null
+      },
+      {
+        "name": "seq_page_cost",
+        "setting": "1",
+        "unit": null
+      },
+      {
+        "name": "server_version",
+        "setting": "18.6 (Homebrew)",
+        "unit": null
+      },
+      {
+        "name": "shared_buffers",
+        "setting": "16384",
+        "unit": "8kB"
+      },
+      {
+        "name": "synchronous_commit",
+        "setting": "on",
+        "unit": null
+      },
+      {
+        "name": "wal_level",
+        "setting": "replica",
+        "unit": null
+      },
+      {
+        "name": "work_mem",
+        "setting": "4096",
+        "unit": "kB"
+      }
+    ],
+    "clientPool": {
+      "max": 10,
+      "idleTimeout": 30,
+      "maxLifetime": 0,
+      "connectionTimeout": 10,
+      "prepare": true,
+      "bigint": false,
+      "tls": false
+    }
+  },
+  "sanitization": "Allowlisted numeric raw results only; no headers, URLs, credentials, error text or local paths."
+}
