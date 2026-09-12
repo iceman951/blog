@@ -7,13 +7,13 @@ import TagList from '../../components/TagList.astro';
 import PlumBranch from '../../components/ink/PlumBranch.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import type { UiLanguage } from '../../i18n';
+import { MONTHS_SHORT } from '../../lib/dates';
 import { postsForLanguage } from '../../lib/posts';
 
 const all = await getCollection('blog');
 // Both languages ship in the same document; CSS hides the inactive panel.
 const panels: UiLanguage[] = ['en', 'th'];
 
-const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 ---
 
 <!doctype html>
@@ -45,7 +45,7 @@ const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP
 										<a href={`/blog/${post.id}/`}>
 											<time class="date" datetime={post.data.pubDate.toISOString()}>
 												<span class="day">{post.data.pubDate.getDate()}</span>
-												<span class="month">{monthNames[post.data.pubDate.getMonth()]}</span>
+												<span class="month">{MONTHS_SHORT[post.data.pubDate.getMonth()]}</span>
 												<span class="year">{post.data.pubDate.getFullYear()}</span>
 											</time>
 											<span class="body">

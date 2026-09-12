@@ -2,12 +2,13 @@
 title: 'My deploy broke and my repository did not change'
 description: 'A green deploy in August, an identical pipeline in September, and a build that failed twice. The cause was a tool my CI downloads fresh on every run, answering its own setup prompt with yes.'
 pubDate: 'Sep 13 2026'
+updatedDate: 'Sep 13 2026'
 tags: ['Cloudflare', 'CI', 'Astro']
 lang: 'en'
 translationKey: 'wrangler-auto-config-broke-my-deploy'
 ---
 
-I pushed two articles to this blog and the deploy failed. I pushed a retry and it failed again, in exactly the same place. Nothing about the build configuration had changed, the same pipeline had deployed successfully three weeks earlier, and a clean clone of the failing commit built on my laptop without a complaint.
+I pushed two articles to this blog and the deploy failed. The build ran a second time and failed again, in exactly the same place. Nothing about the build configuration had changed, the same pipeline had deployed successfully three weeks earlier, and a clean clone of the failing commit built on my laptop without a complaint.
 
 The cause turned out to be a line in the build log that reads like a courtesy message:
 
@@ -20,7 +21,7 @@ Something in my deploy pipeline asked a question, nobody was there to answer it,
 
 ## The setup
 
-This site is Astro 7.2.9, static output, deployed to Cloudflare Workers through the Git integration. There is no CI configuration file in the repository at all: the build command and deploy command live in the Cloudflare dashboard, and they were, at the time of the failure:
+This site is Astro 7.2.9, static output, deployed to Cloudflare Workers through the Git integration. At the time of the failure there was no CI or deploy configuration file in the repository at all: the build command and deploy command lived in the Cloudflare dashboard, and they were:
 
 | | |
 | --- | --- |
@@ -63,7 +64,7 @@ Detected Project Settings:
 🤖 Using fallback value in non-interactive context: no
 
 ▲ [WARNING] The version of Astro used in the project ("7.2.9") is not officially
-  supported, and may fail to correctly configure.
+  supported, and may fail to correctly configure. [...]
 
 ? Proceed with setup?
 🤖 Using fallback value in non-interactive context: yes
@@ -84,7 +85,7 @@ It warned me that my Astro version was not supported, and then proceeded anyway,
          1 │ import { renderForPrerender } from "astro/app";
            │          ─────────┬────────
            │                   ╰────────── Missing export
-✘ [ERROR] Running custom build `bun run build` failed.
+✘ [ERROR] Running custom build `bun run build` failed. [...]
 Failed: error occurred while running deploy command
 ```
 
@@ -92,7 +93,7 @@ The adapter it installed imports a symbol that Astro 7.2.9 does not export. That
 
 ## Why it worked in August
 
-The deploy command is `npx wrangler deploy`, and `npx` fetches the newest matching version on every single run. My last green deploy was on 27 August; this failure was on 12 September. In between, I changed nothing — but the build did not run the same wrangler on those two days.
+The deploy command is `npx wrangler deploy`, and in a CI container that starts clean every time, `npx` fetches the newest matching version on every run. My last green deploy was on 27 August; this failure was on 12 September. In between, I changed nothing — but the build did not run the same wrangler on those two days.
 
 This is the part I find worth writing down. I had been reading my deploy pipeline as a fixed thing that either works or doesn't, when in fact one of its steps is **"download whatever the latest release of this tool is, and run it against my repository."** That is an unpinned dependency with write access to my source tree, and it is sitting in a field in a dashboard where it does not look like a dependency at all.
 
@@ -134,7 +135,7 @@ wrangler deploy --dry-run
 # No bindings found.
 ```
 
-The next push built and deployed in about three minutes.
+The next push built and deployed in about four minutes.
 
 ## What I would take from this
 

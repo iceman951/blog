@@ -2,6 +2,7 @@
 title: 'deploy พัง ทั้งที่ผมไม่ได้แก้อะไรเลย'
 description: 'เดือนสิงหาคม deploy เขียว เดือนกันยายน pipeline เดิมเป๊ะ แต่ build พังสองครั้งติด ต้นเหตุคือเครื่องมือที่ CI โหลดใหม่ทุกครั้ง แล้วมันตอบคำถาม setup ของตัวเองว่า yes'
 pubDate: 'Sep 13 2026'
+updatedDate: 'Sep 13 2026'
 tags: ['Cloudflare', 'CI', 'Astro']
 lang: 'th'
 translationKey: 'wrangler-auto-config-broke-my-deploy'
@@ -9,7 +10,7 @@ translationKey: 'wrangler-auto-config-broke-my-deploy'
 
 สวัสดีครับ คราวนี้ไม่ใช่เรื่อง benchmark แต่เป็นเรื่องที่เพิ่งเกิดกับบล็อกนี้เมื่อคืน 😅
 
-ผม push บทความใหม่สองภาษาขึ้น `main` แล้ว deploy พัง กด retry อีกครั้งก็พังซ้ำที่จุดเดิมเป๊ะ ทั้งที่ผมไม่ได้แตะ config การ build เลย pipeline เดียวกันนี้ deploy สำเร็จเมื่อสามสัปดาห์ก่อน และ clone commit ที่พังมา build บนเครื่องตัวเองก็ผ่านฉลุย
+ผม push บทความใหม่สองภาษาขึ้น `main` แล้ว deploy พัง build รอบสองก็พังซ้ำที่จุดเดิมเป๊ะ ทั้งที่ผมไม่ได้แตะ config การ build เลย pipeline เดียวกันนี้ deploy สำเร็จเมื่อสามสัปดาห์ก่อน และ clone commit ที่พังมา build บนเครื่องตัวเองก็ผ่านฉลุย
 
 ต้นเหตุคือบรรทัดใน build log ที่อ่านดูเหมือนข้อความสุภาพ ๆ:
 
@@ -23,7 +24,7 @@ translationKey: 'wrangler-auto-config-broke-my-deploy'
 ## สรุปก่อน เผื่อยังไม่อยากอ่านยาว
 
 - `bun run build` **สำเร็จ** สร้างครบ 9 หน้า แล้วขั้น deploy ไป build ใหม่อีกรอบจนพัง
-- deploy command คือ `npx wrangler deploy` ซึ่ง `npx` ดึงเวอร์ชันใหม่สุด **ทุกครั้งที่รัน**
+- deploy command คือ `npx wrangler deploy` ซึ่งใน CI container ที่เริ่มใหม่ทุกครั้ง `npx` จะดึงเวอร์ชันใหม่สุดมาเสมอ
 - wrangler ไม่เจอ config ในรีโป เลยเข้าโหมด auto-config ตอบ prompt ตัวเองว่า yes สั่ง `astro add cloudflare` แก้ `.gitignore` แล้ว build ใหม่
 - adapter ที่มันติดตั้งไม่รองรับ Astro 7.2.9 → `MISSING_EXPORT: renderForPrerender` ซึ่ง wrangler เตือนไว้เองสองบรรทัดก่อนหน้า
 - แก้ด้วยการ commit `wrangler.jsonc` เข้ารีโป — **การมีไฟล์นี้คือตัวแก้** เพราะ auto-config จะไม่ทำงานเมื่อเจอ config
@@ -31,7 +32,7 @@ translationKey: 'wrangler-auto-config-broke-my-deploy'
 
 ## เครื่องมือที่ใช้
 
-บล็อกนี้เป็น Astro 7.2.9 output แบบ static deploy ขึ้น Cloudflare Workers ผ่าน Git integration และ **ในรีโปไม่มีไฟล์ CI เลยสักไฟล์** คำสั่ง build กับ deploy อยู่ใน dashboard ของ Cloudflare ซึ่งตอนที่พังเป็นแบบนี้:
+บล็อกนี้เป็น Astro 7.2.9 output แบบ static deploy ขึ้น Cloudflare Workers ผ่าน Git integration และตอนที่พังนั้น **ในรีโปไม่มีไฟล์ CI หรือไฟล์ config ของ deploy เลยสักไฟล์** คำสั่ง build กับ deploy อยู่ใน dashboard ของ Cloudflare ซึ่งตอนนั้นเป็นแบบนี้:
 
 | | |
 | --- | --- |
@@ -74,7 +75,7 @@ Detected Project Settings:
 🤖 Using fallback value in non-interactive context: no
 
 ▲ [WARNING] The version of Astro used in the project ("7.2.9") is not officially
-  supported, and may fail to correctly configure.
+  supported, and may fail to correctly configure. [...]
 
 ? Proceed with setup?
 🤖 Using fallback value in non-interactive context: yes
@@ -95,7 +96,7 @@ Detected Project Settings:
          1 │ import { renderForPrerender } from "astro/app";
            │          ─────────┬────────
            │                   ╰────────── Missing export
-✘ [ERROR] Running custom build `bun run build` failed.
+✘ [ERROR] Running custom build `bun run build` failed. [...]
 Failed: error occurred while running deploy command
 ```
 
@@ -103,7 +104,7 @@ adapter ที่มันติดตั้ง import ตัวแปรที�
 
 ## แล้วทำไมเดือนสิงหาคมมันผ่าน
 
-deploy command คือ `npx wrangler deploy` และ `npx` จะดึงเวอร์ชันใหม่สุดที่เข้าเกณฑ์ **ทุกครั้งที่รัน** deploy เขียวครั้งสุดท้ายของผมคือ 27 สิงหาคม ส่วนครั้งที่พังคือ 12 กันยายน ระหว่างนั้นผมไม่ได้เปลี่ยนอะไรเลย — แต่ build สองวันนั้น**ไม่ได้รัน wrangler ตัวเดียวกัน**
+deploy command คือ `npx wrangler deploy` และใน container ของ CI ที่เริ่มใหม่หมดทุกครั้ง `npx` จะดึงเวอร์ชันใหม่สุดที่เข้าเกณฑ์ **ทุกครั้งที่รัน** deploy เขียวครั้งสุดท้ายของผมคือ 27 สิงหาคม ส่วนครั้งที่พังคือ 12 กันยายน ระหว่างนั้นผมไม่ได้เปลี่ยนอะไรเลย — แต่ build สองวันนั้น**ไม่ได้รัน wrangler ตัวเดียวกัน**
 
 ตรงนี้แหละที่ผมคิดว่าควรจดไว้ ผมอ่าน pipeline ของตัวเองมาตลอดว่าเป็นของตายตัวที่ไม่เวิร์กก็พัง ทั้งที่จริงหนึ่งในขั้นตอนของมันคือ **"โหลดเครื่องมือตัวนี้เวอร์ชันล่าสุดมา แล้วเอาไปรันกับรีโปของฉัน"** นั่นคือ dependency ที่ไม่ได้ pin และมีสิทธิ์เขียนไฟล์ใน source tree ของผม โดยนั่งอยู่ในช่องกรอกข้อความบน dashboard ที่ไม่มีอะไรทำให้ดูเหมือน dependency เลยสักนิด
 
@@ -145,7 +146,7 @@ wrangler deploy --dry-run
 # No bindings found.
 ```
 
-push ถัดไป build แล้ว deploy เสร็จในราวสามนาที
+push ถัดไป build แล้ว deploy เสร็จในราวสี่นาที
 
 ## สิ่งที่ผมได้จากเรื่องนี้
 

@@ -164,10 +164,12 @@ h5 {
 }
 
 /*
-  We load Noto Serif Thai at 400 and 700 only. The Latin headings ask for 600, which
-  Thai would then get as a synthesized bold — and faux-bolding smears tone marks and
-  upper vowels into the letterform. So Thai sub-heads take the real 700, and display
-  sizes drop to 400, where Thai already carries enough weight beside a regular serif.
+  Headings ask for 600. Noto Serif Thai is loaded at 400 and 700 as discrete faces,
+  and CSS font matching resolves a request above 500 to the next weight up — so Thai
+  renders its real 700 beside the Latin serif's real 600, in the same heading. It is a
+  weight mismatch, not a synthesized bold. Thai also carries more visual weight per
+  character, so at display sizes it drops to 400; the 700 below pins sub-heads to the
+  weight they already resolve to, so the intent survives a change to the loaded set.
 */
 :lang(th) h2,
 :lang(th) h3 {
