@@ -29,7 +29,9 @@ type Props = CollectionEntry<'blog'> & {
 const { translations, ...post } = Astro.props;
 const { Content } = await render(post as CollectionEntry<'blog'>);
 const minutes = readingMinutes(post.body);
-const kicker = post.data.lang === 'th' ? 'บทความ / เบนช์มาร์ก' : 'Engineering / Benchmark';
+// The kicker follows the post's own tags; hardcoding "Benchmark" stopped being
+// true the moment a post about deployment existed.
+const kicker = (post.data.tags ?? []).slice(0, 2).join(' / ') || 'Engineering';
 ---
 
 <BlogPost {...post.data} translations={translations} readingMinutes={minutes} kicker={kicker}>
