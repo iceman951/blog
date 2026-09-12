@@ -164,9 +164,10 @@ h5 {
 }
 
 /*
-  Noto Serif Thai has no 600, so headings would otherwise be faux-bolded to 700 and
-  smear the tone marks. Sub-heads take the real 700; display sizes stay at 400,
-  where Thai already carries enough weight and the Latin serif beside it is regular.
+  We load Noto Serif Thai at 400 and 700 only. The Latin headings ask for 600, which
+  Thai would then get as a synthesized bold — and faux-bolding smears tone marks and
+  upper vowels into the letterform. So Thai sub-heads take the real 700, and display
+  sizes drop to 400, where Thai already carries enough weight beside a regular serif.
 */
 :lang(th) h2,
 :lang(th) h3 {

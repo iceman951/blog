@@ -109,8 +109,9 @@ Thai is a first-class script here, not a fallback.
 
 - Thai runs get `line-height: 1.95` in prose and 1.45 in headings — Thai needs more leading than
   Latin because of stacked vowels and tone marks.
-- Thai headings use weight 700 of Noto Serif Thai, because its 600 is not a real weight and
-  faux-bolding a Thai face smears the marks.
+- Thai headings use the real 700 of Noto Serif Thai. Only 400 and 700 are loaded, so the 600
+  the Latin headings ask for would arrive as a synthesized bold, and faux-bolding a Thai face
+  smears its tone marks and upper vowels. Display sizes drop to 400 instead.
 - Mixed Thai–Latin paragraphs are the norm in these articles (`framework`, `throughput`,
   `req/s`). The font stack is ordered so Latin falls to the serif and Thai to Noto Serif Thai,
   and both are set at sizes where their x-heights read as one paragraph.
