@@ -2,8 +2,10 @@
 title: 'Benchmarking Bun HTTP frameworks on a MacBook Air M5'
 description: 'Reversing the order of the target list reversed the ranking. What a fanless laptop actually measures when you benchmark eight Bun HTTP frameworks back to back, and what the numbers look like once you stop doing that.'
 pubDate: 'Aug 23 2026'
-updatedDate: 'Aug 27 2026'
+updatedDate: 'Sep 13 2026'
 heroImage: '../../assets/bun-framework-throughput-m5.svg'
+lang: 'en'
+translationKey: 'bun-http-framework-benchmark-m5'
 ---
 
 SaltyAom's [bun-http-framework-benchmark](https://github.com/saltyaom/bun-http-framework-benchmark) publishes its results from a desktop: an Intel Core i7-13700K with 32 GB of DDR5, running Linux. I don't have that machine. I have a MacBook Air — fanless, ARM, 10 cores, the laptop I actually write code on.
