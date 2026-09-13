@@ -17,6 +17,9 @@ type Props = CollectionEntry<'blog'>['data'] & {
 	readingMinutes?: number;
 	/** Small uppercase label above the title. */
 	kicker?: string;
+	/** Thai header copy for bilingual pages that switch language in place. */
+	titleTh?: string;
+	kickerTh?: string;
 	/** The article marginalia reads as a note on the writing, so pages opt out. */
 	marginNote?: boolean;
 };
@@ -32,6 +35,8 @@ const {
 	translations,
 	readingMinutes,
 	kicker,
+	titleTh,
+	kickerTh,
 	marginNote = true,
 } = Astro.props;
 
@@ -57,8 +62,30 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 						{readingMinutes ? <span class="dot">·</span> : null}
 						{readingMinutes ? <span>{readLabel}</span> : null}
 					</p>
-					{kicker && <p class="kicker">{kicker}</p>}
-					<h1>{title}</h1>
+					{
+						kicker && (
+							<p class="kicker">
+								{kickerTh ? (
+									<>
+										<span data-ui-language-copy="en" lang="en">{kicker}</span>
+										<span data-ui-language-copy="th" lang="th">{kickerTh}</span>
+									</>
+								) : (
+									kicker
+								)}
+							</p>
+						)
+					}
+					<h1>
+						{titleTh ? (
+							<>
+								<span data-ui-language-copy="en" lang="en">{title}</span>
+								<span data-ui-language-copy="th" lang="th">{titleTh}</span>
+							</>
+						) : (
+							title
+						)}
+					</h1>
 					<TagList tags={tags} />
 					{
 						updatedDate && (
