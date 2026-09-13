@@ -26,7 +26,8 @@ for (const ticker of TICKERS) {
 	await new Promise((r) => setTimeout(r, 1200));
 }
 
-// S&P 500 from FRED: US government work, no key, redistributable.
+// S&P 500 index level from FRED. No key needed, but the series is © S&P Dow Jones
+// Indices LLC and FRED's terms do not allow redistribution, hence ./data is gitignored.
 const sp = await (await fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=SP500')).text();
 writeFileSync('data/sp500.csv', sp);
 console.log(`SP500: ${sp.trim().split('\n').length - 1} rows`);

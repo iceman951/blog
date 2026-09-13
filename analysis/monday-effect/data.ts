@@ -1,5 +1,5 @@
 /** Loads the local snapshots. Prices are split-adjusted; dividends are not reflected. */
-export interface Bar { date: string; close: number; weekday: number }
+export interface Bar { date: string; open: number; close: number; weekday: number }
 
 const num = (s: string) => Number(s.replace(/[$,]/g, ''));
 const iso = (mdy: string) => {
@@ -11,13 +11,13 @@ export const weekdayOf = (isoDate: string) => new Date(`${isoDate}T12:00:00Z`).g
 
 export const loadTicker = (t: string): Bar[] => {
 	const raw = JSON.parse(require('node:fs').readFileSync(`data/raw_${t}.json`, 'utf8'));
-	const rows = raw.data.tradesTable.rows as { date: string; close: string }[];
+	const rows = raw.data.tradesTable.rows as { date: string; close: string; open: string }[];
 	return rows
 		.map((r) => {
 			const date = iso(r.date);
-			return { date, close: num(r.close), weekday: weekdayOf(date) };
+			return { date, open: num(r.open), close: num(r.close), weekday: weekdayOf(date) };
 		})
-		.filter((b) => Number.isFinite(b.close) && b.close > 0)
+		.filter((b) => Number.isFinite(b.close) && b.close > 0 && Number.isFinite(b.open) && b.open > 0)
 		.sort((a, b) => a.date.localeCompare(b.date));
 };
 
