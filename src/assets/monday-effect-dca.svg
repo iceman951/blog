@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 510" width="1020" height="510" role="img" aria-label="For eight US technology stocks, the spread in a ten-year weekly dollar-cost-averaging outcome from choosing a weekday, against the spread from starting the plan in a different week. The start week matters between eight and twenty-six times more.">
+<rect width="1020" height="510" fill="#f4efe4"/>
+<text x="60" y="56" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#1e1c19">Choosing the weekday barely moves a ten-year DCA</text>
+<text x="60" y="82" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#777064">Spread between best and worst outcome, in percentage points of total return. $100 invested weekly, Sep 2016 – Sep 2026.</text>
+<rect x="60" y="96" width="11" height="11" fill="#263746"/><text x="77" y="106" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1e1c19">which weekday you buy on</text>
+<rect x="300" y="96" width="11" height="11" fill="#a63d32"/><text x="317" y="106" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1e1c19">which week you happened to start</text>
+<line x1="150.0" y1="122" x2="150.0" y2="448" stroke="#ddd5c8" stroke-width="1"/>
+<text x="150.0" y="468" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#777064" text-anchor="middle">1</text>
+<line x1="400.0" y1="122" x2="400.0" y2="448" stroke="#ddd5c8" stroke-width="1"/>
+<text x="400.0" y="468" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#777064" text-anchor="middle">10</text>
+<line x1="650.0" y1="122" x2="650.0" y2="448" stroke="#ddd5c8" stroke-width="1"/>
+<text x="650.0" y="468" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#777064" text-anchor="middle">100</text>
+<line x1="900.0" y1="122" x2="900.0" y2="448" stroke="#ddd5c8" stroke-width="1"/>
+<text x="900.0" y="468" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#777064" text-anchor="middle">1000</text>
+<text x="525" y="492" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1e1c19" text-anchor="middle">percentage points of total return (log scale)</text>
+<text x="136" y="147.4" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">NVDA</text>
+<rect x="150" y="129.4" width="349.9" height="11" fill="#263746"/>
+<rect x="150" y="144.4" width="703.1" height="11" fill="#a63d32"/>
+<text x="863.1" y="147.4" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">25.8x</text>
+<text x="507.9" y="138.4" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">25.1</text>
+<text x="861.1" y="153.4" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">649</text>
+<text x="136" y="188.1" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">TSLA</text>
+<rect x="150" y="170.1" width="288.8" height="11" fill="#263746"/>
+<rect x="150" y="185.1" width="543.0" height="11" fill="#a63d32"/>
+<text x="703.0" y="188.1" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">10.4x</text>
+<text x="446.8" y="179.1" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">14.3</text>
+<text x="701.0" y="194.1" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">148.6</text>
+<text x="136" y="228.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">AAPL</text>
+<rect x="150" y="210.9" width="160.9" height="11" fill="#263746"/>
+<rect x="150" y="225.9" width="455.7" height="11" fill="#a63d32"/>
+<text x="615.7" y="228.9" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">15x</text>
+<text x="318.9" y="219.9" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">4.4</text>
+<text x="613.7" y="234.9" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">66.5</text>
+<text x="136" y="269.6" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">MSFT</text>
+<rect x="150" y="251.6" width="85.6" height="11" fill="#263746"/>
+<rect x="150" y="266.6" width="428.4" height="11" fill="#a63d32"/>
+<text x="588.4" y="269.6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">23.4x</text>
+<text x="243.6" y="260.6" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">2.2</text>
+<text x="586.4" y="275.6" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">51.7</text>
+<text x="136" y="310.4" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">AMZN</text>
+<rect x="150" y="292.4" width="119.3" height="11" fill="#263746"/>
+<rect x="150" y="307.4" width="394.7" height="11" fill="#a63d32"/>
+<text x="554.7" y="310.4" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">12.7x</text>
+<text x="277.3" y="301.4" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">3</text>
+<text x="552.7" y="316.4" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">37.9</text>
+<text x="136" y="351.1" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">META</text>
+<rect x="150" y="333.1" width="99.5" height="11" fill="#263746"/>
+<rect x="150" y="348.1" width="330.6" height="11" fill="#a63d32"/>
+<text x="490.6" y="351.1" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">8.3x</text>
+<text x="257.5" y="342.1" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">2.5</text>
+<text x="488.6" y="357.1" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">21</text>
+<text x="136" y="391.9" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">GOOGL</text>
+<rect x="150" y="373.9" width="85.6" height="11" fill="#263746"/>
+<rect x="150" y="388.9" width="407.1" height="11" fill="#a63d32"/>
+<text x="567.1" y="391.9" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">19.5x</text>
+<text x="243.6" y="382.9" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">2.2</text>
+<text x="565.1" y="397.9" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">42.5</text>
+<text x="136" y="432.6" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1e1c19" text-anchor="end">AMD</text>
+<rect x="150" y="414.6" width="340.0" height="11" fill="#263746"/>
+<rect x="150" y="429.6" width="644.8" height="11" fill="#a63d32"/>
+<text x="804.8" y="432.6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#777064">16.6x</text>
+<text x="498.0" y="423.6" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064">22.9</text>
+<text x="802.8" y="438.6" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#777064" opacity="0">379.5</text>
+<line x1="150" y1="122" x2="150" y2="448" stroke="#777064" stroke-width="1"/>
+</svg>

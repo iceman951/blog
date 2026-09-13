@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+
+# analysis inputs: vendor terms cover redistribution
+analysis/*/data/
