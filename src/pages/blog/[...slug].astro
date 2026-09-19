@@ -3,12 +3,11 @@ import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import type { UiLanguage } from '../../i18n';
 import { readingMinutes } from '../../lib/reading';
-import { episodeNeighbors, postsForSeries } from '../../lib/series';
+import { episodeNeighbors, postsForSeries, seriesInLanguage } from '../../lib/series';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
 	const series = await getCollection('series');
-	const seriesById = new Map(series.map((entry) => [entry.id, entry]));
 
 	return posts.map((post) => {
 		// Siblings sharing a translationKey are the same post in another language.
@@ -20,7 +19,9 @@ export async function getStaticPaths() {
 		let seriesContext: SeriesContext | undefined;
 
 		if (post.data.series && post.data.seriesOrder) {
-			const entry = seriesById.get(post.data.series.id);
+			// Prefer the series entry in the post's own language, so a Thai post
+			// links to the Thai series page and shows its Thai title.
+			const entry = seriesInLanguage(series, post.data.series.id, post.data.lang);
 			if (!entry) throw new Error(`Series "${post.data.series.id}" not found for post "${post.id}"`);
 
 			const episodes = postsForSeries(posts, entry.id, post.data.lang);

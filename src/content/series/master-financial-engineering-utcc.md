@@ -1,11 +1,11 @@
 ---
-title: 'เรียน Master Financial Engineering ที่ UTCC: เรียนไป เขียนไป'
-description: 'บันทึกจากการเรียนจริง สำหรับคนที่กำลังสนใจว่า Financial Engineering เรียนอะไร ต้องใช้พื้นฐานแบบไหน และนำไปต่อยอดอย่างไรได้บ้าง'
-lang: 'th'
+title: "Studying a Master's in Financial Engineering at UTCC: learning as I write"
+description: 'Notes from actually taking the course, for anyone wondering what Financial Engineering covers, what background it needs, and where it can lead.'
+lang: 'en'
 featured: true
-disclaimer: 'นี่คือบันทึกส่วนตัวของผู้เขียน ไม่ใช่เว็บไซต์หรือข้อมูลอย่างเป็นทางการของมหาวิทยาลัยหอการค้าไทย (UTCC)'
+disclaimer: 'These are the author’s personal notes, not an official website or information from the University of the Thai Chamber of Commerce (UTCC).'
 ---
 
-ผมจะใช้พื้นที่นี้บันทึกสิ่งที่ได้เรียนรู้ระหว่างเรียน Master Financial Engineering ตั้งแต่แนวคิดที่เพิ่งเข้าใจ ไปจนถึงโจทย์ที่ทำให้ต้องกลับไปทบทวนพื้นฐานใหม่
+I use this space to record what I learn while studying for a Master's in Financial Engineering — from concepts I have only just understood to problems that sent me back to revise the basics.
 
-เนื้อหาเขียนสำหรับคนที่กำลังสนใจเรียนต่อหรืออยากรู้จักสาย Financial Engineering ผ่านประสบการณ์จริง โดยจะเน้นอธิบายสิ่งที่พบระหว่างทาง ไม่ใช้แทนรายละเอียดหลักสูตรหรือประกาศอย่างเป็นทางการของมหาวิทยาลัย
+It is written for people considering the programme, or curious about Financial Engineering as a field, through first-hand experience. The focus is on what I run into along the way; it is not a substitute for the official curriculum or announcements from the university.

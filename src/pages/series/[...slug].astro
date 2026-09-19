@@ -4,18 +4,21 @@ import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
+import type { UiLanguage } from '../../i18n';
 import { readingMinutes } from '../../lib/reading';
-import { postsForSeries, type SeriesPost } from '../../lib/series';
+import { postsForSeries, seriesTranslations, type SeriesPost } from '../../lib/series';
 
 export async function getStaticPaths() {
 	const allPosts = await getCollection('blog');
 	const series = await getCollection('series');
 
+	// One page per language; the switcher navigates between them like blog posts.
 	return series.map((entry) => ({
 		params: { slug: entry.id },
 		props: {
 			entry,
 			episodes: postsForSeries(allPosts, entry.id, entry.data.lang),
+			translations: seriesTranslations(series, entry),
 		},
 	}));
 }
@@ -23,16 +26,34 @@ export async function getStaticPaths() {
 type Props = {
 	entry: CollectionEntry<'series'>;
 	episodes: SeriesPost[];
+	translations: Partial<Record<UiLanguage, string>>;
 };
 
-const { entry, episodes } = Astro.props;
+const { entry, episodes, translations } = Astro.props;
 const { Content } = await render(entry);
+const lang = entry.data.lang;
+const copy =
+	lang === 'th'
+		? {
+				kicker: 'บันทึกการเรียน',
+				note: 'หมายเหตุ',
+				episodes: 'บทความในซีรีส์',
+				read: (minutes: number) => `อ่าน ${minutes} นาที`,
+				empty: 'ตอนแรกกำลังอยู่ระหว่างการเขียน — กลับมาอ่านได้เร็ว ๆ นี้',
+			}
+		: {
+				kicker: 'Learning journal',
+				note: 'Note',
+				episodes: 'Episodes in this series',
+				read: (minutes: number) => `${minutes} min read`,
+				empty: 'The first episode is being written — check back soon',
+			};
 ---
 
 <!doctype html>
-<html lang={entry.data.lang}>
+<html lang={lang} data-translation-en={translations.en} data-translation-th={translations.th}>
 	<head>
-		<BaseHead title={entry.data.title} description={entry.data.description} lang={entry.data.lang} />
+		<BaseHead title={entry.data.title} description={entry.data.description} lang={lang} translations={translations} />
 	</head>
 	<body>
 		<Header />
@@ -40,7 +61,7 @@ const { Content } = await render(entry);
 			<article class="series-intro">
 				<header>
 					<hr class="rule-short" />
-					<p class="kicker">Learning journal / บันทึกการเรียน</p>
+					<p class="kicker">{copy.kicker}</p>
 					<h1>{entry.data.title}</h1>
 					<p class="lead">{entry.data.description}</p>
 				</header>
@@ -51,7 +72,7 @@ const { Content } = await render(entry);
 
 				{
 					entry.data.disclaimer && (
-						<aside class="disclaimer" aria-label="หมายเหตุ">
+						<aside class="disclaimer" aria-label={copy.note}>
 							{entry.data.disclaimer}
 						</aside>
 					)
@@ -59,7 +80,7 @@ const { Content } = await render(entry);
 			</article>
 
 			<section class="episodes" aria-labelledby="episodes-heading">
-				<h2 id="episodes-heading">บทความในซีรีส์</h2>
+				<h2 id="episodes-heading">{copy.episodes}</h2>
 				{
 					episodes.length ? (
 						<ol>
@@ -75,7 +96,7 @@ const { Content } = await render(entry);
 											<span class="meta">
 												<FormattedDate date={post.data.pubDate} lang={post.data.lang} />
 												<span aria-hidden="true"> · </span>
-												อ่าน {readingMinutes(post.body)} นาที
+												{copy.read(readingMinutes(post.body))}
 											</span>
 										</span>
 									</a>
@@ -83,7 +104,7 @@ const { Content } = await render(entry);
 							))}
 						</ol>
 					) : (
-						<p class="empty">ตอนแรกกำลังอยู่ระหว่างการเขียน — กลับมาอ่านได้เร็ว ๆ นี้</p>
+						<p class="empty">{copy.empty}</p>
 					)
 				}
 			</section>

@@ -2,10 +2,18 @@ import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+// Both collections share one naming rule: `foo.th.md` becomes `th/foo`, so
+// a translation gets its own URL prefix without renaming the English file.
+const localizedId = ({ entry }: { entry: string }) => {
+	const base = entry.replace(/\.(md|mdx)$/, '');
+	return base.endsWith('.th') ? `th/${base.slice(0, -'.th'.length)}` : base;
+};
+
 const series = defineCollection({
 	loader: glob({
 		base: './src/content/series',
 		pattern: '**/*.{md,mdx}',
+		generateId: localizedId,
 	}),
 	schema: z.object({
 		title: z.string(),
@@ -18,15 +26,10 @@ const series = defineCollection({
 
 const blog = defineCollection({
 	// Load Markdown and MDX files in the `src/content/blog/` directory.
-	// `foo.th.mdx` becomes `th/foo` so Thai translations get their own URL
-	// prefix without moving — and so breaking — the existing English posts.
 	loader: glob({
 		base: './src/content/blog',
 		pattern: '**/*.{md,mdx}',
-		generateId: ({ entry }) => {
-			const base = entry.replace(/\.(md|mdx)$/, '');
-			return base.endsWith('.th') ? `th/${base.slice(0, -'.th'.length)}` : base;
-		},
+		generateId: localizedId,
 	}),
 	// Type-check frontmatter using a schema.
 	schema: ({ image }) =>
@@ -41,6 +44,8 @@ const blog = defineCollection({
 				tags: z.array(z.string()).optional(),
 				translationKey: z.string().optional(),
 				// Series fields are optional for ordinary posts, but must be used together.
+				// Posts reference the English series id; `postsForSeries` matches the
+				// Thai sibling (`th/<id>`) through the same key.
 				series: reference('series').optional(),
 				seriesOrder: z.number().int().positive().optional(),
 			})

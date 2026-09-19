@@ -9,19 +9,26 @@ import VerticalNote from '../components/VerticalNote.astro';
 import BrushDivider from '../components/ink/BrushDivider.astro';
 import InkMountains from '../components/ink/InkMountains.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import type { UiLanguage } from '../i18n';
+import { t, type UiLanguage } from '../i18n';
 import { MONTHS_SHORT } from '../lib/dates';
 import { postsForLanguage } from '../lib/posts';
-import { postsForSeries } from '../lib/series';
+import { postsForSeries, seriesForLanguage } from '../lib/series';
 
 const all = await getCollection('blog');
 const allSeries = await getCollection('series');
-const featuredSeries = allSeries.find((entry) => entry.data.featured) ?? allSeries[0];
-const featuredEpisodes = featuredSeries
-	? postsForSeries(all, featuredSeries.id, featuredSeries.data.lang)
-	: [];
 // Both languages ship in the same document; CSS hides the inactive panel.
 const panels: UiLanguage[] = ['en', 'th'];
+// The featured series in each language, with its episode count in that language.
+const featuredByLanguage = (lang: UiLanguage) => {
+	const candidates = seriesForLanguage(allSeries, lang);
+	const entry = candidates.find((series) => series.data.featured) ?? candidates[0];
+	return entry && { entry, episodes: postsForSeries(all, entry.id, entry.data.lang) };
+};
+const featured = panels
+	.map((lang) => ({ lang, series: featuredByLanguage(lang) }))
+	.filter((panel): panel is { lang: UiLanguage; series: NonNullable<ReturnType<typeof featuredByLanguage>> } =>
+		panel.series !== undefined,
+	);
 
 ---
 
@@ -62,26 +69,35 @@ const panels: UiLanguage[] = ['en', 'th'];
 			<BrushDivider />
 
 			{
-				featuredSeries && (
-					<section class="featured-series" aria-labelledby="featured-series-heading" lang={featuredSeries.data.lang}>
+				featured.map(({ lang, series: { entry, episodes } }) => (
+					<section
+						class="featured-series"
+						aria-labelledby={`featured-series-heading-${lang}`}
+						lang={entry.data.lang}
+						data-ui-language-panel={lang}
+					>
 						<div class="series-label">
-							<p class="kicker">
-								<span data-ui-language-copy="en" lang="en">Featured series</span>
-								<span data-ui-language-copy="th" lang="th">ซีรีส์แนะนำ</span>
+							<p class="kicker">{t(lang, 'featuredSeries')}</p>
+							<p class="series-count">
+								{lang === 'th'
+									? episodes.length
+										? `${episodes.length} ตอน`
+										: 'กำลังเริ่มต้น'
+									: episodes.length
+										? `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`
+										: 'Just getting started'}
 							</p>
-							<p class="series-count">{featuredEpisodes.length ? `${featuredEpisodes.length} ตอน` : 'กำลังเริ่มต้น'}</p>
 						</div>
 						<div class="series-copy">
-							<h2 id="featured-series-heading">{featuredSeries.data.title}</h2>
-							<p>{featuredSeries.data.description}</p>
-							<a href={`/series/${featuredSeries.id}/`}>
-								<span data-ui-language-copy="en" lang="en">View series</span>
-								<span data-ui-language-copy="th" lang="th">อ่านซีรีส์นี้</span>
+							<h2 id={`featured-series-heading-${lang}`}>{entry.data.title}</h2>
+							<p>{entry.data.description}</p>
+							<a href={`/series/${entry.id}/`}>
+								{t(lang, 'viewSeries')}
 								<span aria-hidden="true">⟶</span>
 							</a>
 						</div>
 					</section>
-				)
+				))
 			}
 
 			<section class="latest" aria-labelledby="latest-heading">
