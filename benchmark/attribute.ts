@@ -38,7 +38,7 @@ const load = async (dir: string): Promise<Samp[]> => {
 
 	for (const doc of docs) {
 		const s = parsePlist(doc) as Record<string, any>
-		const ts = s.timestamp instanceof Date ? s.timestamp.getTime() : NaN
+		const ts = s.timestamp instanceof Date ? s.timestamp.getTime() : Number.NaN
 		const elapsedS = num(s.elapsed_ns) / 1e9
 		if (!Number.isFinite(ts) || elapsedS <= 0) continue
 		const p = s.processor ?? {}

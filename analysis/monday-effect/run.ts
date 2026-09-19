@@ -107,7 +107,7 @@ const results: Record<string, unknown> = {
 const gapByDay: Record<string, number> = {};
 const gapModal: Record<string, number> = {};
 for (const d of [1, 2, 3, 4, 5]) {
-	const v = S[0].wd.map((w, i) => (w === d ? S[0].gap[i] : NaN)).filter((x) => !Number.isNaN(x));
+	const v = S[0].wd.map((w, i) => (w === d ? S[0].gap[i] : Number.NaN)).filter((x) => !Number.isNaN(x));
 	gapByDay[DAY_NAMES[d]] = Number((v.reduce((a, b) => a + b, 0) / v.length).toFixed(3));
 	const counts = new Map<number, number>();
 	for (const g of v) counts.set(g, (counts.get(g) ?? 0) + 1);
