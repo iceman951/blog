@@ -70,11 +70,13 @@ const featured = panels
 
 			{
 				featured.map(({ lang, series: { entry, episodes } }) => (
+					// The panel wrapper takes the language toggle's `display: block`;
+					// the section underneath keeps its grid.
+					<div data-ui-language-panel={lang}>
 					<section
 						class="featured-series"
 						aria-labelledby={`featured-series-heading-${lang}`}
 						lang={entry.data.lang}
-						data-ui-language-panel={lang}
 					>
 						<div class="series-label">
 							<p class="kicker">{t(lang, 'featuredSeries')}</p>
@@ -97,6 +99,7 @@ const featured = panels
 							</a>
 						</div>
 					</section>
+					</div>
 				))
 			}
 

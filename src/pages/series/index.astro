@@ -47,7 +47,9 @@ const seriesByLanguage = (lang: UiLanguage) =>
 											<span class="title">{entry.data.title}</span>
 											<span class="description">{entry.data.description}</span>
 											<span class="meta">
-												{entry.data.lang === 'th' ? `${episodes.length} ตอน` : `${episodes.length} episodes`}
+												{entry.data.lang === 'th'
+													? `${episodes.length} ตอน`
+													: `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`}
 											</span>
 										</span>
 										<span class="arrow" aria-hidden="true">—</span>

@@ -20,7 +20,7 @@ seriesOrder: 1
 
 I started a Master's in Financial Engineering about 3–4 weeks ago. The main reason was not a decision to leave software development. I wanted to understand finance more deeply, manage my own portfolio and trading more systematically, and give myself more options later on.
 
-Before I started, my rough picture was "maths and programming applied to finance". Taking the first three courses at once — derivatives, statistics, and investment theory — sharpened that picture: it is not just writing programs about stocks, but a place where several disciplines have to work together on the same problem.
+Before I started, my rough picture was “maths and programming applied to finance”. Taking the first three courses at once — derivatives, statistics, and investment theory — sharpened that picture: it is not just writing programs about stocks, but a place where several disciplines have to work together on the same problem.
 
 So this is not a review of the programme after graduating. It is a snapshot from the start: what is actually taught, and which background I think helps you keep up.
 
@@ -28,7 +28,7 @@ So this is not a review of the programme after graduating. It is a snapshot from
 
 As I understand it right now, Financial Engineering is the use of **Finance, Mathematics, Statistics, and Technology** to solve financial problems — from valuing securities and measuring return and risk, to building models that help make decisions.
 
-"Engineering" here is close to designing a solution under constraints. You need to know what each computed number represents, which assumptions went into it, and what the result can and cannot tell you.
+“Engineering” here is close to designing a solution under constraints. You need to know what each computed number represents, which assumptions went into it, and what the result can and cannot tell you.
 
 ![Euler diagram: Financial Engineering is where Mathematics, Finance, and Technology overlap](../../assets/financial-engineering-venn.svg)
 
@@ -63,23 +63,23 @@ In the first semester I take three courses, three hours each per week. The curre
 
 **SM511 — Fixed Income Securities and Derivative Securities** started with Futures and is now on Options. It does not stop at what each instrument is; it goes into where the price comes from and the Payoff (the contract's profit or loss at expiry for each possible stock price), the Binomial Model (a model that assumes the stock can only move up or down in each step, then works backwards to price the option), and Delta. This is where it becomes obvious that finance and mathematics have to go together. Main textbook: Hull, *Options, Futures, and Other Derivatives*.
 
-**SM512 — Statistical Theory** starts from the axioms of probability and proofs of basic inequalities such as Boole's inequality, then moves through Conditional Probability and Bayes' Theorem, Random Variables and Probability Distributions, Bivariate Distributions (the joint distribution of two random variables — the returns of two stocks, say), Statistical Independence, and distributions of functions of random variables (for example, showing that the square of a standard normal variable is Chi-square distributed). There is a problem set almost every week, 3–5 questions each, and the very first set was all "prove that" questions rather than plug-in-the-numbers. This is the course where I have had to go back and revise the most maths, because each new topic builds on the last one quickly. Main textbook: DeGroot & Schervish, *Probability and Statistics* (4th ed., Pearson).
+**SM512 — Statistical Theory** starts from the axioms of probability and proofs of basic inequalities such as Boole's inequality, then moves through Conditional Probability and Bayes' Theorem, Random Variables and Probability Distributions, Bivariate Distributions (the joint distribution of two random variables — the returns of two stocks, say), Statistical Independence, and distributions of functions of random variables (for example, showing that the square of a standard normal variable is Chi-square distributed). There is a problem set almost every week, 3–5 questions each, and the very first set was all “prove that” questions rather than plug-in-the-numbers. This is the course where I have had to go back and revise the most maths, because each new topic builds on the last one quickly. Main textbook: DeGroot & Schervish, *Probability and Statistics* (4th ed., Pearson).
 
 **SM513 — Investment Theory** connects theory to markets more directly. So far it has covered Market Efficiency (the hypothesis that prices already reflect available information, so excess returns are hard to come by), Behavioral Finance, and Security Analysis (analysis to estimate the value of a security), and is now on Bond Valuation. This course shows that statistics does not end in SM512 — it comes straight back in to analyse returns. Main textbook: Bodie, Kane & Marcus, *Investments*.
 
-So the three courses are not cleanly separated into "one finance course, one statistics course". What you learn in one becomes a tool in another.
+So the three courses are not cleanly separated into “one finance course, one statistics course”. What you learn in one becomes a tool in another.
 
-On language: the problem sets I have received (at least in SM512) are written in Thai with the English technical term in parentheses — "probability density function (p.d.f.)", for instance — while all three main textbooks are in English. You need to read technical English comfortably, but you do not need to listen to or write everything in English.
+On language: the problem sets I have received (at least in SM512) are written in Thai with the English technical term in parentheses — “probability density function (p.d.f.)”, for instance — while all three main textbooks are in English. You need to read technical English comfortably, but you do not need to listen to or write everything in English.
 
 ## Is Financial Engineering hard? How much maths do you need?
 
 The short answer: you do not need to be strong at everything before you start, but there is no avoiding mathematics. From what I have seen so far, the background that matters most is **Algebra and Calculus** — especially Calculus, which shows up in almost every chapter: rearranging equations, differentiating, integrating a density function to get a probability, and explaining how one variable changes with another.
 
-A clear example is the **Delta of an option**, written ∂C/∂S — the derivative of the option price with respect to the underlying stock price. In plain terms: "if the stock moves by one baht, roughly how much does the option move?" If you have seen derivatives before, you connect the symbol to the idea of price sensitivity quickly. If you have not, you are learning the notation and the concept at the same time.
+A clear example is the **Delta of an option**, written ∂C/∂S — the derivative of the option price with respect to the underlying stock price. In plain terms: “if the stock moves by one baht, roughly how much does the option move?” If you have seen derivatives before, you connect the symbol to the idea of price sensitivity quickly. If you have not, you are learning the notation and the concept at the same time.
 
 An example from the statistics side: from the first few weeks, SM512 problems often hand you a function with an unknown constant c — something like f(x) = ce^(−3x) — and ask what c must be for it to be a valid density. That is just integrating from 0 to infinity and setting the result to 1. With two random variables, the same question becomes a double integral over a region bounded by a curve, such as 0 ≤ y ≤ 1 − x². If integration is not fluent, you get stuck setting up the problem before you have even started thinking about probability.
 
-The thing I had not prepared for, and should have, is **writing proofs**. The first SM512 problem set was entirely "show that" and "prove that" — proving probability inequalities by induction, or via de Morgan's laws — which meant digging back into sets (union, intersection, complement) and how to write a proof step by step. That is a different skill from computation.
+The thing I had not prepared for, and should have, is **writing proofs**. The first SM512 problem set was entirely “show that” and “prove that” — proving probability inequalities by induction, or via de Morgan's laws — which meant digging back into sets (union, intersection, complement) and how to write a proof step by step. That is a different skill from computation.
 
 If you have never taken Calculus, I think you should read a fair amount before starting, because lectures move quickly. Right now I spend about 6 hours a week reading and doing problems outside class, most of it on the SM512 problem sets, and I had studied Calculus before. Someone starting from zero should budget more — perhaps 2–3 times that. This is my number alone, not a measurement, and Calculus is not an admission requirement; it is simply the time I would set aside to keep up.
 
@@ -100,7 +100,7 @@ The other part is **Probability and Statistics**. At minimum, be comfortable wit
 
 The tools used in class right now are **Excel and Python**. If you have programmed or handled data before, it helps with calculations and experimenting with data, but from what I have seen so far you do not need to be able to code before you start. Being fluent in Excel and having touched Python should make the early weeks easier.
 
-A real example: even SM512, a theory course, has homework questions that hand you a CSV of Thai mutual funds (fund name, asset class, domestic or global policy) and ask you to count proportions and build a cross-tab to answer probability questions, plus questions that ask you to plot a p.d.f. and a C.D.F. Work like this is doable in either Excel or Python. It is not complex code, but you do need to be able to load, filter, and count data.
+A real example: even SM512, a theory course, has homework questions that hand you a CSV of mutual funds (fund name, asset class, domestic or global policy) and ask you to count proportions and build a cross-tab to answer probability questions, plus questions that ask you to plot a p.d.f. and a C.D.F. Work like this is doable in either Excel or Python. It is not complex code, but you do need to be able to load, filter, and count data.
 
 A finance background helps you pick up the context of instruments, returns, and risk faster, but you do not need a finance degree.
 
