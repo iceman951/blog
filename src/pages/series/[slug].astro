@@ -1,0 +1,210 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { readingMinutes } from '../../lib/reading';
+import { postsForSeries, type SeriesPost } from '../../lib/series';
+
+export async function getStaticPaths() {
+	const allPosts = await getCollection('blog');
+	const series = await getCollection('series');
+
+	return series.map((entry) => ({
+		params: { slug: entry.id },
+		props: {
+			entry,
+			episodes: postsForSeries(allPosts, entry.id, entry.data.lang),
+		},
+	}));
+}
+
+type Props = {
+	entry: CollectionEntry<'series'>;
+	episodes: SeriesPost[];
+};
+
+const { entry, episodes } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<!doctype html>
+<html lang={entry.data.lang}>
+	<head>
+		<BaseHead title={entry.data.title} description={entry.data.description} lang={entry.data.lang} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<article class="series-intro">
+				<header>
+					<hr class="rule-short" />
+					<p class="kicker">Learning journal / บันทึกการเรียน</p>
+					<h1>{entry.data.title}</h1>
+					<p class="lead">{entry.data.description}</p>
+				</header>
+
+				<div class="prose">
+					<Content />
+				</div>
+
+				{
+					entry.data.disclaimer && (
+						<aside class="disclaimer" aria-label="หมายเหตุ">
+							{entry.data.disclaimer}
+						</aside>
+					)
+				}
+			</article>
+
+			<section class="episodes" aria-labelledby="episodes-heading">
+				<h2 id="episodes-heading">บทความในซีรีส์</h2>
+				{
+					episodes.length ? (
+						<ol>
+							{episodes.map((post) => (
+								<li>
+									<a href={`/blog/${post.id}/`}>
+										<span class="episode-number" aria-hidden="true">
+											{String(post.data.seriesOrder).padStart(2, '0')}
+										</span>
+										<span class="episode-body">
+											<span class="episode-title">{post.data.title}</span>
+											<span class="episode-description">{post.data.description}</span>
+											<span class="meta">
+												<FormattedDate date={post.data.pubDate} lang={post.data.lang} />
+												<span aria-hidden="true"> · </span>
+												อ่าน {readingMinutes(post.body)} นาที
+											</span>
+										</span>
+									</a>
+								</li>
+							))}
+						</ol>
+					) : (
+						<p class="empty">ตอนแรกกำลังอยู่ระหว่างการเขียน — กลับมาอ่านได้เร็ว ๆ นี้</p>
+					)
+				}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		width: var(--measure-wide);
+	}
+
+	.series-intro,
+	.episodes {
+		max-width: var(--measure-prose);
+	}
+
+	.series-intro header {
+		margin-bottom: var(--space-8);
+	}
+
+	h1 {
+		max-width: 24ch;
+		font-size: clamp(2.2rem, 5vw, 3.15rem);
+	}
+
+	.lead {
+		max-width: 60ch;
+		color: var(--ink-soft);
+		font-size: 1.08rem;
+	}
+
+	.prose {
+		margin-bottom: var(--space-8);
+	}
+
+	.disclaimer {
+		padding: var(--space-4) 0 var(--space-4) var(--space-6);
+		border-left: 2px solid var(--line);
+		color: var(--ink-muted);
+		font-family: var(--stack-meta);
+		font-size: 0.75rem;
+		line-height: 1.7;
+	}
+
+	.episodes {
+		margin-top: var(--space-16);
+		padding-top: var(--space-12);
+		border-top: 1px solid var(--line);
+	}
+
+	.episodes h2 {
+		margin-bottom: var(--space-8);
+	}
+
+	.episodes ol {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.episodes li {
+		margin: 0;
+		border-top: 1px solid var(--line-light);
+	}
+
+	.episodes li:last-child {
+		border-bottom: 1px solid var(--line-light);
+	}
+
+	.episodes a {
+		display: grid;
+		grid-template-columns: 3rem minmax(0, 1fr);
+		gap: var(--space-6);
+		padding: var(--space-6) 0;
+		color: inherit;
+		text-decoration: none;
+		transition: background-color var(--duration) var(--ease);
+	}
+
+	.episodes a:hover {
+		background: var(--paper-alt);
+	}
+
+	.episode-number {
+		color: var(--line);
+		font-family: var(--stack-display);
+		font-size: 1.4rem;
+	}
+
+	.episode-title,
+	.episode-description {
+		display: block;
+	}
+
+	.episode-title {
+		margin-bottom: var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.25rem;
+		line-height: 1.45;
+	}
+
+	.episode-description {
+		margin-bottom: var(--space-3);
+		font-size: 0.9rem;
+	}
+
+	.empty {
+		padding: var(--space-8) 0;
+		border-top: 1px solid var(--line-light);
+		border-bottom: 1px solid var(--line-light);
+		color: var(--ink-muted);
+		font-style: italic;
+	}
+
+	@media (max-width: 560px) {
+		.episodes a {
+			grid-template-columns: 2.25rem minmax(0, 1fr);
+			gap: var(--space-4);
+		}
+	}
+</style>

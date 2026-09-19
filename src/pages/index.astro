@@ -12,8 +12,14 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import type { UiLanguage } from '../i18n';
 import { MONTHS_SHORT } from '../lib/dates';
 import { postsForLanguage } from '../lib/posts';
+import { postsForSeries } from '../lib/series';
 
 const all = await getCollection('blog');
+const allSeries = await getCollection('series');
+const featuredSeries = allSeries.find((entry) => entry.data.featured) ?? allSeries[0];
+const featuredEpisodes = featuredSeries
+	? postsForSeries(all, featuredSeries.id, featuredSeries.data.lang)
+	: [];
 // Both languages ship in the same document; CSS hides the inactive panel.
 const panels: UiLanguage[] = ['en', 'th'];
 
@@ -55,6 +61,29 @@ const panels: UiLanguage[] = ['en', 'th'];
 
 			<BrushDivider />
 
+			{
+				featuredSeries && (
+					<section class="featured-series" aria-labelledby="featured-series-heading" lang={featuredSeries.data.lang}>
+						<div class="series-label">
+							<p class="kicker">
+								<span data-ui-language-copy="en" lang="en">Featured series</span>
+								<span data-ui-language-copy="th" lang="th">ซีรีส์แนะนำ</span>
+							</p>
+							<p class="series-count">{featuredEpisodes.length ? `${featuredEpisodes.length} ตอน` : 'กำลังเริ่มต้น'}</p>
+						</div>
+						<div class="series-copy">
+							<h2 id="featured-series-heading">{featuredSeries.data.title}</h2>
+							<p>{featuredSeries.data.description}</p>
+							<a href={`/series/${featuredSeries.id}/`}>
+								<span data-ui-language-copy="en" lang="en">View series</span>
+								<span data-ui-language-copy="th" lang="th">อ่านซีรีส์นี้</span>
+								<span aria-hidden="true">⟶</span>
+							</a>
+						</div>
+					</section>
+				)
+			}
+
 			<section class="latest" aria-labelledby="latest-heading">
 				<hr class="rule-short" />
 				<p class="section-jp" lang="ja">最新の記事</p>
@@ -78,9 +107,10 @@ const panels: UiLanguage[] = ['en', 'th'];
 													<span class="month">{MONTHS_SHORT[post.data.pubDate.getMonth()]}</span>
 													<span class="year">{post.data.pubDate.getFullYear()}</span>
 												</time>
-												<span class="body">
-													<span class="title">{post.data.title}</span>
-													<TagList tags={post.data.tags} variant="inline" />
+											<span class="body">
+												<span class="title">{post.data.title}</span>
+												{post.data.seriesOrder && <span class="series-marker">Series · ตอน {String(post.data.seriesOrder).padStart(2, '0')}</span>}
+												<TagList tags={post.data.tags} variant="inline" />
 												</span>
 												<span class="arrow" aria-hidden="true">—</span>
 											</a>
@@ -160,6 +190,44 @@ const panels: UiLanguage[] = ['en', 'th'];
 		padding: var(--space-16) 0 0;
 	}
 
+	.featured-series {
+		display: grid;
+		grid-template-columns: 11rem minmax(0, 1fr);
+		gap: var(--space-12);
+		padding: var(--space-16) 0;
+		border-bottom: 1px solid var(--line-light);
+	}
+
+	.featured-series .kicker {
+		margin-bottom: var(--space-2);
+	}
+
+	.series-count {
+		margin: 0;
+		color: var(--ink-muted);
+		font-family: var(--stack-meta);
+		font-size: 0.75rem;
+	}
+
+	.series-copy h2 {
+		max-width: 25ch;
+		font-size: clamp(1.6rem, 3vw, 2.25rem);
+	}
+
+	.series-copy p {
+		max-width: 62ch;
+	}
+
+	.series-copy a {
+		display: inline-flex;
+		min-height: 44px;
+		align-items: center;
+		gap: 0.6em;
+		font-family: var(--stack-meta);
+		font-size: 0.85rem;
+		text-decoration: none;
+	}
+
 	.section-jp {
 		margin: 0 0 var(--space-2);
 		color: var(--ink);
@@ -236,6 +304,16 @@ const panels: UiLanguage[] = ['en', 'th'];
 		transition: color var(--duration) var(--ease);
 	}
 
+	.series-marker {
+		display: block;
+		margin-bottom: var(--space-2);
+		color: var(--vermilion);
+		font-family: var(--stack-meta);
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
 	.post-row a:hover .title {
 		color: var(--vermilion);
 	}
@@ -293,6 +371,11 @@ const panels: UiLanguage[] = ['en', 'th'];
 		}
 		.hero-ink {
 			max-width: 22rem;
+		}
+		.featured-series {
+			grid-template-columns: 1fr;
+			gap: var(--space-4);
+			padding: var(--space-12) 0;
 		}
 		.post-row a {
 			grid-template-columns: 3.6rem minmax(0, 1fr);

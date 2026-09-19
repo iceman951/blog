@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "bun test analysis"
+		"test": "bun test analysis src/lib"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",

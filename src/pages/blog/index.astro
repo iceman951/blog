@@ -51,6 +51,7 @@ const panels: UiLanguage[] = ['en', 'th'];
 											<span class="body">
 												<span class="title">{post.data.title}</span>
 												<span class="excerpt">{post.data.description}</span>
+												{post.data.seriesOrder && <span class="series-marker">Series · ตอน {String(post.data.seriesOrder).padStart(2, '0')}</span>}
 												<TagList tags={post.data.tags} variant="inline" />
 											</span>
 											<span class="arrow" aria-hidden="true">—</span>
@@ -167,6 +168,16 @@ const panels: UiLanguage[] = ['en', 'th'];
 		color: var(--ink-soft);
 		font-size: 0.92rem;
 		line-height: 1.7;
+	}
+
+	.series-marker {
+		display: block;
+		margin-bottom: var(--space-2);
+		color: var(--vermilion);
+		font-family: var(--stack-meta);
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
 	}
 
 	.arrow {

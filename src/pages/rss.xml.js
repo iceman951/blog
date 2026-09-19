@@ -1,10 +1,11 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { postsForLanguage } from '../lib/posts';
 
 export async function GET(context) {
-	// English only — Thai translations would otherwise duplicate every entry.
-	const posts = (await getCollection('blog')).filter((post) => post.data.lang === 'en');
+	// One entry per logical post: English when available, otherwise the only language published.
+	const posts = postsForLanguage(await getCollection('blog'), 'en');
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,

@@ -22,6 +22,14 @@ type Props = CollectionEntry<'blog'>['data'] & {
 	kickerTh?: string;
 	/** The article marginalia reads as a note on the writing, so pages opt out. */
 	marginNote?: boolean;
+	seriesContext?: {
+		id: string;
+		title: string;
+		order: number;
+		total: number;
+		previous?: { id: string; title: string };
+		next?: { id: string; title: string };
+	};
 };
 
 const {
@@ -38,6 +46,7 @@ const {
 	titleTh,
 	kickerTh,
 	marginNote = true,
+	seriesContext,
 } = Astro.props;
 
 const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาที' : readingMinutes + ' min read';
@@ -62,6 +71,15 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 						{readingMinutes ? <span class="dot">·</span> : null}
 						{readingMinutes ? <span>{readLabel}</span> : null}
 					</p>
+					{
+						seriesContext && (
+							<p class="series-context">
+								<a href={`/series/${seriesContext.id}/`}>{seriesContext.title}</a>
+								<span aria-hidden="true">·</span>
+								<span>{t(lang, 'episode')} {String(seriesContext.order).padStart(2, '0')} / {seriesContext.total}</span>
+							</p>
+						)
+					}
 					{
 						kicker && (
 							<p class="kicker">
@@ -107,6 +125,25 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 				<div class="prose">
 					<slot />
 				</div>
+
+				{
+					seriesContext && (seriesContext.previous || seriesContext.next) && (
+						<nav class="episode-nav" aria-label={lang === 'th' ? 'บทความในซีรีส์' : 'Series episodes'}>
+							{seriesContext.previous && (
+								<a class="previous" href={`/blog/${seriesContext.previous.id}/`}>
+									<span class="meta">← {t(lang, 'previousEpisode')}</span>
+									<span>{seriesContext.previous.title}</span>
+								</a>
+							)}
+							{seriesContext.next && (
+								<a class="next" href={`/blog/${seriesContext.next.id}/`}>
+									<span class="meta">{t(lang, 'nextEpisode')} →</span>
+									<span>{seriesContext.next.title}</span>
+								</a>
+							)}
+						</nav>
+					)
+				}
 
 				<footer class="article-foot">
 					<p class="meta">
@@ -207,6 +244,19 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 		margin: var(--space-4) 0 0;
 		font-style: italic;
 	}
+	.series-context {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45em;
+		margin: 0 0 var(--space-4);
+		font-family: var(--stack-meta);
+		font-size: 0.72rem;
+		letter-spacing: 0.04em;
+	}
+	.series-context a {
+		font-weight: 500;
+		text-decoration: none;
+	}
 	.hero-image {
 		margin: 0 0 var(--space-16);
 	}
@@ -233,6 +283,39 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 		margin-top: var(--space-16);
 		padding-top: var(--space-6);
 		border-top: 1px solid var(--line-light);
+	}
+	.episode-nav {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-8);
+		max-width: var(--measure-prose);
+		margin-top: var(--space-16);
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--line-light);
+	}
+	.episode-nav a {
+		display: flex;
+		min-height: 44px;
+		flex-direction: column;
+		justify-content: center;
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 0.95rem;
+		line-height: 1.45;
+		text-decoration: none;
+	}
+	.episode-nav .meta {
+		display: block;
+		margin-bottom: var(--space-1);
+		font-size: 0.68rem;
+		text-transform: uppercase;
+	}
+	.episode-nav .next {
+		grid-column: 2;
+		text-align: right;
+	}
+	.episode-nav + .article-foot {
+		margin-top: var(--space-8);
 	}
 	.article-foot p {
 		margin: 0;
@@ -271,6 +354,14 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 		}
 		.article-header {
 			margin-bottom: var(--space-8);
+		}
+		.episode-nav {
+			grid-template-columns: 1fr;
+			gap: var(--space-4);
+		}
+		.episode-nav .next {
+			grid-column: 1;
+			text-align: left;
 		}
 	}
 </style>

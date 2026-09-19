@@ -8,12 +8,24 @@ export const ui = {
 		dateLocale: 'en-us',
 		readingList: 'Blog',
 		latestPosts: 'Latest posts',
+		series: 'Series',
+		featuredSeries: 'Featured series',
+		viewSeries: 'View series',
+		episode: 'Episode',
+		previousEpisode: 'Previous episode',
+		nextEpisode: 'Next episode',
 	},
 	th: {
 		lastUpdated: 'อัปเดตล่าสุดเมื่อ',
 		dateLocale: 'th-TH-u-ca-gregory', // Gregorian, not Buddhist era — a 2569 would confuse a tech post
 		readingList: 'บล็อก',
 		latestPosts: 'บทความล่าสุด',
+		series: 'ซีรีส์',
+		featuredSeries: 'ซีรีส์แนะนำ',
+		viewSeries: 'อ่านซีรีส์นี้',
+		episode: 'ตอน',
+		previousEpisode: 'ตอนก่อนหน้า',
+		nextEpisode: 'ตอนถัดไป',
 	},
 } as const satisfies Record<UiLanguage, Record<string, string>>;
 

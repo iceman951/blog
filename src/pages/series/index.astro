@@ -1,0 +1,156 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { postsForSeries } from '../../lib/series';
+
+const allPosts = await getCollection('blog');
+const series = (await getCollection('series')).map((entry) => ({
+	entry,
+	episodes: postsForSeries(allPosts, entry.id, entry.data.lang),
+}));
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Series | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<header class="page-head">
+				<hr class="rule-short" />
+				<p class="section-jp" lang="ja">連載</p>
+				<h1 class="kicker">
+					<span data-ui-language-copy="en" lang="en">Learning series</span>
+					<span data-ui-language-copy="th" lang="th">ซีรีส์การเรียนรู้</span>
+				</h1>
+			</header>
+
+			<ol class="series-list">
+				{
+					series.map(({ entry, episodes }, index) => (
+						<li lang={entry.data.lang}>
+							<a href={`/series/${entry.id}/`}>
+								<span class="number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+								<span class="body">
+									<span class="title">{entry.data.title}</span>
+									<span class="description">{entry.data.description}</span>
+									<span class="meta">
+										{entry.data.lang === 'th' ? `${episodes.length} ตอน` : `${episodes.length} episodes`}
+									</span>
+								</span>
+								<span class="arrow" aria-hidden="true">—</span>
+							</a>
+						</li>
+					))
+				}
+			</ol>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		padding-bottom: var(--space-32);
+	}
+
+	.page-head {
+		margin-bottom: var(--space-12);
+	}
+
+	.section-jp {
+		margin: 0 0 var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.35rem;
+		letter-spacing: 0.12em;
+	}
+
+	h1.kicker {
+		margin: 0;
+		font-size: 0.7rem;
+	}
+
+	.series-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.series-list li {
+		margin: 0;
+		border-top: 1px solid var(--line-light);
+	}
+
+	.series-list li:last-child {
+		border-bottom: 1px solid var(--line-light);
+	}
+
+	.series-list a {
+		display: grid;
+		grid-template-columns: 4rem minmax(0, 1fr) 2rem;
+		gap: var(--space-8);
+		padding: var(--space-8) 0;
+		color: inherit;
+		text-decoration: none;
+		transition: background-color var(--duration) var(--ease);
+	}
+
+	.series-list a:hover {
+		background: var(--paper-alt);
+	}
+
+	.number {
+		color: var(--line);
+		font-family: var(--stack-display);
+		font-size: 1.7rem;
+	}
+
+	.title,
+	.description,
+	.meta {
+		display: block;
+	}
+
+	.title {
+		margin-bottom: var(--space-2);
+		color: var(--ink);
+		font-family: var(--stack-display);
+		font-size: 1.5rem;
+		line-height: 1.4;
+	}
+
+	.description {
+		max-width: 65ch;
+		margin-bottom: var(--space-3);
+		color: var(--ink-soft);
+		font-size: 0.92rem;
+	}
+
+	.arrow {
+		color: var(--line);
+		text-align: right;
+	}
+
+	@media (max-width: 860px) {
+		.series-list a {
+			grid-template-columns: 2.5rem minmax(0, 1fr);
+			gap: var(--space-4);
+			padding: var(--space-6) 0;
+		}
+		.arrow {
+			display: none;
+		}
+		.number {
+			font-size: 1.3rem;
+		}
+		.title {
+			font-size: 1.2rem;
+		}
+	}
+</style>

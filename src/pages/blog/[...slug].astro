@@ -3,9 +3,12 @@ import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import type { UiLanguage } from '../../i18n';
 import { readingMinutes } from '../../lib/reading';
+import { episodeNeighbors, postsForSeries } from '../../lib/series';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
+	const series = await getCollection('series');
+	const seriesById = new Map(series.map((entry) => [entry.id, entry]));
 
 	return posts.map((post) => {
 		// Siblings sharing a translationKey are the same post in another language.
@@ -14,19 +17,46 @@ export async function getStaticPaths() {
 				.filter((other) => other.data.translationKey && other.data.translationKey === post.data.translationKey)
 				.map((other) => [other.data.lang, `/blog/${other.id}/`]),
 		) as Partial<Record<UiLanguage, string>>;
+		let seriesContext: SeriesContext | undefined;
+
+		if (post.data.series && post.data.seriesOrder) {
+			const entry = seriesById.get(post.data.series.id);
+			if (!entry) throw new Error(`Series "${post.data.series.id}" not found for post "${post.id}"`);
+
+			const episodes = postsForSeries(posts, entry.id, post.data.lang);
+			const { previous, next } = episodeNeighbors(episodes, post.id);
+			seriesContext = {
+				id: entry.id,
+				title: entry.data.title,
+				order: post.data.seriesOrder,
+				total: episodes.length,
+				previous: previous && { id: previous.id, title: previous.data.title },
+				next: next && { id: next.id, title: next.data.title },
+			};
+		}
 
 		return {
 			params: { slug: post.id },
-			props: { ...post, translations },
+			props: { ...post, translations, seriesContext },
 		};
 	});
 }
 
-type Props = CollectionEntry<'blog'> & {
-	translations: Partial<Record<UiLanguage, string>>;
+type SeriesContext = {
+	id: string;
+	title: string;
+	order: number;
+	total: number;
+	previous?: { id: string; title: string };
+	next?: { id: string; title: string };
 };
 
-const { translations, ...post } = Astro.props;
+type Props = CollectionEntry<'blog'> & {
+	translations: Partial<Record<UiLanguage, string>>;
+	seriesContext?: SeriesContext;
+};
+
+const { translations, seriesContext, ...post } = Astro.props;
 const { Content } = await render(post as CollectionEntry<'blog'>);
 const minutes = readingMinutes(post.body);
 // The kicker follows the post's own tags; hardcoding "Benchmark" stopped being
@@ -34,6 +64,6 @@ const minutes = readingMinutes(post.body);
 const kicker = (post.data.tags ?? []).slice(0, 2).join(' / ') || 'Engineering';
 ---
 
-<BlogPost {...post.data} translations={translations} readingMinutes={minutes} kicker={kicker}>
+<BlogPost {...post.data} translations={translations} readingMinutes={minutes} kicker={kicker} seriesContext={seriesContext}>
 	<Content />
 </BlogPost>
