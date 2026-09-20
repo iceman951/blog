@@ -14,6 +14,11 @@ const blogEntries = blogSitemapEntries(SITE);
 // https://astro.build/config
 export default defineConfig({
 	site: SITE,
+	build: {
+		// The whole site's CSS is ~5 KiB gzipped, so a separate stylesheet costs a
+		// render-blocking round trip on every page and saves nothing worth caching.
+		inlineStylesheets: 'always',
+	},
 	integrations: [
 		mdx(),
 		sitemap({

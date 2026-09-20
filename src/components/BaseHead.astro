@@ -93,9 +93,14 @@ const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 }
 <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
 
-<Font cssVariable="--font-serif" preload />
+<!--
+  Preloads compete with the HTML and above-the-fold text on mobile, so only the
+  faces that paint first get one. Italic serif and the Thai face on non-Thai pages
+  still load, but through the @font-face rules once they're actually used.
+-->
+<Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
 <Font cssVariable="--font-sans" preload />
-<Font cssVariable="--font-thai" preload />
+<Font cssVariable="--font-thai" preload={lang === 'th'} />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
