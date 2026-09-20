@@ -25,8 +25,10 @@ const jsonLd = {
 	datePublished: isoDate(pubDate),
 	dateModified: isoDate(updatedDate ?? pubDate),
 	inLanguage: lang,
+	// Same @id as PersonSchema on /about/, so every post resolves to one entity.
 	author: {
 		'@type': 'Person',
+		'@id': new URL('/about/#person', Astro.site).href,
 		name: SITE_TITLE,
 		url: new URL('/about/', Astro.site).href,
 	},

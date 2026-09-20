@@ -8,6 +8,7 @@ import HankoMark from '../components/HankoMark.astro';
 import TagList from '../components/TagList.astro';
 import VerticalNote from '../components/VerticalNote.astro';
 import PlumBranch from '../components/ink/PlumBranch.astro';
+import { SITE_TITLE } from '../consts';
 import { t, type UiLanguage } from '../i18n';
 
 type Props = CollectionEntry<'blog'>['data'] & {
@@ -68,6 +69,8 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 
 				<header class="article-header">
 					<p class="meta line">
+						{readingMinutes ? <a class="byline" href="/about/" rel="author">{SITE_TITLE}</a> : null}
+						{readingMinutes ? <span class="dot">·</span> : null}
 						<FormattedDate date={pubDate} lang={lang} variant="editorial" />
 						{readingMinutes ? <span class="dot">·</span> : null}
 						{readingMinutes ? <span>{readLabel}</span> : null}
@@ -229,6 +232,13 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 		text-transform: uppercase;
 		letter-spacing: 0.12em;
 		font-size: 0.72rem;
+	}
+	.byline {
+		color: inherit;
+		text-decoration: none;
+	}
+	.byline:hover {
+		color: var(--vermilion);
 	}
 	.dot {
 		color: var(--line);

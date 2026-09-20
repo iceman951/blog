@@ -1,17 +1,19 @@
 ---
+import PersonSchema from '../components/PersonSchema.astro';
 import Layout from '../layouts/BlogPost.astro';
-import { CONTACT_EMAIL } from '../consts';
+import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 ---
 
 <Layout
-	title="About Me"
+	title="About Vorrapong Kertnat"
 	description="Vorrapong Kertnat (ICE) — full-stack developer at BAAC in Bangkok, currently studying Financial Engineering at UTCC."
 	pubDate={new Date('August 18 2026')}
 	kicker="Colophon / About"
-	titleTh="เกี่ยวกับผม"
+	titleTh="เกี่ยวกับผม — Vorrapong Kertnat"
 	kickerTh="แนะนำตัว / เกี่ยวกับผม"
 	marginNote={false}
 >
+	<PersonSchema slot="head" profilePage />
 	<div data-ui-language-panel="en" lang="en">
 		<p>
 			สวัสดีครับ — I'm <strong>Vorrapong Kertnat</strong>, everyone calls me <strong class="alias">ICE</strong>
@@ -213,16 +215,16 @@ import { CONTACT_EMAIL } from '../consts';
 		<p>
 			I've also done Kubernetes for Developers (LFD259) and a Prompt Engineering &amp; Agentic AI course.
 			Badges for all of the above live on <a
-				href="https://www.credly.com/users/vorrapong-kertnat/badges"
+				href={SOCIAL_LINKS.credly}
 				target="_blank"
-				rel="noopener noreferrer">my Credly profile</a
+				rel="me noopener noreferrer">my Credly profile</a
 			> if you'd like to check.
 		</p>
 
 		<h2>Writing</h2>
 
 		<p>
-			I write on <a href="https://medium.com/@iceman951" target="_blank" rel="noopener noreferrer"
+			I write on <a href={SOCIAL_LINKS.medium} target="_blank" rel="me noopener noreferrer"
 				>Medium</a
 			>, mostly in Thai and mostly about ElysiaJS — using TypeORM's QueryRunner to handle
 			transactions, or wiring up a health-check service with cron jobs and Nodemailer. Generally I
@@ -244,17 +246,17 @@ import { CONTACT_EMAIL } from '../consts';
 		<ul>
 			<li>Email — <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
 			<li>
-				GitHub — <a href="https://github.com/iceman951" target="_blank" rel="noopener noreferrer"
+				GitHub — <a href={SOCIAL_LINKS.github} target="_blank" rel="me noopener noreferrer"
 					>@iceman951</a
 				>
 			</li>
 			<li>
-				LinkedIn — <a href="https://www.linkedin.com/in/vorrapong/" target="_blank" rel="noopener noreferrer"
+				LinkedIn — <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="me noopener noreferrer"
 					>in/vorrapong</a
 				>
 			</li>
 			<li>
-				Medium — <a href="https://medium.com/@iceman951" target="_blank" rel="noopener noreferrer"
+				Medium — <a href={SOCIAL_LINKS.medium} target="_blank" rel="me noopener noreferrer"
 					>@iceman951</a
 				>
 			</li>
@@ -465,16 +467,16 @@ import { CONTACT_EMAIL } from '../consts';
 		<p>
 			นอกจากนี้ยังเคยเรียน Kubernetes for Developers (LFD259) และคอร์ส Prompt Engineering &amp; Agentic AI
 			ด้วย badge ของทั้งหมดดูได้ที่ <a
-				href="https://www.credly.com/users/vorrapong-kertnat/badges"
+				href={SOCIAL_LINKS.credly}
 				target="_blank"
-				rel="noopener noreferrer">โปรไฟล์ Credly ของผม</a
+				rel="me noopener noreferrer">โปรไฟล์ Credly ของผม</a
 			>
 		</p>
 
 		<h2>งานเขียน</h2>
 
 		<p>
-			ผมเขียนบทความบน <a href="https://medium.com/@iceman951" target="_blank" rel="noopener noreferrer"
+			ผมเขียนบทความบน <a href={SOCIAL_LINKS.medium} target="_blank" rel="me noopener noreferrer"
 				>Medium</a
 			> ส่วนใหญ่เป็นภาษาไทยและเกี่ยวกับ ElysiaJS เช่น การใช้ QueryRunner ของ TypeORM จัดการ
 			transaction หรือการทำ health-check service ด้วย cron job และ Nodemailer ผมมักเขียนถึงปัญหาที่เพิ่ง
@@ -496,17 +498,17 @@ import { CONTACT_EMAIL } from '../consts';
 		<ul>
 			<li>อีเมล — <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
 			<li>
-				GitHub — <a href="https://github.com/iceman951" target="_blank" rel="noopener noreferrer"
+				GitHub — <a href={SOCIAL_LINKS.github} target="_blank" rel="me noopener noreferrer"
 					>@iceman951</a
 				>
 			</li>
 			<li>
-				LinkedIn — <a href="https://www.linkedin.com/in/vorrapong/" target="_blank" rel="noopener noreferrer"
+				LinkedIn — <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="me noopener noreferrer"
 					>in/vorrapong</a
 				>
 			</li>
 			<li>
-				Medium — <a href="https://medium.com/@iceman951" target="_blank" rel="noopener noreferrer"
+				Medium — <a href={SOCIAL_LINKS.medium} target="_blank" rel="me noopener noreferrer"
 					>@iceman951</a
 				>
 			</li>

@@ -32,6 +32,12 @@ const googleSiteVerification = /^[A-Za-z0-9_-]{20,}$/.test(verificationToken)
 	? verificationToken
 	: null;
 
+// Every document title carries the author's name so each indexed page is a
+// signal for the name query, not only the home page. Pages that already name
+// the author (home, "Blog | ...", About) are left alone. og:title stays bare:
+// social cards have their own site-name slot.
+const documentTitle = title.includes(SITE_TITLE) ? title : `${title} | ${SITE_TITLE}`;
+
 const OG_LOCALE: Record<UiLanguage, string> = { en: 'en_US', th: 'th_TH' };
 const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 ---
@@ -118,7 +124,7 @@ const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 }
 
 <!-- Primary Meta Tags -->
-<title>{title}</title>
+<title>{documentTitle}</title>
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->

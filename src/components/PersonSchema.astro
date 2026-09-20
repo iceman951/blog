@@ -1,0 +1,66 @@
+---
+// Person + WebSite JSON-LD for the pages that are "about the author" rather than
+// about a topic: the home page and /about/. The Person carries a stable @id that
+// BlogPostingSchema points its author at, so every article resolves to the same
+// entity instead of a fresh anonymous Person per post.
+import { AUTHOR, SITE_DESCRIPTION, SITE_TITLE, SOCIAL_LINKS } from '../consts';
+
+interface Props {
+	/** The About page is the profile itself, so it also declares a ProfilePage. */
+	profilePage?: boolean;
+}
+
+const { profilePage = false } = Astro.props;
+
+const site = Astro.site!;
+const personId = new URL('/about/#person', site).href;
+const websiteId = new URL('/#website', site).href;
+
+const person = {
+	'@type': 'Person',
+	'@id': personId,
+	name: AUTHOR.name,
+	alternateName: AUTHOR.alternateName,
+	url: new URL('/about/', site).href,
+	jobTitle: AUTHOR.jobTitle,
+	worksFor: { '@type': 'Organization', name: AUTHOR.employer },
+	alumniOf: { '@type': 'CollegeOrUniversity', name: AUTHOR.university },
+	homeLocation: { '@type': 'Place', name: AUTHOR.location },
+	sameAs: Object.values(SOCIAL_LINKS),
+};
+
+const website = {
+	'@type': 'WebSite',
+	'@id': websiteId,
+	url: site.href,
+	name: SITE_TITLE,
+	description: SITE_DESCRIPTION,
+	inLanguage: ['en', 'th'],
+	author: { '@id': personId },
+	publisher: { '@id': personId },
+};
+
+const graph = [
+	person,
+	website,
+	...(profilePage
+		? [
+				{
+					'@type': 'ProfilePage',
+					'@id': new URL('/about/', site).href,
+					url: new URL('/about/', site).href,
+					name: `About ${AUTHOR.name}`,
+					isPartOf: { '@id': websiteId },
+					mainEntity: { '@id': personId },
+				},
+			]
+		: []),
+];
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
+
+// `</script>` inside a description would otherwise end the block early.
+const json = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

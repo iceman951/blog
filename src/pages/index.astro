@@ -8,6 +8,7 @@ import TagList from '../components/TagList.astro';
 import VerticalNote from '../components/VerticalNote.astro';
 import BrushDivider from '../components/ink/BrushDivider.astro';
 import InkMountains from '../components/ink/InkMountains.astro';
+import PersonSchema from '../components/PersonSchema.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { t, type UiLanguage } from '../i18n';
 import { MONTHS_SHORT } from '../lib/dates';
@@ -36,6 +37,7 @@ const featured = panels
 <html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<PersonSchema />
 	</head>
 	<body>
 		<Header />
@@ -49,6 +51,12 @@ const featured = panels
 					<p class="hero-sub">
 						<span data-ui-language-copy="en" lang="en">Notes on technology, markets, and experiments.</span>
 						<span data-ui-language-copy="th" lang="th">บันทึกเรื่องเทคโนโลยี ตลาด และการทดลอง</span>
+					</p>
+					<!-- The author's name in visible copy, not only the footer: the home
+					     page is the one Google ranks for a name query. -->
+					<p class="hero-byline">
+						<span data-ui-language-copy="en" lang="en">by <a href="/about/">{SITE_TITLE}</a></span>
+						<span data-ui-language-copy="th" lang="th">โดย <a href="/about/">{SITE_TITLE}</a></span>
 					</p>
 					<HankoMark />
 				</div>
@@ -182,10 +190,21 @@ const featured = panels
 	}
 
 	.hero-sub {
-		margin: 0 0 var(--space-8);
+		margin: 0 0 var(--space-2);
 		color: var(--ink-soft);
 		font-size: 1rem;
 		line-height: 1.9;
+	}
+	.hero-byline {
+		margin: 0 0 var(--space-8);
+		color: var(--ink-soft);
+		font-family: var(--stack-meta);
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.hero-byline a {
+		color: inherit;
 	}
 
 	.hero-ink {
