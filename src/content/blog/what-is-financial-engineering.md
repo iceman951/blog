@@ -2,6 +2,7 @@
 title: "What is a Master's in Financial Engineering? What you study, and what background helps"
 description: "What Financial Engineering is, what the first courses cover, what it costs, and which maths to brush up on — notes from the first 3–4 weeks of an M.Sc. at UTCC."
 pubDate: 'Sep 19 2026'
+heroImage: '../../assets/what-is-financial-engineering.webp'
 lang: 'en'
 tags: ['Financial Engineering', 'Quant', "Master's Degree", 'UTCC', 'Learning Journal']
 translationKey: 'what-is-financial-engineering'

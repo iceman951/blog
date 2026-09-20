@@ -1,0 +1,40 @@
+---
+// BlogPosting JSON-LD for a single post, built from its frontmatter. Rendered by
+// the blog route only: BlogPost.astro is also the About page's layout, and that
+// page is not an article.
+import type { CollectionEntry } from 'astro:content';
+import { SITE_TITLE } from '../consts';
+import { isoDate } from '../lib/dates';
+
+type Props = Pick<
+	CollectionEntry<'blog'>['data'],
+	'title' | 'description' | 'pubDate' | 'updatedDate' | 'heroImage' | 'lang'
+>;
+
+const { title, description, pubDate, updatedDate, heroImage, lang } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const jsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: title,
+	description,
+	// Omitted rather than faked when a post has no hero image.
+	...(heroImage && { image: new URL(heroImage.src, Astro.site).href }),
+	datePublished: isoDate(pubDate),
+	dateModified: isoDate(updatedDate ?? pubDate),
+	inLanguage: lang,
+	author: {
+		'@type': 'Person',
+		name: SITE_TITLE,
+		url: new URL('/about/', Astro.site).href,
+	},
+	mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalURL.href },
+};
+
+// `</script>` inside a description would otherwise end the block early.
+const json = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

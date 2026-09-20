@@ -25,3 +25,14 @@ export const MONTHS_SHORT = [
 /** "23 AUG 2026" — the masthead date form, identical in every environment. */
 export const editorialDate = (date: Date) =>
 	`${date.getDate()} ${MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}`;
+
+/**
+ * `YYYY-MM-DD` in the local calendar. `toISOString` would render a frontmatter
+ * date as the previous day when built in UTC+7; the sitemap already avoids this
+ * (`scripts/blog-sitemap-entries.mjs`), and `datePublished` must match `<lastmod>`.
+ */
+export const isoDate = (date: Date) => {
+	const month = `${date.getMonth() + 1}`.padStart(2, '0');
+	const day = `${date.getDate()}`.padStart(2, '0');
+	return `${date.getFullYear()}-${month}-${day}`;
+};

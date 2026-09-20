@@ -2,6 +2,7 @@
 title: 'Master Financial Engineering คืออะไร? เรียนอะไร และควรมีพื้นฐานแบบไหน'
 description: 'Financial Engineering คืออะไร เรียนอะไร ค่าเทอมเท่าไหร่ และควรเตรียมพื้นฐานแบบไหน บันทึกจาก 3–4 สัปดาห์แรกของการเรียนปริญญาโทที่ UTCC'
 pubDate: 'Sep 19 2026'
+heroImage: '../../assets/what-is-financial-engineering.webp'
 lang: 'th'
 translationKey: 'what-is-financial-engineering'
 tags: ['Financial Engineering', 'วิศวกรรมการเงิน', 'Quant', 'ป.โท', 'UTCC', 'Learning Journal']

@@ -1,5 +1,6 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BlogPostingSchema from '../../components/BlogPostingSchema.astro';
 import BlogPost from '../../layouts/BlogPost.astro';
 import type { UiLanguage } from '../../i18n';
 import { readingMinutes } from '../../lib/reading';
@@ -66,5 +67,6 @@ const kicker = (post.data.tags ?? []).slice(0, 2).join(' / ') || 'Engineering';
 ---
 
 <BlogPost {...post.data} translations={translations} readingMinutes={minutes} kicker={kicker} seriesContext={seriesContext}>
+	<BlogPostingSchema slot="head" {...post.data} />
 	<Content />
 </BlogPost>

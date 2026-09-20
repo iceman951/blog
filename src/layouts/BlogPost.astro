@@ -55,6 +55,7 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 <html lang={lang} data-translation-en={translations?.en} data-translation-th={translations?.th}>
 	<head>
 		<BaseHead title={title} description={description} lang={lang} translations={translations} />
+		<slot name="head" />
 	</head>
 
 	<body>
