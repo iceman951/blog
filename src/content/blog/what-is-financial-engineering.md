@@ -60,7 +60,7 @@ The names alone tell you what background the programme expects, and they line up
 
 ## What do the first courses cover?
 
-In the first semester I take three courses, three hours each per week. The current timetable is a full day on Saturday and a half day on Sunday (it may move to weekdays, Monday–Friday — ask the faculty directly). Each course shows a different side of Financial Engineering.
+In the first semester I take three courses, three hours each per week. The current timetable is Saturday 9:00–12:00 and 13:00–16:00, plus Sunday 13:00–16:00 (other semesters may differ — for example Saturday 9:00–12:00 and 13:00–16:00 plus Monday 18:00–21:00 — so ask the faculty directly). Each course shows a different side of Financial Engineering.
 
 **SM511 — Fixed Income Securities and Derivative Securities** started with Futures and is now on Options. It does not stop at what each instrument is; it goes into where the price comes from and the Payoff (the contract's profit or loss at expiry for each possible stock price), the Binomial Model (a model that assumes the stock can only move up or down in each step, then works backwards to price the option), and Delta. This is where it becomes obvious that finance and mathematics have to go together. Main textbook: Hull, *Options, Futures, and Other Derivatives*.
 
