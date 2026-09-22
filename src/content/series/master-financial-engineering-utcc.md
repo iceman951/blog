@@ -1,11 +1,11 @@
 ---
-title: "Studying a Master's in Financial Engineering at UTCC: learning as I write"
-description: 'Notes from actually taking the course, for anyone wondering what Financial Engineering covers, what background it needs, and where it can lead.'
+title: 'Studying an M.Sc. in Financial Engineering at UTCC: writing as I learn'
+description: 'Notes from my studies, for anyone curious about what Financial Engineering covers, what background helps, and how you can use what you learn.'
 lang: 'en'
 featured: true
 disclaimer: 'These are the author’s personal notes, not an official website or information from the University of the Thai Chamber of Commerce (UTCC).'
 ---
 
-I use this space to record what I learn while studying for a Master's in Financial Engineering — from concepts I have only just understood to problems that sent me back to revise the basics.
+I'll use this space to keep notes while studying for an M.Sc. in Financial Engineering, from ideas I've only just understood to problems that send me back to revise the basics.
 
-It is written for people considering the programme, or curious about Financial Engineering as a field, through first-hand experience. The focus is on what I run into along the way; it is not a substitute for the official curriculum or announcements from the university.
+I'm writing for anyone thinking about further study or wanting to learn about Financial Engineering through someone's experience of studying it. I'll focus on what I come across along the way. These notes don't replace the university's official programme details or announcements.
