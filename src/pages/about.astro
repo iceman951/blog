@@ -1,6 +1,7 @@
 ---
 import PersonSchema from '../components/PersonSchema.astro';
 import Layout from '../layouts/BlogPost.astro';
+import OgImage from '../assets/icerust-og-anime.png';
 import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 ---
 
@@ -12,6 +13,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 	titleTh="เกี่ยวกับผม — Vorrapong Kertnat"
 	kickerTh="แนะนำตัว / เกี่ยวกับผม"
 	marginNote={false}
+	heroImage={OgImage}
 >
 	<PersonSchema slot="head" profilePage />
 	<div data-ui-language-panel="en" lang="en">
@@ -60,6 +62,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">Feb 2024 – present</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/baac.webp" alt="" width="72" height="48" loading="lazy" />
 					<strong>Full Stack Developer</strong> — Bank for Agriculture and Agricultural Cooperatives (BAAC)
 					<span class="cv__meta">Full-time · Bangkok · On-site</span>
 					<span class="cv__meta">Vue.js · Vuetify · Express.js · Elysia.js · Drizzle ORM · Redis · Bun · Microsoft SQL Server · PostgreSQL</span>
@@ -68,6 +71,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">Sep 2023 – Jan 2024</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/ais.svg" alt="" width="72" height="48" loading="lazy" />
 					<strong>Senior Programmer Analyst</strong> — AIS (Advanced Info Service Plc.)
 					<span class="cv__meta">Full-time · Bangkok · Hybrid</span>
 					<span class="cv__meta">PL/SQL · Angular · Java · Full-Stack Development</span>
@@ -76,6 +80,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">Dec 2021 – Sep 2023</span>
 				<div class="cv__body">
+					<span class="cv__logo cv__logo--sirisoft" aria-hidden="true"></span>
 					<strong>Software Developer</strong> — Sirisoft Company Limited
 					<span class="cv__meta">Full-time · Bangkok · On-site</span>
 					<span class="cv__meta">NestJS · Jenkins · Kubernetes · TypeScript · DevOps · Oracle SQL Developer · OpenShift · Docker · GitOps</span>
@@ -84,6 +89,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">Jun – Sep 2021</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/psu.png" alt="" width="72" height="48" loading="lazy" />
 					<strong>Teaching Assistant</strong> — Prince of Songkla University
 					<span class="cv__meta">Part-time · Hat Yai, Songkhla · On-site</span>
 					<span class="cv__meta">Python</span>
@@ -92,6 +98,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">Apr – Jun 2021</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/nexthop.png" alt="" width="72" height="48" loading="lazy" />
 					<strong>Web Developer Intern</strong> — NextHop Co., Ltd.
 					<span class="cv__meta">Internship · Hat Yai, Songkhla · On-site</span>
 					<span class="cv__meta">JavaScript · Express.js · MongoDB</span>
@@ -108,7 +115,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 
 		<dl class="certs">
 			<div class="certs__group">
-				<dt>Octopus Deploy</dt>
+				<dt><img class="certs__logo" src="/logos/octopus.png" alt="" width="32" height="24" loading="lazy" />Octopus Deploy</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/4cef5102-df8b-4127-bc3e-6563799547c2" target="_blank" rel="noopener noreferrer"
 						>GitOps at Scale</a
@@ -117,7 +124,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Microsoft Applied Skills</dt>
+				<dt><img class="certs__logo" src="/logos/microsoft.svg" alt="" width="32" height="24" loading="lazy" />Microsoft Applied Skills</dt>
 				<dd>
 					<a class="certs__name" href="https://learn.microsoft.com/en-us/users/vorrapongkertnat-3957/credentials/89ee7b65e4231b1b" target="_blank" rel="noopener noreferrer"
 						>Create agents in Microsoft Copilot Studio</a
@@ -144,7 +151,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Red Hat</dt>
+				<dt><img class="certs__logo" src="/logos/redhat.svg" alt="" width="32" height="24" loading="lazy" />Red Hat</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/caa4840d-ac2e-4f12-ab1d-622f5f696c93" target="_blank" rel="noopener noreferrer"
 						>Managing Virtual Machines with Red Hat OpenShift Virtualization (DO316)</a
@@ -153,7 +160,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Docker, Inc.</dt>
+				<dt><img class="certs__logo" src="/logos/docker.svg" alt="" width="32" height="24" loading="lazy" />Docker, Inc.</dt>
 				<dd>
 					<a class="certs__name" href="https://www.linkedin.com/learning/certificates/865b653f03fda3226d27019c6433b3b1faaf05b6c529a1f2bbede39c7164fa1c" target="_blank" rel="noopener noreferrer"
 						>Docker Foundations Professional Certificate</a
@@ -162,7 +169,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Codefresh</dt>
+				<dt><img class="certs__logo" src="/logos/codefresh.svg" alt="" width="32" height="24" loading="lazy" />Codefresh</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/8ed564b0-c408-473c-b569-82ba9a4a03d5" target="_blank" rel="noopener noreferrer"
 						>GitOps Fundamentals</a
@@ -171,7 +178,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Microsoft Certified</dt>
+				<dt><img class="certs__logo" src="/logos/microsoft.svg" alt="" width="32" height="24" loading="lazy" />Microsoft Certified</dt>
 				<dd>
 					<a class="certs__name" href="https://learn.microsoft.com/en-us/users/vorrapongkertnat-3957/credentials/3b5ff7fc1cba6203" target="_blank" rel="noopener noreferrer"
 						>Security, Compliance, and Identity Fundamentals</a
@@ -204,7 +211,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>NSTDA</dt>
+				<dt><img class="certs__logo" src="/logos/nstda.svg" alt="" width="32" height="24" loading="lazy" />NSTDA</dt>
 				<dd>
 					<span class="certs__name">Information Technology Passport Examination (IP)</span>
 					<span class="certs__when">THIP20A0110 · Oct 2020</span>
@@ -313,6 +320,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">ก.พ. 2024 – ปัจจุบัน</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/baac.webp" alt="" width="72" height="48" loading="lazy" />
 					<strong>Full Stack Developer</strong> — ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.)
 					<span class="cv__meta">พนักงานประจำ · กรุงเทพฯ · On-site</span>
 					<span class="cv__meta">Vue.js · Vuetify · Express.js · Elysia.js · Drizzle ORM · Redis · Bun · Microsoft SQL Server · PostgreSQL</span>
@@ -321,6 +329,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">ก.ย. 2023 – ม.ค. 2024</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/ais.svg" alt="" width="72" height="48" loading="lazy" />
 					<strong>Senior Programmer Analyst</strong> — AIS (Advanced Info Service Plc.)
 					<span class="cv__meta">พนักงานประจำ · กรุงเทพฯ · Hybrid</span>
 					<span class="cv__meta">PL/SQL · Angular · Java · Full-Stack Development</span>
@@ -329,6 +338,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">ธ.ค. 2021 – ก.ย. 2023</span>
 				<div class="cv__body">
+					<span class="cv__logo cv__logo--sirisoft" aria-hidden="true"></span>
 					<strong>Software Developer</strong> — Sirisoft Company Limited
 					<span class="cv__meta">พนักงานประจำ · กรุงเทพฯ · On-site</span>
 					<span class="cv__meta">NestJS · Jenkins · Kubernetes · TypeScript · DevOps · Oracle SQL Developer · OpenShift · Docker · GitOps</span>
@@ -337,6 +347,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">มิ.ย. – ก.ย. 2021</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/psu.png" alt="" width="72" height="48" loading="lazy" />
 					<strong>Teaching Assistant</strong> — มหาวิทยาลัยสงขลานครินทร์
 					<span class="cv__meta">พาร์ทไทม์ · หาดใหญ่ สงขลา · On-site</span>
 					<span class="cv__meta">Python</span>
@@ -345,6 +356,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 			<li>
 				<span class="cv__when">เม.ย. – มิ.ย. 2021</span>
 				<div class="cv__body">
+					<img class="cv__logo" src="/logos/nexthop.png" alt="" width="72" height="48" loading="lazy" />
 					<strong>Web Developer Intern</strong> — NextHop Co., Ltd.
 					<span class="cv__meta">ฝึกงาน · หาดใหญ่ สงขลา · On-site</span>
 					<span class="cv__meta">JavaScript · Express.js · MongoDB</span>
@@ -360,7 +372,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 
 		<dl class="certs">
 			<div class="certs__group">
-				<dt>Octopus Deploy</dt>
+				<dt><img class="certs__logo" src="/logos/octopus.png" alt="" width="32" height="24" loading="lazy" />Octopus Deploy</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/4cef5102-df8b-4127-bc3e-6563799547c2" target="_blank" rel="noopener noreferrer"
 						>GitOps at Scale</a
@@ -369,7 +381,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Microsoft Applied Skills</dt>
+				<dt><img class="certs__logo" src="/logos/microsoft.svg" alt="" width="32" height="24" loading="lazy" />Microsoft Applied Skills</dt>
 				<dd>
 					<a class="certs__name" href="https://learn.microsoft.com/en-us/users/vorrapongkertnat-3957/credentials/89ee7b65e4231b1b" target="_blank" rel="noopener noreferrer"
 						>Create agents in Microsoft Copilot Studio</a
@@ -396,7 +408,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Red Hat</dt>
+				<dt><img class="certs__logo" src="/logos/redhat.svg" alt="" width="32" height="24" loading="lazy" />Red Hat</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/caa4840d-ac2e-4f12-ab1d-622f5f696c93" target="_blank" rel="noopener noreferrer"
 						>Managing Virtual Machines with Red Hat OpenShift Virtualization (DO316)</a
@@ -405,7 +417,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Docker, Inc.</dt>
+				<dt><img class="certs__logo" src="/logos/docker.svg" alt="" width="32" height="24" loading="lazy" />Docker, Inc.</dt>
 				<dd>
 					<a class="certs__name" href="https://www.linkedin.com/learning/certificates/865b653f03fda3226d27019c6433b3b1faaf05b6c529a1f2bbede39c7164fa1c" target="_blank" rel="noopener noreferrer"
 						>Docker Foundations Professional Certificate</a
@@ -414,7 +426,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Codefresh</dt>
+				<dt><img class="certs__logo" src="/logos/codefresh.svg" alt="" width="32" height="24" loading="lazy" />Codefresh</dt>
 				<dd>
 					<a class="certs__name" href="https://www.credly.com/badges/8ed564b0-c408-473c-b569-82ba9a4a03d5" target="_blank" rel="noopener noreferrer"
 						>GitOps Fundamentals</a
@@ -423,7 +435,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>Microsoft Certified</dt>
+				<dt><img class="certs__logo" src="/logos/microsoft.svg" alt="" width="32" height="24" loading="lazy" />Microsoft Certified</dt>
 				<dd>
 					<a class="certs__name" href="https://learn.microsoft.com/en-us/users/vorrapongkertnat-3957/credentials/3b5ff7fc1cba6203" target="_blank" rel="noopener noreferrer"
 						>Security, Compliance, and Identity Fundamentals</a
@@ -456,7 +468,7 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 				</dd>
 			</div>
 			<div class="certs__group">
-				<dt>NSTDA</dt>
+				<dt><img class="certs__logo" src="/logos/nstda.svg" alt="" width="32" height="24" loading="lazy" />NSTDA</dt>
 				<dd>
 					<span class="certs__name">Information Technology Passport Examination (IP)</span>
 					<span class="certs__when">THIP20A0110 · ต.ค. 2020</span>
@@ -557,6 +569,38 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 		color: var(--ink);
 	}
 
+	.cv__body {
+		display: flow-root;
+	}
+
+	.cv__logo {
+		float: left;
+		width: 4.5rem;
+		height: 3rem;
+		margin: 0 var(--space-4) var(--space-2) 0;
+		object-fit: contain;
+	}
+
+	.cv__logo--sirisoft {
+		position: relative;
+	}
+
+	.cv__logo--sirisoft::before,
+	.cv__logo--sirisoft::after {
+		position: absolute;
+		inset: 0;
+		background: url('/logos/sirisoft.png') center / contain no-repeat;
+		content: '';
+	}
+
+	.cv__logo--sirisoft::before {
+		filter: brightness(0);
+	}
+
+	.cv__logo--sirisoft::after {
+		clip-path: inset(0 74% 0 0);
+	}
+
 	.cv__meta {
 		display: block;
 		color: var(--ink-muted);
@@ -587,6 +631,9 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 	}
 
 	.certs dt {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
 		padding-top: 0.35em;
 		color: var(--ink-muted);
 		font-family: var(--stack-meta);
@@ -595,6 +642,13 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 		letter-spacing: 0.22em;
 		line-height: 1.6;
 		text-transform: uppercase;
+	}
+
+	.certs__logo {
+		flex: none;
+		width: 2rem;
+		height: 1.5rem;
+		object-fit: contain;
 	}
 
 	.certs dd {

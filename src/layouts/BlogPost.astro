@@ -121,7 +121,7 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 				{
 					heroImage && (
 						<figure class="hero-image">
-							<img src={heroImage.src} width={1020} height={510} alt="" decoding="async" />
+							<img src={heroImage.src} width={heroImage.width} height={heroImage.height} alt="" decoding="async" />
 						</figure>
 					)
 				}
@@ -274,6 +274,7 @@ const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาท
 	.hero-image img {
 		display: block;
 		width: 100%;
+		height: auto;
 		border: 1px solid var(--line-light);
 	}
 	.prose {
