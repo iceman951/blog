@@ -136,7 +136,11 @@ const featured = panels
 												</time>
 											<span class="body">
 												<span class="title">{post.data.title}</span>
-												{post.data.seriesOrder && <span class="series-marker">Series · ตอน {String(post.data.seriesOrder).padStart(2, '0')}</span>}
+											{post.data.seriesOrder && (
+												<span class="series-marker">
+													{t(lang, 'series')} · {t(lang, 'episode')} {String(post.data.seriesOrder).padStart(2, '0')}
+												</span>
+											)}
 												<TagList tags={post.data.tags} variant="inline" />
 												</span>
 												<span class="arrow" aria-hidden="true">—</span>
