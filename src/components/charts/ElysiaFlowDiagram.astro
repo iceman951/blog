@@ -102,14 +102,14 @@ const animation = kind === 'handler' ? [
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<ul class="parse-list">
 						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
-						<li class="skipped">ข้าม body, headers, cookies</li>
+						<li class="skipped">ไม่เตรียมส่วนที่ route ไม่ใช้ใน context</li>
 					</ul>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<p class="endpoint">Handler อ่าน query.id</p>
 				</div>
 			</div>
 			<p class="takeaway">ได้ข้อมูลที่ handler ต้องใช้เหมือนกัน แต่เตรียมข้อมูลน้อยลง</p>
-			<figcaption>เทียบขั้นตอนสมมติ ไม่ใช่การวัดเวลา และไม่ได้หมายความว่า framework อื่นทุกตัวเตรียมข้อมูลทุกส่วนเสมอ</figcaption>
+			<figcaption>เทียบขั้นตอนสมมติ ไม่ใช่การวัดเวลา การไม่เตรียม headers ใน context ไม่ได้หมายถึง request ไม่มี headers และไม่ได้หมายความว่า framework อื่นทุกตัวเตรียมข้อมูลทุกส่วนเสมอ</figcaption>
 		</>
 	)}
 	{kind === 'compilation' && (
