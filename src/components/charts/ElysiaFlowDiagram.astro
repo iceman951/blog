@@ -1,0 +1,340 @@
+---
+import ElysiaDiagramIcon from './ElysiaDiagramIcon.astro';
+import ElysiaRequestScene from './ElysiaRequestScene.astro';
+
+interface Props {
+	kind: 'handler' | 'parsing' | 'compilation';
+}
+
+const { kind } = Astro.props;
+const titles = {
+	handler: 'เขียนโค้ดครั้งเดียว แล้วรับ request อย่างไร?',
+	parsing: 'Route ใช้แค่ query ต้องเตรียมอะไรบ้าง?',
+	compilation: 'งานสร้าง handler เกิดขึ้นตอนไหน?',
+};
+const steps = [
+	{ title: 'เขียนโค้ด' },
+	{ title: 'อ่านสิ่งที่ใช้' },
+	{ title: 'เตรียม handler' },
+	{ title: 'รับ request ซ้ำ' },
+];
+const phases = ['ตอน build', 'ตอนเริ่มแอป', 'Request แรก', 'Request ถัดไป'];
+const timelines = [
+	{ title: 'AOT ใน paper ปี 2024', note: 'เปิดแอปแล้วค่อยเตรียม', compile: 1, actions: ['ยังไม่เตรียม', 'ประกอบ handler', 'พร้อมใช้', 'ใช้ตัวเดิม'] },
+	{ title: 'JIT แบบ lazy ใน docs', note: 'มีคนเรียก route ครั้งแรก แล้วค่อยเตรียม', compile: 2, actions: ['ยังไม่เตรียม', 'รอเรียกครั้งแรก', 'ประกอบแล้วใช้', 'ใช้ตัวเดิม'] },
+	{ title: 'Elysia 2 + build-time AOT', note: 'เตรียมใส่ไฟล์ไว้ก่อนเปิดแอป', compile: 0, actions: ['ประกอบ handler', 'โหลดไฟล์ที่เตรียมไว้', 'พร้อมใช้', 'ใช้ตัวเดิม'] },
+];
+const animation = kind === 'handler' ? [
+	{ step: 0, text: 'เริ่มจากโค้ดของเรา: route นี้อ่านแค่ query.id' },
+	{ step: 1, text: 'แว่นขยายแทน Sucrose: อ่านโค้ดแล้วพบว่าใช้แค่ query ไม่ต้องเรียกโค้ดให้ทำงาน' },
+	{ step: 2, text: 'ใส่เฉพาะขั้นตอนอ่าน query ลงใน handler ที่เตรียมไว้สำหรับ route นี้' },
+	{ step: 3, text: 'ซองที่ 1: ผู้ใช้ขอ /user?id=42 → handler อ่าน query → ส่งคำตอบ 42' },
+	{ step: 3, text: 'ซองที่ 2 ผ่าน handler ตัวเดิม ส่วนที่อ่านโค้ดด้านบนไม่ต้องทำใหม่' },
+	{ step: 3, text: 'ซองที่ 3 ก็ใช้ตัวเดิม: งานเตรียมทำครั้งเดียว แต่งานตอบ request ทำทุกครั้ง' },
+] : kind === 'compilation' ? [
+	{ step: 0, text: 'ตอน build: Elysia 2 ที่เปิด build-time AOT เตรียม handler ไว้ใน artifact' },
+	{ step: 1, text: 'ตอนเริ่มแอป: AOT ใน paper สร้าง handler ส่วน build-time AOT โหลดผลที่เตรียมไว้' },
+	{ step: 2, text: 'Request แรกของ route: แบบ lazy ต้องสร้าง handler ก่อน ส่วนอีกสองแบบใช้ที่เตรียมไว้' },
+	{ step: 3, text: 'Request ถัดไป: ทั้งสามแบบใช้ handler เดิม ความต่างคือจ่ายงานสร้างไปตอนไหน' },
+] : [];
+---
+
+<elysia-flow-player data-frames={JSON.stringify(animation)}>
+<figure class="elysia-diagram" aria-labelledby={`elysia-${kind}-title`}>
+	<p class="diagram-title" id={`elysia-${kind}-title`}>{titles[kind]}</p>
+	{animation.length > 0 && (
+		<div class="player-controls" hidden>
+			<p class="player-invitation">ภาพเล่นวนอัตโนมัติ — กดหยุดเพื่ออ่านค้างไว้ หรือเลือกดูทีละขั้นได้</p>
+			<div class="player-buttons">
+				<button type="button" data-play aria-controls={`elysia-${kind}-graphic`}>
+					<svg class="play-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+						<path class="icon-play" d="M7 3v18l15-9z" fill="currentColor" />
+						<path class="icon-pause" d="M5 4h5v16H5zm9 0h5v16h-5z" fill="currentColor" />
+					</svg>
+					<span data-play-label>เล่นภาพเคลื่อนไหว</span>
+				</button>
+				<div class="secondary-controls">
+					<button type="button" data-next aria-controls={`elysia-${kind}-graphic`}>ทีละขั้น →</button>
+					<button type="button" data-reset aria-controls={`elysia-${kind}-graphic`}>ดูภาพรวม</button>
+				</div>
+			</div>
+			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง</p>
+		</div>
+	)}
+	{kind === 'handler' && (
+		<>
+			<div id="elysia-handler-graphic">
+			<ElysiaRequestScene />
+			<ol class="handler-flow">
+				{steps.map((step, index) => (
+					<li data-step={index}>
+						<span class="step-number" aria-hidden="true">{index + 1}</span>
+						<div>
+							<strong>{step.title}</strong>
+						</div>
+					</li>
+				))}
+			</ol>
+			</div>
+			<p class="takeaway">JavaScript engine ยัง optimize / JIT โค้ดนี้ต่อได้ระหว่างที่แอปทำงาน</p>
+			<figcaption>ภาพแนวคิดของ route ที่ใช้ query อย่างเดียว โดยไม่มี hooks หรือ schema ที่ต้องใช้ข้อมูลส่วนอื่น ช่วงวิเคราะห์และสร้างอาจอยู่ตอน build, startup หรือ request แรก ตามโหมดที่ใช้ ภาพไม่ได้แสดงเวลาที่วัดจริง</figcaption>
+		</>
+	)}
+	{kind === 'parsing' && (
+		<>
+			<div class="parsing-comparison">
+				<div class="parse-path">
+					<p class="path-title">เตรียมทุกส่วน</p>
+					<p class="endpoint">Request</p>
+					<span class="down-arrow" aria-hidden="true">↓</span>
+					<ul class="parse-list">
+						<li><span class="data-icon"><ElysiaDiagramIcon name="package" /></span> body</li>
+						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
+						<li><span class="data-icon"><ElysiaDiagramIcon name="code" /></span> headers</li>
+						<li><span class="data-icon"><ElysiaDiagramIcon name="package" /></span> cookies</li>
+					</ul>
+					<span class="down-arrow" aria-hidden="true">↓</span>
+					<p class="endpoint">Handler อ่าน query.id</p>
+				</div>
+				<div class="parse-path specialized">
+					<p class="path-title">เตรียมตาม route</p>
+					<p class="endpoint">Request</p>
+					<span class="down-arrow" aria-hidden="true">↓</span>
+					<ul class="parse-list">
+						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
+						<li class="skipped">ข้าม body, headers, cookies</li>
+					</ul>
+					<span class="down-arrow" aria-hidden="true">↓</span>
+					<p class="endpoint">Handler อ่าน query.id</p>
+				</div>
+			</div>
+			<p class="takeaway">ได้ข้อมูลที่ handler ต้องใช้เหมือนกัน แต่เตรียมข้อมูลน้อยลง</p>
+			<figcaption>เทียบขั้นตอนสมมติ ไม่ใช่การวัดเวลา และไม่ได้หมายความว่า framework อื่นทุกตัวเตรียมข้อมูลทุกส่วนเสมอ</figcaption>
+		</>
+	)}
+	{kind === 'compilation' && (
+		<>
+			<div class="timelines" id="elysia-compilation-graphic">
+				{timelines.map((timeline) => (
+					<div class="timeline-row">
+						<p class="path-title">{timeline.title}<span class="detail">{timeline.note}</span></p>
+						<ol class="timeline">
+							{timeline.actions.map((action, index) => (
+								<li data-step={index} class:list={{ compilation: index === timeline.compile }}>
+									<span class="phase">{phases[index]}</span>
+									<span class="timeline-picture" data-illustration={index === timeline.compile ? 'build' : 'ready'}>
+										<ElysiaDiagramIcon name={index < timeline.compile ? 'wait' : index === timeline.compile ? 'build' : index === 1 ? 'package' : 'ready'} />
+										{index >= 2 && <span class="timeline-packet" data-delivery><ElysiaDiagramIcon name="request" /></span>}
+									</span>
+									<strong>{action}</strong>
+								</li>
+							))}
+						</ol>
+					</div>
+				))}
+			</div>
+			<p class="takeaway">ชิ้นส่วนจิ๊กซอว์ = กำลังเตรียม · ไฟล์ ✓ = พร้อมใช้ · ซอง = request ที่เข้ามา</p>
+			<figcaption>แสดงเฉพาะงานสร้าง handler: <code>precompile: true</code> ย้ายงานแบบ lazy ไป startup ได้ ส่วน engine JIT เป็นอีกชั้นหนึ่งและยังเกิดระหว่างรันได้ในทั้งสามแบบ</figcaption>
+		</>
+	)}
+</figure>
+</elysia-flow-player>
+
+<script>
+	type Frame = { step: number; text: string };
+
+	class ElysiaFlowPlayer extends HTMLElement {
+		connectedCallback() {
+			const frames: Frame[] = JSON.parse(this.dataset.frames ?? '[]');
+			const controls = this.querySelector<HTMLElement>('.player-controls');
+			if (!frames.length || !controls || this.dataset.ready) return;
+			this.dataset.ready = 'true';
+			const play = this.querySelector<HTMLButtonElement>('[data-play]')!;
+			const playLabel = this.querySelector<HTMLElement>('[data-play-label]')!;
+			const next = this.querySelector<HTMLButtonElement>('[data-next]')!;
+			const reset = this.querySelector<HTMLButtonElement>('[data-reset]')!;
+			const status = this.querySelector<HTMLElement>('.player-status')!;
+			const nodes = this.querySelectorAll<HTMLElement>('[data-step]');
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			let position = -1;
+			let timer: ReturnType<typeof setInterval> | undefined;
+			let motions: Animation[] = [];
+			const move = (selector: string, keyframes: Keyframe[], duration = 1600, delay = 0) => {
+				for (const element of this.querySelectorAll<HTMLElement | SVGElement>(selector)) {
+					if (typeof element.animate === 'function') {
+						motions.push(element.animate(keyframes, { duration, delay, easing: 'ease-in-out', fill: 'both' }));
+					}
+				}
+			};
+			const idleLabel = () => reducedMotion.matches ? 'เริ่มดูทีละขั้น' : position >= 0 ? 'เล่นต่อ' : 'เล่นภาพเคลื่อนไหว';
+			const pause = () => {
+				clearInterval(timer);
+				timer = undefined;
+				motions.forEach((motion) => motion.pause());
+				status.setAttribute('aria-live', 'polite');
+				playLabel.textContent = idleLabel();
+				play.toggleAttribute('data-playing', false);
+			};
+			const show = (animate = false) => {
+				motions.forEach((motion) => motion.cancel());
+				motions = [];
+				const frame = frames[position];
+				this.dataset.stage = frame ? String(frame.step) : 'overview';
+				for (const node of nodes) {
+					const active = Boolean(frame && Number(node.dataset.step) === frame.step);
+					node.toggleAttribute('data-current', active);
+					if (active) node.setAttribute('aria-current', 'step');
+					else node.removeAttribute('aria-current');
+				}
+				status.textContent = frame
+					? `${position + 1}/${frames.length} — ${frame.text}`
+					: 'กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง';
+				next.disabled = position === frames.length - 1;
+				reset.disabled = position === -1;
+				if (animate && frame && !reducedMotion.matches) {
+					if (frame.step === 1) move('.scanner', [{ transform: 'translateX(-70px)' }, { transform: 'translateX(0)' }]);
+					if (frame.step === 2) move('.query-assembly', [{ transform: 'translateY(-85px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }]);
+					if (frame.step === 3) {
+						move('[data-packet]', [{ transform: 'translateX(0)', offset: 0 }, { transform: 'translateX(110px)', offset: 0.4 }, { transform: 'translateX(110px)', offset: 0.6 }, { transform: 'translateX(305px)', offset: 1 }]);
+						move('.response', [{ opacity: 0.25 }, { opacity: 1 }], 400, 1200);
+					}
+					move('[data-current] [data-illustration="build"] > svg', [{ transform: 'translateY(-12px)', opacity: 0.3 }, { transform: 'translateY(0)', opacity: 1 }], 800);
+					move('[data-current] [data-delivery]', [{ transform: 'translateX(-35px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1, offset: 0.3 }, { transform: 'translateX(35px)', opacity: 0 }], 1000, 800);
+				}
+			};
+			const start = () => {
+				if (timer !== undefined) return;
+				// Avoid repeatedly announcing every frame while the animation loops.
+				status.setAttribute('aria-live', reducedMotion.matches ? 'polite' : 'off');
+				if (position === -1 || reducedMotion.matches) {
+					position = (position + 1) % frames.length;
+					show(true);
+				}
+				if (reducedMotion.matches) return pause();
+				motions.forEach((motion) => motion.play());
+				playLabel.textContent = 'หยุดชั่วคราว';
+				play.toggleAttribute('data-playing', true);
+				timer = setInterval(() => { position = (position + 1) % frames.length; show(true); }, 2800);
+			};
+			play.addEventListener('click', () => { if (timer !== undefined) pause(); else start(); });
+			next.addEventListener('click', () => {
+				pause();
+				position = Math.min(position + 1, frames.length - 1);
+				show();
+			});
+			reset.addEventListener('click', () => { position = -1; pause(); show(); });
+			const updateInvitation = () => {
+				const invitation = this.querySelector<HTMLElement>('.player-invitation');
+				if (invitation) invitation.textContent = reducedMotion.matches
+					? 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มดูทีละขั้นเพื่ออ่านตามจังหวะของคุณ'
+					: 'ภาพเล่นวนอัตโนมัติ — กดหยุดเพื่ออ่านค้างไว้ หรือเลือกดูทีละขั้นได้';
+			};
+			const onMotionChange = () => { pause(); show(); updateInvitation(); };
+			reducedMotion.addEventListener('change', onMotionChange);
+			this.cleanup = () => {
+				pause();
+				motions.forEach((motion) => motion.cancel());
+				reducedMotion.removeEventListener('change', onMotionChange);
+			};
+			pause();
+			show();
+			controls.hidden = false;
+			updateInvitation();
+			if (!reducedMotion.matches) start();
+		}
+
+		cleanup?: () => void;
+		disconnectedCallback() { this.cleanup?.(); }
+	}
+
+	if (!customElements.get('elysia-flow-player')) customElements.define('elysia-flow-player', ElysiaFlowPlayer);
+</script>
+
+<style>
+	elysia-flow-player { display: block; }
+	.player-controls { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+	.player-invitation { margin: 0 0 0.75rem; color: var(--ink); font-size: 0.85rem; }
+	.player-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+	.secondary-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+	.player-buttons button {
+		min-height: 44px; padding: 0.4rem 0.75rem; border: 1px solid var(--ink-muted);
+		background: var(--paper); color: var(--ink); font: inherit; cursor: pointer;
+	}
+	.player-buttons [data-play] {
+		display: inline-flex; justify-content: center; align-items: center; gap: 0.65rem;
+		min-height: 54px; min-width: 14rem; padding: 0.65rem 1.1rem;
+		border: 2px solid var(--indigo); background: var(--indigo); color: var(--paper);
+		font-size: 1rem; font-weight: 600;
+	}
+	.player-buttons [data-play]:hover { background: var(--ink); border-color: var(--ink); }
+	.secondary-controls button:not(:disabled):hover { background: var(--paper-deep); border-color: var(--ink); }
+	.play-icon { flex-shrink: 0; }
+	.icon-pause, [data-playing] .icon-play { display: none; }
+	[data-playing] .icon-pause { display: block; }
+	.player-buttons button:disabled { opacity: 0.5; cursor: default; }
+	.player-buttons button:focus-visible { outline: 2px solid var(--vermilion); outline-offset: 3px; }
+	.player-status { margin: 0.75rem 0 0; min-height: 5.1em; font-size: 0.8rem; }
+	.handler-flow li[data-current] { border-color: var(--vermilion); background: var(--paper); }
+	.handler-flow li[data-current] .step-number { background: var(--indigo); color: var(--paper); }
+	.timeline li[data-current] { border-bottom: 4px solid var(--vermilion); background: var(--paper-deep); }
+	@media print { .player-controls { display: none; } }
+	.elysia-diagram {
+		margin: 2rem 0 2.5rem;
+		padding: 1.25rem;
+		border: 1px solid var(--line);
+		background: var(--paper-alt);
+		color: var(--ink);
+		font-family: var(--stack-meta);
+		font-size: 0.85rem;
+		line-height: 1.7;
+	}
+	.diagram-title { margin: 0 0 1.25rem; font-size: 1rem; font-weight: 600; }
+	.elysia-diagram strong { display: block; font-weight: 600; }
+	.detail { display: block; color: var(--ink-soft); font-size: 0.8rem; font-weight: 400; }
+	.handler-flow, .parse-list, .timeline { margin: 0; padding: 0; list-style: none; }
+	.handler-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 1rem; }
+	.handler-flow li { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; margin: 0; border: 1px solid var(--line); font-size: 0.75rem; }
+	.step-number { display: grid; place-items: center; flex: 0 0 1.5rem; height: 1.5rem; background: var(--paper); font-variant-numeric: tabular-nums; }
+	.parsing-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+	.parse-path { display: flex; flex-direction: column; min-width: 0; }
+	.path-title { margin: 0 0 0.75rem; font-weight: 600; }
+	.endpoint { margin: 0; padding: 0.5rem; border: 1px solid var(--line); text-align: center; background: var(--paper); }
+	.down-arrow { display: block; text-align: center; color: var(--ink-muted); line-height: 1.5; }
+	.parse-list { flex: 1; }
+	.parse-list li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; margin: 0 0 0.35rem; border: 1px solid var(--line); }
+	.parse-list .needed { border: 2px solid var(--indigo); background: var(--paper); }
+	.needed .used-label { margin-left: auto; font-size: 0.75rem; }
+	.data-icon { flex: 0 0 30px; line-height: 0; }
+	.data-icon :global(svg) { width: 30px; height: 30px; }
+	.timeline-picture { display: block; position: relative; width: 64px; margin: 0.5rem auto; color: var(--indigo); }
+	.timeline-picture > :global(svg) { display: block; width: 64px; height: 64px; }
+	.timeline-packet { display: block; position: absolute; left: 18px; top: 28px; width: 30px; opacity: 0; color: var(--vermilion); }
+	.timeline-packet :global(svg) { display: block; width: 30px; height: 30px; background: var(--paper); }
+	.timeline li { text-align: center; }
+
+	.parse-list .skipped { border: 0; font-size: 0.78rem; color: var(--ink-soft); }
+	.timeline-row + .timeline-row { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+	.timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+	.timeline li { position: relative; margin: 0; padding: 0.5rem; border: 1px solid var(--line); border-bottom-width: 4px; background: var(--paper); }
+	.timeline li:not(:last-child)::after { content: '→'; position: absolute; right: -0.85rem; top: 50%; transform: translateY(-50%); color: var(--ink-muted); }
+	.timeline .compilation { outline: 2px solid var(--indigo); outline-offset: -2px; }
+	.phase { display: block; color: var(--ink-soft); font-size: 0.7rem; margin-bottom: 0.25rem; }
+	.timeline strong { font-size: 0.78rem; }
+	.takeaway { margin: 1rem 0 0; padding-top: 0.75rem; border-top: 1px solid var(--line); font-weight: 500; }
+	figcaption { margin-top: 0.75rem; font-size: 0.75rem; color: var(--ink-soft); }
+	@media (max-width: 560px) {
+		.elysia-diagram { padding: 1rem; }
+		.player-buttons [data-play] { width: 100%; min-width: 0; }
+		.parsing-comparison { grid-template-columns: 1fr; gap: 1.5rem; }
+		.specialized { border-top: 1px solid var(--line); padding-top: 1.25rem; }
+		.timeline { grid-template-columns: 1fr; gap: 0.75rem; }
+		.handler-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+		.timeline li { display: grid; grid-template-columns: 4.5rem 3rem minmax(0, 1fr); align-items: center; gap: 0.5rem; text-align: left; }
+		.timeline-picture { width: 44px; margin: 0; }
+		.timeline-picture > :global(svg) { width: 44px; height: 44px; }
+		.timeline-packet { left: 10px; top: 16px; }
+
+		.timeline li:not(:last-child)::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -1rem; transform: none; }
+		.phase { margin-bottom: 0; }
+	}
+</style>

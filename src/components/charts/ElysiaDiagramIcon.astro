@@ -1,0 +1,16 @@
+---
+interface Props {
+	name: 'code' | 'search' | 'build' | 'ready' | 'request' | 'wait' | 'package';
+}
+const { name } = Astro.props;
+---
+
+<svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	{name === 'code' && <><rect x="6" y="10" width="52" height="42" rx="3" /><path d="M6 21h52M13 16h1m5 0h1M24 29l-8 7 8 7m16-14 8 7-8 7m-5-16-6 20" /></>}
+	{name === 'search' && <><rect x="7" y="7" width="32" height="42" rx="2" /><path d="M14 17h17M14 25h12M14 33h8" /><circle cx="38" cy="37" r="13" fill="var(--paper, #f4efe4)" /><path d="m47 47 10 10m-25-20 4 4 8-9" /></>}
+	{name === 'build' && <><path d="M9 18h18v-7a5 5 0 0 1 10 0v7h18v16h-7a5 5 0 0 0 0 10h7v12H9V42h7a5 5 0 0 0 0-10H9Z" /><path d="m25 38 5 5 10-12" /></>}
+	{name === 'ready' && <><rect x="10" y="7" width="38" height="48" rx="3" /><path d="M18 18h21M18 26h15M18 34h11" /><circle cx="45" cy="43" r="13" fill="var(--paper, #f4efe4)" /><path d="m38 43 5 5 9-11" /></>}
+	{name === 'request' && <><rect x="6" y="17" width="52" height="34" rx="3" /><path d="m7 19 25 19 25-19M14 7h17m-6-5 6 5-6 5" /></>}
+	{name === 'wait' && <><circle cx="32" cy="32" r="23" /><path d="M32 17v16l10 6" /></>}
+	{name === 'package' && <><path d="m8 19 24-12 24 12v28L32 59 8 47Zm0 0 24 12 24-12M32 31v28M20 13l24 12v12" /></>}
+</svg>

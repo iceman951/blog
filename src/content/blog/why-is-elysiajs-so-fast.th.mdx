@@ -1,0 +1,188 @@
+---
+title: 'ทำไม ElysiaJS ถึงเร็ว? เจาะ AOT, JIT และ Static Analysis จากงานวิจัย ACM'
+description: 'ElysiaJS เร็วเพราะ Bun อย่างเดียวหรือ? อธิบายการวิเคราะห์และสร้าง handler เพื่อลดงานต่อ request พร้อมแยก AOT ในงานวิจัยปี 2024 จาก build-time AOT ของ Elysia 2'
+pubDate: '2026-09-30'
+lang: 'th'
+translationKey: 'why-is-elysiajs-so-fast'
+tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
+---
+
+import ElysiaFlowDiagram from '../../components/charts/ElysiaFlowDiagram.astro';
+
+> **หมายเหตุสำหรับ review ก่อนเผยแพร่:** ตรวจข้อความ abstract ที่เผยแพร่บน ACM แล้ว แต่ส่วนที่อ้าง section และตัวเลขยังอิงบันทึกประกอบโจทย์ และยังไม่ได้ตรวจเทียบ paper ฉบับเต็ม เพราะ ACM ตอบ 403 ส่วนเอกสาร Elysia และสถานะรุ่นตรวจจากแหล่งทางการวันที่ 30 กันยายน 2026 แล้ว ต้องตรวจ paper และนำหมายเหตุนี้ออกก่อนเผยแพร่
+
+ElysiaJS เร็วเพราะ Bun ใช่ไหม? แต่ framework บน Bun เหมือนกันก็ทำงานต่อ request ไม่เท่ากันครับ คำถามคือ ก่อนโค้ดของเราจะทำงาน framework ต้องทำอะไรให้บ้าง
+
+**Elysia ลดงานต่อ request ด้วยการวิเคราะห์ route และ handler แล้วสร้าง JavaScript ที่เหมาะกับ route นั้น** ถ้าต้องใช้แค่ query ก็ไม่จำเป็นต้องเตรียม body, headers และ cookies ให้ครบทุกอย่าง ถ้างานเป็น synchronous ก็ไม่ควรเพิ่มการรอแบบ asynchronous โดยไม่จำเป็น Bun มีส่วน แต่ framework เองก็เลือกได้ว่าจะส่งงานให้ runtime ทำมากแค่ไหน
+
+แนวคิด Static Analysis และ Dynamic Code Generation เป็นแกนของงาน [Elysia: Optimizing JavaScript Web Framework — ACM SAC 2024](https://doi.org/10.1145/3605098.3636068) โดย Chayapatr Archiwaranguprok, Kongkeit Khunpanitchot, Phoomparin Mano และ Manachai Toahchoodee บทความนี้จะไล่กลไกเหล่านั้น แล้วแยกให้ชัดว่ามันพัฒนามาถึง build-time AOT ของ Elysia 2 อย่างไร
+
+## สรุป Abstract: ทำไมถึงออกแบบ framework แบบนี้?
+
+[Abstract ของงานวิจัย](https://doi.org/10.1145/3605098.3636068) ตั้งโจทย์ไว้สามด้านพร้อมกัน: ความเร็วขณะรัน, ความสะดวกของคนเขียนโค้ด และ **type safety** หรือการช่วยตรวจว่าชนิดข้อมูลใช้เข้ากันได้ เรื่องเหล่านี้มีผลต่อการขยายระบบและการดูแลโค้ดเมื่อโปรเจกต์โตขึ้น
+
+แนวทางที่เสนอคือ **ลดต้นทุนของฟีเจอร์ที่ทำให้เขียนโค้ดสะดวก** โดยใช้การวิเคราะห์โค้ดและสร้าง JavaScript ขึ้นมาระหว่างรัน ร่วมกับ JIT ของ JavaScript engine ส่วนระบบชนิดข้อมูลของ TypeScript ช่วยฝั่งประสบการณ์การพัฒนา ตรงนี้สรุปใจความของ abstract เป็นภาษาไทย ไม่ใช่คำแปลทุกประโยคครับ
+
+Elysia เป็น framework ที่นำแนวทางนี้มาใช้จริงในงานวิจัย โดยผู้วิจัยประเมินทั้งเทียบกับโค้ดที่ยังไม่ optimize และเทียบกับ backend framework อื่น Abstract อธิบายแนวทางกับวิธีประเมิน แต่ไม่ได้แจกแจงผลของแต่ละเทคนิคเป็นตัวเลข
+
+ถ้าอธิบายเหตุผลของการออกแบบในมุมผม: **ให้คนเขียนโค้ดบอกว่าต้องการอะไร แล้วให้ framework จัดงานเบื้องหลังให้พอดี** เช่น เราเขียนว่าใช้ `query.id` ได้ตามปกติ ส่วน Elysia ไปหาว่าต้องเตรียมข้อมูลอะไรบ้าง นี่คือภาพเชื่อมจากเป้าหมาย “เขียนง่ายและทำงานเร็ว” มาสู่กลไกที่จะอธิบายต่อไป
+
+**Route** คือเส้นทาง API เช่น `GET /user` ส่วน **handler** คือฟังก์ชันที่เราเขียนเพื่อส่งคำตอบกลับ Elysia จะสร้างฟังก์ชันอีกชั้นมาจัดการงานรอบ ๆ handler นี้
+
+<ElysiaFlowDiagram kind="handler" />
+
+## AOT กับ JIT ต่างกันอย่างไรใน Elysia?
+
+Ahead-of-Time หรือ **AOT** หมายถึงเตรียมโค้ดล่วงหน้าก่อนช่วงที่จะนำไปใช้งาน ส่วน Just-in-Time หรือ **JIT** คือคอมไพล์ระหว่างที่โปรแกรมกำลังทำงาน ปัญหาคือคำว่า “ล่วงหน้า” ในเรื่องนี้มีมากกว่าหนึ่งระดับครับ
+
+Section 3.1 ของ paper ใช้ AOT กับการวิเคราะห์ lifecycle และสร้าง handler ตอน application initialization ก่อนรับงานซ้ำ ๆ จาก request ผลลัพธ์ยังเป็น JavaScript ไม่ใช่ native binary ที่ข้าม JavaScript engine ไปเลย จากนั้น engine ก็สามารถ JIT โค้ดที่สร้างขึ้นต่อได้
+
+แต่[เอกสาร Elysia JIT Compiler ปัจจุบัน](https://elysiajs.com/internal/jit-compiler) เรียกตัวสร้างโค้ดของ framework ว่า JIT “compiler” และอธิบายการสร้าง handler เมื่อ route รับ request แรก โดยตั้ง `precompile: true` เพื่อย้ายงานไป startup ได้ ชื่อนี้จึงไม่ใช่ JIT ตัวเดียวกับที่อยู่ข้างใน engine
+
+ให้แยกสองคำถามไว้: **ใครเป็นคนคอมไพล์ และทำตอนไหน?** Elysia สร้าง request handler; engine จัดการ JavaScript อีกชั้นหนึ่ง ส่วน Elysia 2 ย้ายงานของ framework ไปก่อนเริ่มแอปอีกที
+
+## Elysia “อ่าน” handler ของเราอย่างไร
+
+สมมติเราเขียน TypeScript สั้น ๆ แบบนี้ เมื่อเรียก `/user?id=42` handler ต้องการแค่ค่า `id` จาก query หรือข้อมูลหลังเครื่องหมาย `?` ใน URL:
+
+```ts
+app.get('/user', ({ query }) => {
+  return query.id
+})
+```
+
+คนอ่านเห็นทันทีว่า handler นี้ใช้ `query` แนวทางใน Section 3.2 คือใช้ `handler.toString()` ดูโค้ดของฟังก์ชัน แล้วนำสิ่งที่วิเคราะห์ได้มาสร้าง handler ผ่าน `new Function(...)` แทนการส่งทุก route ผ่านเส้นทางทั่วไปชุดเดียวกัน
+
+ในเอกสารปัจจุบัน ตัววิเคราะห์นี้ชื่อ **Sucrose** มันทำ Static Analysis หรืออ่านโค้ดโดยไม่เรียก handler ให้ทำงาน ใช้ `Function.toString()` ร่วมกับ pattern matching ที่ออกแบบมาสำหรับงานนี้ ไม่ได้เป็น TypeScript compiler และไม่ได้ตรวจชนิดข้อมูลทั้งโปรเจกต์
+
+ผมเขียนภาพจำลองของ generated handler ให้เหลือแค่นี้:
+
+```js
+function tailoredHandler(request) {
+  const context = {
+    request,
+    query: parseQuery(request.url)
+  }
+
+  return mapResponse(routeHandler(context))
+}
+```
+
+**นี่คือโค้ดสมมติเพื่ออธิบาย ไม่ใช่ source code จริงของ Elysia** ทั้ง `parseQuery`, `mapResponse` และ `routeHandler` เป็นชื่อแทนขั้นตอน และละรายละเอียด validation, hooks กับ error handling ออกไป
+
+Static Analysis หาว่าต้องทำอะไร ส่วน Dynamic Code Generation เอาข้อมูลนั้นมาสร้างฟังก์ชัน คำว่า static จึงไม่ได้แปลว่าต้องเกิดตอน build เสมอไป
+
+## Parse เฉพาะสิ่งที่ route ใช้
+
+Sections 3.3–3.4 สนใจต้นทุนการเตรียมข้อมูล request ที่ handler ไม่ได้ใช้ สำหรับผม นี่คือคำอธิบาย ElysiaJS performance ที่จับต้องได้ที่สุด
+
+**Parse** ในที่นี้คือแปลงข้อมูลจาก request ให้อยู่ในรูปที่โค้ดใช้ได้ เช่น แยก `?id=42` ออกมาเป็น `query.id` ลองเทียบขั้นตอนสมมติสองแบบ:
+
+<ElysiaFlowDiagram kind="parsing" />
+
+แบบ “เตรียมทุกส่วน” เป็นภาพอธิบายต้นทุน ไม่ได้หมายความว่า framework อื่นทุกตัวทำแบบนี้ บางตัวก็รอจนข้อมูลถูกเรียกใช้แล้วค่อย parse สิ่งที่เรากำลังดูคือ Elysia ใช้ข้อมูลจากโค้ดมาตัดขั้นตอนออกอย่างไร
+
+การ parse มีทั้งการอ่านค่า แยกสตริง และสร้าง object งานเล็ก ๆ เหล่านี้ถูกทำซ้ำทุก request ถ้า route ไม่ใช้ข้อมูลนั้น การข้ามขั้นตอนไปเลยก็ลดงานได้ทั้งก้อน
+
+อย่างไรก็ตาม “route ใช้อะไร” ต้องรวมสิ่งที่ hooks และ schema ต้องใช้ด้วย ไม่ใช่มองเพียงบรรทัด `return` แล้วตัดการตรวจสอบทิ้ง ตัวอย่าง `/user` ข้างบนจึงตั้งใจให้ไม่มีเงื่อนไขอื่นมารบกวน การรักษาพฤติกรรมของแอปต้องมาก่อนการลด overhead
+
+## ไม่ `await` ถ้าไม่จำเป็น
+
+Section 3.8 พูดถึง Conditional Await: เลือกใช้ `await` เมื่อเส้นทางนั้นต้องรอ asynchronous result แทนการครอบทุก handler ด้วยรูปแบบเดียวกัน
+
+```js
+// ภาพจำลอง: รู้ว่า handler นี้คืนค่าทันที
+const result = handler(context)
+
+// ภาพจำลอง: ขั้นตอนถัดไปต้องรอผล asynchronous
+const result = await handler(context)
+```
+
+สองบรรทัดนี้เป็นทางเลือกคนละกรณี ไม่ใช่คำแนะนำให้ลบ `await` ครับ handler ที่ไม่ได้ประกาศ `async` ก็อาจคืน Promise ได้ และยังต้องรองรับผลลัพธ์นั้น
+
+Table 1 ในบันทึกจาก paper เปรียบเทียบต้นทุนเฉพาะจุดไว้ดังนี้ **หน่วยคือ operations/second ไม่ใช่ HTTP requests/second**:
+
+| รูปแบบ | Bun | Deno | Node.js |
+| --- | ---: | ---: | ---: |
+| Without Await | 256,120,282 | 162,337,662 | 162,501,497 |
+| With Await | 27,061,980 | 8,871,540 | 4,624,318 |
+
+ตัวเลขนี้อยู่ในบริบทชุดทดสอบยุค paper: Apple M1 Max, macOS 14, Bun 1.0.3, Deno 1.37.1 และ Node.js 18.16.0 และยังรอตรวจเทียบ Table 1 ฉบับเต็มก่อนเผยแพร่
+
+สิ่งที่ควรอ่านจากตารางคือ overhead ของการรอมีขนาดที่วัดได้เมื่อ operation ข้างในเล็กมาก **ไม่ได้หมายความว่าเอา `await` ออกแล้ว production app จะเร็วขึ้น 35 เท่า** ถ้าข้างในรอ database เวลาของ query ก็ยังอยู่ครบ
+
+## Router ไม่ได้มีคำตอบเดียวสำหรับทุก runtime
+
+Section 3.7 เปรียบเทียบวิธีจับคู่ static route ซึ่งรู้ pathname แน่นอน เช่น `/health` กับ `/users` ต่างจาก dynamic route อย่าง `/users/:id`
+
+ทางเลือกมีทั้ง `switch` ที่แยก case ตาม path, HashMap ที่ใช้ path เป็น key และ Radix Tree ที่จัดเส้นทางตาม prefix ร่วมกัน การรู้ชื่อ data structure ยังไม่พอจะบอกว่าตัวไหนเร็วกว่าใน engine ที่ใช้อยู่
+
+ตัวเลขจากบันทึกส่วนนี้แสดงการกลับลำดับระหว่าง runtime ได้ดี โดยปัดเป็นล้าน operations/second และยังต้องตรวจตารางต้นฉบับ:
+
+| Runtime ใน paper | Switch | HashMap |
+| --- | ---: | ---: |
+| Bun 1.0.3 | ประมาณ 32.0M | ประมาณ 23.9M |
+| Deno 1.37.1 | ประมาณ 160.5M | ประมาณ 241.5M |
+
+บน Bun ในการทดสอบนี้ switch นำ แต่บน Deno HashMap นำ นี่เป็น microbenchmark ของ route matching ในชุด environment เก่าข้างบน ไม่ใช่ throughput ของ HTTP server ทั้งตัว และไม่ได้บอกว่า Deno รับ HTTP request ได้มากกว่า Bun ตามสัดส่วนนี้
+
+ผมอ่านผลนี้เป็นเหตุผลให้ **วัด optimization บน runtime เป้าหมาย** มากกว่าท่องว่า switch ชนะเสมอ และตารางเก่าไม่ได้บอกว่า router ของ Elysia ปี 2026 ยังทำเหมือนเดิม
+
+## รู้โครงสร้างล่วงหน้า ก็ลดการตัดสินใจซ้ำได้
+
+อีกสองส่วนของ paper ใช้แนวคิดเดียวกันในคนละจุด
+
+**Inlining Property Assignments — Section 3.6:** ถ้ารู้แล้วว่าจะใส่ property อะไรใน context ก็สามารถสร้างคำสั่ง assignment โดยตรง แทนการวนรายการและค้นชื่อ property ใหม่ทุก request เป็นการแลกงานสร้างโค้ดล่วงหน้ากับงานซ้ำที่น้อยลง
+
+**Request Parsing via Schemas — Section 3.9:** schema มีประโยชน์มากกว่า validation และ type safety ข้อมูลเกี่ยวกับรูปแบบ body ช่วยเลือกวิธี parse ล่วงหน้าได้บางกรณี เช่น JSON, form data หรือ URL encoded จึงลดการตัดสินใจเลือก parser ระหว่างรับ request
+
+การเลือก parser ไม่ได้แทนการตรวจ input ครับ ยังต้องจัดการ JSON ผิดรูปแบบและ validate ตาม schema สิ่งที่ลดคือการตัดสินใจเลือกวิธี parse ซ้ำ
+
+## Benchmark จาก paper บอกอะไรจริง ๆ?
+
+Sections 4–5 เชื่อมกลไกกับผลของ Static Analysis และ Dynamic Code Generation แต่ต้องแยกก่อนว่า benchmark วัดอะไร
+
+ผมแยกหลักฐานเป็นสองระดับ **microbenchmark** อย่าง await และ router ช่วยถามว่าการเปลี่ยนขั้นตอนเฉพาะจุดลดต้นทุนได้ไหม ส่วน **HTTP benchmark** วัดเส้นทางรับส่ง request ที่รวมงานหลายส่วนเข้าด้วยกัน เอาตัวเลข ops/s จากตารางแรกไปเทียบ req/s จากอีกตารางตรง ๆ ไม่ได้
+
+ผล TechEmpower เป็นอีกชุดการทดลอง ต้องระบุ Round, วันที่, workload และเครื่อง server/client แยกต่างหาก อย่านำ environment ของ microbenchmark บน M1 Max ไปอธิบายผล TechEmpower
+
+Paper เผยแพร่ปี 2024 และใช้ runtime ในบริบทปี 2023/2024 ผลช่วยอธิบายการออกแบบ แต่ใช้แทน benchmark ปัจจุบันไม่ได้ และการเทียบคนละ framework ก็ไม่ได้แยกผลของ optimization แต่ละตัวให้เอง
+
+Section 4 ยังต้องตรวจวิธีทดลองจาก paper เต็ม โดยเฉพาะการเทียบผลเมื่อเปิดและปิดการวิเคราะห์กับการสร้างโค้ด จึงยังไม่ลงข้อสรุปเชิงตัวเลขในส่วนนี้
+
+## AOT ใน paper ปี 2024 กับ Elysia 2 ต่างกันอย่างไร?
+
+ณ วันที่ตรวจ **30 กันยายน 2026** บทความทางการ [Elysia 2 beta — DayDream](https://elysiajs.com/blog/elysia-20) ยังระบุ beta และให้ทดลองผ่าน `elysia@next` ขณะที่[หน้า releases ของ Elysia](https://github.com/elysiajs/elysia/releases) แสดง 1.4.30 เป็น Latest จึงควรอ่านส่วนนี้ในฐานะความสามารถของ Elysia 2 beta
+
+ความต่างหลักคือ **ย้ายการสร้างโค้ดจากตอนแอปกำลังรันไปไว้ในขั้น build** โดยเลือกใช้ AOT plugin และ export Elysia instance ให้ plugin เข้าถึงได้ ตัวอย่างขั้น build ตามเอกสารคือ:
+
+```ts
+import { aot } from 'elysia/plugin/aot/bun'
+
+await Bun.build({
+  entrypoints: ['src/index.ts'],
+  outdir: 'dist',
+  target: 'bun',
+  plugins: [aot('src/index.ts')]
+})
+```
+
+เอกสารระบุว่างานที่ทำล่วงหน้าได้มีทั้ง compile handler, compile TypeBox และ Exact mirror schema, precompute การ merge default properties, วิเคราะห์ Elysia modules ที่ไม่ได้ใช้ และสร้างโค้ดสำหรับ target platform ถ้า precompile TypeBox schema ได้ครบ ก็ลดส่วน compiler ที่ต้องติดไปกับแอปได้ด้วย
+
+<ElysiaFlowDiagram kind="compilation" />
+
+นี่เป็นภาพย่อของช่วงที่เกิดงาน แอปยังมี startup cost และ engine ยังทำ JIT ได้ การเตรียม handler กับการ optimize ของ engine เป็นคนละชั้น
+
+Build-time AOT จึงตอบเรื่อง startup และขนาดแอปด้วย ไม่ใช่แค่ throughput หลัง warm-up นี่คือความต่างจาก AOT ใน paper แม้ใช้แนวคิดเตรียมงานล่วงหน้าร่วมกัน
+
+## แล้ว Bun มีส่วนไหม?
+
+มีครับ [เอกสาร platform-specific optimization ของ Elysia](https://elysiajs.com/internal/jit-compiler#platform-specific-optimization) ยกตัวอย่าง `Bun.serve.routes` สำหรับ native routing, การเลือก `Bun.file` เมื่อใช้ได้ และ `Headers.toJSON()` เพื่อลดงานจัดการ headers
+
+การลด overhead ของ framework กับการใช้ API ที่ runtime เตรียมไว้จึงเสริมกันได้ ส่วน Sucrose และตัวสร้างโค้ดก็มีต้นทุนของมันเอง ทั้งการวิเคราะห์ครั้งแรก หน่วยความจำสำหรับ generated handlers และความซับซ้อนในการดูแล implementation ตามที่เอกสาร internals อธิบายไว้ ความเร็วไม่ได้เกิดขึ้นฟรี
+
+ถ้าถามว่าจะทำให้ API ของเราเร็วขึ้นแค่ไหน ต้องกลับไปดูงานที่ API ทำครับ ถ้าเวลาส่วนใหญ่หมดไปกับการรอ database หรือ network การลดงานของ framework ก็อาจเปลี่ยนเวลารวมได้น้อยมาก เพราะไม่ได้ทำให้ query หรือบริการปลายทางตอบเร็วขึ้นตามไปด้วย
+
+คำตอบของ “ทำไม ElysiaJS ถึงเร็ว?” จึงอยู่ที่ทั้ง **runtime และงานที่ framework เลือกไม่ทำซ้ำ** Bun ช่วยให้เส้นทางที่เหลือทำงานได้เร็ว ส่วน Elysia วิเคราะห์และสร้างเส้นทางให้เหมาะกับ route นั้น ก่อนจะนำ performance ของ framework ไปตัดสินแอป ผมอยากรู้ก่อนว่าเวลาของแอปหมดอยู่ตรงเส้นทางนี้จริงหรือเปล่า
+
+อ่านต่อถ้าอยากดูกรณีที่ฐานข้อมูลเป็นคอขวด: [ผลทดสอบ Elysia กับ Hono บน PostgreSQL](/blog/th/elysia-hono-postgres-on-m5-air/)

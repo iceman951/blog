@@ -1,0 +1,81 @@
+---
+// The player sets data-stage and animates the envelope. All text stays available
+// in the surrounding figure, including when JavaScript or motion is disabled.
+---
+
+<svg class="request-scene" viewBox="0 0 600 330" role="img" aria-label="Elysia อ่านโค้ดที่ใช้ query แล้วเตรียม handler ไว้ ซอง request หลายใบเดินผ่าน handler ตัวเดิมและได้คำตอบ 42 โดยไม่สร้าง handler ใหม่">
+	<g class="preparation">
+		<rect x="187" y="12" width="226" height="80" rx="4" class="paper" />
+		<path d="M187 33h226" class="line" />
+		<circle cx="200" cy="23" r="3" class="dot" /><circle cx="211" cy="23" r="3" class="dot" />
+		<text x="300" y="58" text-anchor="middle" class="code">query.id</text>
+		<text x="300" y="80" text-anchor="middle" class="small">โค้ดที่เราเขียน</text>
+		<g class="scanner">
+			<circle cx="347" cy="56" r="25" class="lens" />
+			<path d="m365 75 17 17" class="thick" />
+		</g>
+		<path d="M300 97v32m-6-7 6 7 6-7" class="line" />
+	</g>
+
+	<path d="M139 202h93m-8-6 8 6-8 6M368 202h94m-8-6 8 6-8 6" class="track" />
+	<g class="client">
+		<rect x="15" y="156" width="124" height="86" rx="4" class="paper" />
+		<path d="M15 177h124M28 166h2m8 0h2" class="line" />
+		<text x="77" y="207" text-anchor="middle" class="code small">/user?id=42</text>
+		<path d="m113 219 5 13 3-5 6-2Z" class="cursor" />
+		<text x="77" y="273" text-anchor="middle" class="label">ผู้ใช้เรียก API</text>
+	</g>
+	<g class="handler-machine">
+		<rect x="237" y="142" width="126" height="108" rx="4" class="machine" />
+		<path d="M252 160h96M252 169h96" class="machine-lines" />
+		<g class="query-assembly">
+			<rect x="255" y="183" width="90" height="43" rx="2" class="query-piece" />
+			<text x="300" y="211" text-anchor="middle" class="code">query</text>
+		</g>
+		<circle cx="349" cy="238" r="4" class="ready-light" />
+		<text x="300" y="273" text-anchor="middle" class="label">handler ตัวเดิม</text>
+	</g>
+	<g class="response">
+		<path d="M478 148h65l29 29v73h-94Zm65 0v29h29" class="paper" />
+		<text x="525" y="223" text-anchor="middle" class="answer">42</text>
+		<text x="525" y="273" text-anchor="middle" class="label">คำตอบ</text>
+	</g>
+	<g class="request-packet" data-packet aria-hidden="true">
+		<rect x="145" y="187" width="36" height="26" rx="3" />
+		<path d="m146 189 17 12 17-12" />
+	</g>
+	<text x="300" y="311" text-anchor="middle" class="scene-hint">เตรียมครั้งเดียว แล้วรับ request ได้หลายครั้ง</text>
+</svg>
+
+<style>
+	.request-scene { display: block; width: 100%; height: auto; color: var(--ink); overflow: visible; }
+	.paper { fill: var(--paper); stroke: var(--ink-muted); stroke-width: 2; }
+	.line, .track { fill: none; stroke: var(--ink-muted); stroke-width: 2; stroke-linecap: round; }
+	.track { stroke-dasharray: 5 6; }
+	.dot { fill: var(--ink-muted); }
+	.code { font-family: monospace; font-size: 24px; fill: var(--ink); }
+	.small { font-size: 18px; fill: var(--ink-soft); }
+	.label { font-size: 21px; fill: var(--ink); }
+	.answer { font-size: 44px; font-weight: 600; fill: var(--indigo); }
+	.scene-hint { font-size: 20px; fill: var(--ink-soft); }
+	.cursor { fill: var(--indigo); }
+	.machine { fill: var(--indigo); stroke: var(--indigo); stroke-width: 2; }
+	.machine-lines { stroke: var(--paper); opacity: 0.5; stroke-width: 2; }
+	.query-piece { fill: var(--paper); }
+	.ready-light { fill: var(--paper); }
+	.lens { fill: var(--paper); fill-opacity: 0.35; stroke: var(--vermilion); stroke-width: 4; }
+	.thick { stroke: var(--vermilion); stroke-width: 7; stroke-linecap: round; }
+	.scanner { opacity: 0; }
+	.request-packet { fill: var(--paper); stroke: var(--vermilion); stroke-width: 2.5; transform: translateX(0); }
+	:global(elysia-flow-player[data-stage="0"]) .handler-machine,
+	:global(elysia-flow-player[data-stage="1"]) .handler-machine { opacity: 0.25; }
+	:global(elysia-flow-player[data-stage="0"]) .response,
+	:global(elysia-flow-player[data-stage="1"]) .response,
+	:global(elysia-flow-player[data-stage="2"]) .response { opacity: 0.25; }
+	:global(elysia-flow-player[data-stage="0"]) .request-packet,
+	:global(elysia-flow-player[data-stage="1"]) .request-packet,
+	:global(elysia-flow-player[data-stage="2"]) .request-packet { opacity: 0; }
+	:global(elysia-flow-player[data-stage="1"]) .scanner { opacity: 1; }
+	:global(elysia-flow-player[data-stage="3"]) .preparation { opacity: 0.35; }
+	:global(elysia-flow-player[data-stage="3"]) .request-packet { transform: translateX(305px); }
+</style>
