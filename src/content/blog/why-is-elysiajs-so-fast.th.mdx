@@ -1,73 +1,102 @@
 ---
-title: 'ทำไม ElysiaJS ถึงเร็ว? เจาะ Static Analysis, JIT และ AOT'
-description: 'อธิบาย Static Analysis และการสร้าง handler ของ ElysiaJS จาก abstract งาน ACM และเอกสาร framework พร้อมเทียบ Express 5 และแยก JIT ของ framework จาก engine'
+title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
+description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: '2026-09-30'
-updatedDate: '2026-10-01'
+updatedDate: '2026-10-02T01:57:51+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
 ---
 
 import ElysiaFlowDiagram from '../../components/charts/ElysiaFlowDiagram.astro';
+import FrameworkLifecycleDiagram from '../../components/charts/FrameworkLifecycleDiagram.astro';
 
-เคยสงสัยไหมว่าทำไม ElysiaJS ถึงเร็ว? หลายคนอาจนึกถึง Bun ก่อน แต่ทุกครั้งที่มีคนเรียก API ยังมีงานอีกหลายขั้นก่อนแอปจะตอบกลับ ถ้าบางขั้นไม่จำเป็นสำหรับคำขอนั้น เราข้ามมันได้ไหม?
+เคยสงสัยกันไหมครับว่าทำไม ElysiaJS ถึงเร็ว?
 
-## ศัพท์ที่ใช้ในบทความนี้
+ก่อนจะหาคำตอบ ลองมาดูกันว่า framework อย่าง Express หรือ Fastify จัดการ request อย่างไร แล้วค่อยดูว่า ElysiaJS ทำอะไรต่างออกไปบ้าง
 
-| คำ | หมายถึงอะไรในบทความนี้ |
-| --- | --- |
-| **Runtime / framework** | Runtime คือสภาพแวดล้อมที่รัน JavaScript เช่น Bun หรือ Node.js ส่วน framework คือเครื่องมือที่จัดการ route และ request เช่น Elysia หรือ Express |
-| **Request / response** | Request คือคำขอที่ผู้ใช้หรือโปรแกรมอื่นส่งเข้า API; response คือคำตอบที่ API ส่งกลับ |
-| **Route / handler** | Route คือคู่ของ HTTP method กับ path เช่น `GET /user`; handler คือฟังก์ชันที่เขียนไว้ให้ทำงานเมื่อ request ตรง route นั้น |
-| **Middleware / hook** | ฟังก์ชันที่ทำงานระหว่างขั้นตอนรับ request กับส่ง response เช่น ตรวจสิทธิ์หรือบันทึก log; Express มักเรียก middleware ส่วน Elysia มี lifecycle hooks |
-| **Query / body / headers / cookies** | ข้อมูลคนละส่วนของ request: query อยู่หลัง `?` ใน URL, body เป็นข้อมูลที่ส่งมาพร้อมคำขอ, headers เป็นข้อมูลกำกับ และ cookies เป็นค่าที่ส่งผ่าน header |
-| **Parse** | อ่านและแปลงข้อมูลดิบจาก request ให้อยู่ในรูปที่โค้ดใช้ได้ เช่นแปลง `?id=42` เป็นค่า `query.id` |
-| **Static Analysis / Code Generation** | อย่างแรกคืออ่านโค้ดเพื่อดูว่าต้องใช้อะไรโดยไม่เรียก handler; อย่างหลังคือนำผลนั้นมาสร้าง JavaScript สำหรับจัดการ route |
-| **JIT / AOT** | JIT คือเตรียมหรือปรับโค้ดระหว่างที่โปรแกรมทำงาน; AOT คือเตรียมก่อนช่วงที่จะใช้โค้ดนั้น บทความจะระบุต่อว่า *ใคร* เป็นคนเตรียมและทำ *เมื่อไร* |
+รายละเอียด implementation ด้านล่างอ้างอิง **Elysia 1.4.30** โดยลิงก์ source code ระบุ version ไว้เพื่อให้ตรวจย้อนกลับได้ โค้ดใน version ใหม่อาจต่างจากที่อธิบาย ส่วน build-time AOT แยกอ้างอิงกับ [Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation) เพื่อไม่ปะปนกันระหว่าง version
 
-คำตอบสั้น ๆ คือ Elysia พยายามรู้ความต้องการของแต่ละ route ล่วงหน้า แล้วสร้าง request handler ที่ทำงานเท่าที่ route นั้นต้องใช้ [Abstract ของงานวิจัย Elysia ใน ACM SAC 2024](https://doi.org/10.1145/3605098.3636068) วางโจทย์ทั้งความเร็ว ความสะดวกในการพัฒนา และ type safety โดยเสนอ Static Analysis กับ Dynamic Code Generation เพื่อลดต้นทุนขณะรันของฟีเจอร์ที่ช่วยให้เขียนโค้ดสะดวก บทความนี้อ้างแนวคิดจาก abstract; รายละเอียดการทำงานของ framework อิง[เอกสาร internals ของ Elysia](https://elysiajs.com/internal/jit-compiler) เพราะ implementation เปลี่ยนได้หลัง paper เผยแพร่
+## Framework จัดการ request อย่างไร?
 
-เพื่อให้เห็นความต่าง ผมจะใช้ **Express 5 เป็นตัวเทียบตลอดบทความ** โดยดูว่า route แบบเดียวกันจัดการ request อย่างไร ไม่ใช่นำตัวเลขความเร็วของสอง framework มาแข่งกัน
+นอกจากจับคู่ HTTP method และ path แล้ว framework ยังจัดการขั้นตอนอื่น ๆ ทั้งก่อนและหลังเรียก handler เช่น parsing, validation, hooks, error handling และการแปลงค่าที่คืนมาเป็น HTTP response แต่ละ request จึงต้องใช้เวลาและทรัพยากรกับขั้นตอนเหล่านี้ด้วย แม้ business logic จะมีแค่ไม่กี่บรรทัด
 
-## หนึ่ง request: framework ต้องเตรียมอะไรให้ handler?
+แต่ละ framework จัดลำดับงานต่างกัน ลองดูภาพด้านล่าง: Express เรียก middleware ตามลำดับที่เราลงทะเบียนไว้ ส่วน Fastify มีขั้นตอนหลักกำหนดไว้แล้ว และให้เราเพิ่มโค้ดผ่าน hooks ในแต่ละช่วง
 
-ลองดู route ที่รับ `/user?id=42` แล้วคืนค่า `id` จาก query string หรือส่วนหลังเครื่องหมาย `?` ใน URL:
+<FrameworkLifecycleDiagram />
 
-```ts
-app.get('/user', ({ query }) => query.id)
-```
+งานส่วนหนึ่งคือการเตรียมข้อมูลให้ handler เช่น parse query string, decode JSON body หรือแปลง headers เป็น object ใน context แต่ละขั้นตอนใช้เวลาและทรัพยากรต่างกัน เช่น การอ่าน headers ที่ HTTP server เตรียมไว้แล้ว กับการ parse body เพื่อแปลงข้อมูลให้อยู่ในรูปที่ handler ใช้งานได้
 
-handler นี้ใช้ `query` แต่ไม่ได้อ่าน body, headers หรือ cookies ถ้าไม่มี hooks หรือ schema เพิ่มเติม งานที่ต้องทำก่อนเรียก handler จึงต่างจาก route ที่รับ JSON body หรืออ่าน cookie เพื่อยืนยันตัวตน
-
-ใน Express 5 เราเขียน route เดียวกันได้แบบนี้:
+ลองสมมติว่าหลังเลือก route แล้ว เรามีฟังก์ชันกลางที่เตรียมข้อมูลทุกส่วนก่อนเรียก handler โค้ดต่อไปนี้เป็นแบบจำลองเพื่อเทียบแนวคิด ไม่ใช่ implementation ของ Express หรือ Fastify:
 
 ```js
-app.get('/user', (req, res) => {
-  res.send(String(req.query.id))
-})
+async function centralHandler(request) {
+  const context = {
+    request,
+    body: await parseBody(request),
+    query: parseQuery(request.url),
+    headers: prepareHeaders(request.headers),
+    cookie: parseCookies(request.headers.get('cookie'))
+  }
+
+  return mapResponse(await routeHandler(context))
+}
 ```
 
-Express จับคู่ path และ method แล้วเรียก callback ที่ลงทะเบียนไว้ `req.query` จะถูกอ่านใน callback นี้ ส่วนการ parse body ต้องเพิ่ม middleware เช่น `express.json()` เอง ตาม[เอกสาร middleware ของ Express](https://expressjs.com/en/guide/using-middleware/) ดังนั้น Express ตัวอย่างนี้ก็ไม่ได้ parse body หรือ cookies โดยอัตโนมัติ
+ชื่อฟังก์ชันในตัวอย่างแทนงานแต่ละขั้น โดยสมมติว่า `parseBody` รองรับ request ที่ไม่มี body และ `mapResponse` แปลงผลจาก handler เป็น response ส่วน routing, validation และ error handling ละไว้เพื่อให้เห็นเฉพาะงานเตรียม context
+
+ถ้า handler อ่านแค่ `query.id` ฟังก์ชันกลางนี้ก็ยังเรียกขั้นตอนเตรียม body, headers และ cookies ทุกครั้ง การตัดงานที่ไม่จำเป็นออกจึงมีโอกาสลดทั้ง CPU time และการสร้าง object ต่อ request
+
+framework จริงมีวิธีหลีกเลี่ยงงานเหล่านี้อยู่แล้ว เช่น เลือก middleware เฉพาะ route หรือ parse เมื่อมีการอ่านค่า เราจะกลับมาเทียบกับ Express 5 หลังจากเห็นกลไกของ Elysia
+
+แนวทางของ Elysia คือใช้ข้อมูลของ route มาตัดสินใจก่อนว่า request pipeline ต้องมีขั้นตอนไหนบ้าง
+
+## ElysiaJS ทำต่างออกไปอย่างไร?
+
+ในโหมดที่เปิด code generation Elysia วิเคราะห์ handler และ hooks แล้วใช้ผลร่วมกับ schema, HTTP method และ adapter เพื่อประกอบ request pipeline ของ route นั้น เงื่อนไขเลือกงานเหล่านี้อยู่ใน [`compose.ts` ของ version 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/compose.ts)
+
+สมมติว่าเรามี API ที่รับ `/user?id=42` แล้วตอบกลับด้วยค่า `id`:
+
+```ts
+import { Elysia } from 'elysia'
+
+const app = new Elysia()
+  .get('/user', ({ query }) => query.id)
+```
+
+สำหรับ `/user?id=42` ตัวอย่างนี้คืนค่า `'42'` เป็น string เพราะไม่ได้กำหนด schema ให้แปลง `id` เป็นตัวเลข โค้ดนี้แสดงเฉพาะการอ่านค่าจาก query เพื่อให้เข้าใจขั้นตอนการทำงานได้ง่าย ส่วน API ที่นำไปใช้งานจริงควรกำหนด validation และระบุให้ชัดเจนว่าจะจัดการอย่างไรเมื่อไม่มี `id`
+
+เมื่อไม่มี hooks หรือ schema ที่ต้องใช้ headers หรือ cookies เพิ่มเติม route นี้ก็ไม่จำเป็นต้องเตรียมข้อมูลเหล่านั้นใน context ส่วนการ parse body ยังขึ้นอยู่กับ HTTP method ด้วย โดย Elysia version ที่อ้างอิงจะไม่สร้างขั้นตอน parse body สำหรับ `GET` และ `HEAD` อยู่แล้ว การข้ามขั้นตอนนี้ในตัวอย่างจึงไม่ได้เป็นผลจาก static analysis เพียงอย่างเดียว
 
 <ElysiaFlowDiagram kind="parsing" />
 
-ภาพฝั่ง “เตรียมทุกส่วน” เป็นตัวอย่างให้เห็นต้นทุน **ไม่ใช่ภาพการทำงานของ Express 5** ซึ่งใช้ `req.query` แบบ getter และแปลง query เมื่อมีการอ่านค่านั้น ตาม[เอกสาร Express 5](https://expressjs.com/en/guide/migrating-5/) และ[source ของ `req.query`](https://github.com/expressjs/express/blob/master/lib/request.js) ในภาพ การไม่เตรียม headers หมายถึงไม่อ่านหรือแปลง headers เพื่อใส่ context ของ handler เมื่อ route ไม่ใช้ ไม่ได้หมายความว่า HTTP request ไม่มี headers จุดสำคัญคือการอ่านและแปลงข้อมูลที่ไม่ได้ใช้ก็มีค่าใช้จ่าย แม้งานแต่ละครั้งจะเล็ก แต่จะเกิดซ้ำทุก request
+ภาพนี้เปรียบเทียบฟังก์ชันที่ทำทุกขั้นตอนกับ pipeline ที่เลือกทำเฉพาะขั้นตอนที่แต่ละ route ต้องใช้ ช่วยให้เห็นว่าข้ามขั้นตอนไหนได้บ้าง แต่ไม่ได้บอกว่าเร็วขึ้นกี่เท่า
 
-อีกด้านหนึ่ง การข้ามงานต้องไม่เปลี่ยนพฤติกรรมของแอป ถ้า hook ต้องอ่าน headers หรือ schema ต้องตรวจ body ข้อมูลเหล่านั้นก็ยังต้องถูกเตรียมและตรวจตามปกติ ตัวอย่างนี้จงใจให้ route ไม่มีเงื่อนไขอื่น เพื่อให้เห็นหลักการก่อน
+แล้ว Elysia รู้ได้อย่างไรว่า handler ต้องใช้อะไร?
 
-## Static Analysis: Elysia รู้ได้อย่างไรว่า route ใช้อะไร?
+## Sucrose: อ่านโค้ดก่อนเรียกใช้งาน
 
-ตัววิเคราะห์ของ Elysia ชื่อ **Sucrose** มันอ่านโค้ดของ handler โดยไม่เรียก handler ให้ทำงาน ใช้ `Function.toString()` ร่วมกับ pattern matching เพื่อดูว่า handler ต้องใช้ข้อมูลส่วนไหนของ request จากตัวอย่างข้างบน สิ่งที่ต้องเตรียมคือ `query`
+**Sucrose** เป็นโมดูลวิเคราะห์การเข้าถึง context ของ handler และ lifecycle hooks เช่น `query`, `body`, `headers`, `cookie` และ `set`
 
-คำว่า *Static Analysis* ในที่นี้หมายถึงการดูโค้ดเพื่อหาข้อมูลก่อนนำ handler ไปตอบ request ไม่ได้หมายความว่าต้องเกิดตอน build และ Sucrose ก็ไม่ได้ทำหน้าที่แทน TypeScript compiler ที่ตรวจชนิดข้อมูลทั้งโปรเจกต์
+มันเรียก `toString()` บนฟังก์ชันแล้วใช้ pattern matching ตรวจรูปแบบการเข้าถึงข้อมูล โดยไม่ต้องรัน handler วิธีนี้เป็น **static analysis แบบเฉพาะงาน** ไม่ได้ใช้ type information ของ TypeScript หรือวิเคราะห์ความหมายของ JavaScript ได้ครบทุกกรณี ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts)
 
-ผลการวิเคราะห์เป็นข้อมูลให้ขั้นตอนถัดไปเลือกว่าจะประกอบ request handler อย่างไร โดยต้องนับความต้องการของ hooks และ schema ด้วย ไม่ใช่ดูแค่บรรทัด `return` ของเรา
+จากตัวอย่างของเรา:
 
-**เทียบกับ Express 5:** เราเลือกเองว่าจะลงทะเบียน middleware แบบครอบทุก request ด้วย `app.use()` หรือเฉพาะ path/route ที่ต้องใช้ Express จะรัน middleware ที่เข้ากับ request ตามลำดับที่ลงทะเบียน ส่วน Elysia เพิ่มอีกขั้นด้วยการอ่าน handler เพื่อหาว่าข้อมูลใดควรอยู่ในเส้นทางของ route นั้น การวาง middleware ให้แคบใน Express จึงเป็นงานออกแบบของคนเขียนแอป ไม่ใช่ผลของ Sucrose
+```ts
+({ query }) => query.id
+```
 
-## Code Generation: ผลวิเคราะห์กลายเป็น handler อย่างไร?
+Sucrose พบการใช้ `query` แล้วบันทึกผลให้ส่วนประกอบ pipeline นำไปใช้ ผลนี้บอกว่าต้องเตรียม query ไม่ได้แปลว่าจะ parse เฉพาะ key `id` เสมอไป
 
-เมื่อรู้ว่า route ต้องใช้อะไร Elysia สามารถสร้าง JavaScript สำหรับจัดการ route นั้นโดยเฉพาะ แทนการให้ทุก route ผ่านฟังก์ชันทั่วไปที่ตัดสินใจเรื่องเดิมซ้ำ ๆ ทุก request ภาพย่อของโค้ดที่ได้อาจหน้าตาแบบนี้:
+ผลจาก hooks ต้องรวมเข้ามาด้วย เช่น `beforeHandle` ที่อ่าน `headers.authorization` ทำให้ pipeline ต้องเตรียม headers แม้ handler หลักจะอ่านแค่ query ส่วน schema เป็นข้อมูลอีกทางที่ตัวประกอบ pipeline ใช้ตัดสินใจว่าจะเตรียมและ validate อะไร
+
+การวิเคราะห์มีข้อจำกัดด้วย เช่น เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนให้ฟังก์ชันอื่น มันจะเผื่อว่าฟังก์ชันนั้นอาจใช้ข้อมูลทุกส่วน ผลคือมีโอกาสตัดขั้นตอนออกได้น้อยลง การเขียน `({ query }) => service(query.id)` จึงเปิดเผย dependency ชัดกว่า `context => service(context)` ทั้งกับคนอ่านและตัววิเคราะห์
+
+คำว่า “static” อธิบายวิธีวิเคราะห์โดยไม่รัน handler ไม่ได้ระบุว่าต้องเกิดตอน build; จังหวะวิเคราะห์ขึ้นอยู่กับเส้นทางการเตรียม route ของ version และโหมดที่ใช้
+
+## จากผลวิเคราะห์ สู่ handler เฉพาะ route
+
+เมื่อได้ผลวิเคราะห์และ configuration ของ route แล้ว Elysia ก็ประกอบ JavaScript สำหรับ request pipeline ได้ สำหรับ handler แบบ synchronous ในตัวอย่าง แนวคิดของโค้ดที่สร้างขึ้นเป็นแบบนี้:
 
 ```js
 function tailoredHandler(request) {
@@ -80,52 +109,83 @@ function tailoredHandler(request) {
 }
 ```
 
-**โค้ดนี้เป็นภาพจำลอง ไม่ใช่ source code ของ Elysia** ชื่อ `parseQuery`, `mapResponse` และ `routeHandler` ใช้แทนขั้นตอนจริง และละ validation, hooks กับ error handling ไว้ ตัวอย่างแสดงเพียงว่า handler ที่รู้ว่าต้องใช้ `query` สามารถมีขั้นตอนเตรียม `query` โดยไม่ใส่งานที่ route ไม่ต้องใช้
+นี่เป็น pseudocode ไม่ใช่โค้ดที่ dump ออกมาจาก Elysia จริง ตัวอย่างละ hooks, validation, error handling และการรองรับ async handler ไว้
+
+สิ่งที่สร้างขึ้นคือฟังก์ชันครอบ handler ของเราอีกชั้น โดยเลือกใส่เฉพาะขั้นตอนที่ pipeline นี้ต้องใช้ เมื่อประกอบแล้ว request ถัดไปก็เรียกฟังก์ชันนั้นซ้ำได้
 
 <ElysiaFlowDiagram kind="handler" />
 
-ใน[เอกสาร internals ของ Elysia 1.x](https://elysiajs.com/internal/jit-compiler) ส่วนที่สร้างโค้ดนี้เรียกว่า JIT “compiler” และใช้ `new Function(...)` เอกสารอธิบายว่า handler จะถูกสร้างเมื่อ request แรกเรียก route นั้น จากนั้น request ถัดไปใช้ handler ที่เตรียมไว้ งานอย่างการ parse `query` ยังต้องทำกับ request ใหม่ทุกครั้ง แต่ไม่ต้องสร้าง handler ของ route ใหม่ทุกครั้ง
+**สิ่งที่นำกลับมาใช้คือโค้ดของ pipeline** ส่วน context และข้อมูล query ยังมาจาก request ปัจจุบัน เช่น `/user?id=43` ก็ต้องคืน `'43'` กลไกนี้จึงแยกจาก response caching
 
-**เทียบกับ Express 5:** request วิ่งผ่าน middleware ที่ตรงเงื่อนไข แล้ว Express เรียก callback ของ route และ `res.send()` ตามที่เราเขียน ไม่มีขั้นสร้าง JavaScript สำหรับ route นี้จากการอ่าน source ของ callback แบบ Elysia แต่ Express ก็ข้ามงานที่เราไม่ได้ลงทะเบียนไว้ได้ เช่น route ตัวอย่างที่ไม่มี body parser ประเด็นที่ต่างกันจึงอยู่ที่ *วิธีตัดสินใจและประกอบงาน* ไม่ใช่ว่า Express ต้องเตรียมข้อมูลทุกชนิด
+นี่คือ **code generation**: นำการตัดสินใจที่อาศัยข้อมูลคงที่ของ route ไปทำตอนประกอบโค้ด เช่น route มี schema หรือ hooks ใดบ้าง ส่วนเงื่อนไขที่ขึ้นกับ request จริง เช่นข้อมูลผ่าน validation หรือไม่ ยังต้องตรวจทุกครั้ง
 
-## AOT กับ JIT: งานสร้าง handler เกิดตอนไหน?
+## JIT กับ AOT ต่างกันที่จังหวะเตรียมโค้ด
 
-คำว่า “compile” ตรงนี้มี **สองชั้น** จึงสับสนได้ง่าย:
+[บทความ internals ของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time) “compiler”** โดยใช้ `Function` constructor สร้างฟังก์ชันจากข้อความ JavaScript ระหว่างที่แอปทำงาน ในเส้นทางแบบ lazy งานประกอบ pipeline จะเกิดเมื่อ route ถูกเรียกครั้งแรก
 
-| ใครทำ | ทำอะไร |
-| --- | --- |
-| Elysia | วิเคราะห์ route แล้วสร้าง JavaScript สำหรับ request handler |
-| JavaScript engine | นำ JavaScript ที่ได้ไปรัน และอาจ optimize หรือ JIT โค้ดระหว่างรัน |
+จุดที่ชวนสับสนคือ Elysia 1.x ใช้ชื่อ option ว่า `aot` สำหรับเปิดเส้นทาง code generation นี้ด้วย ดังนั้น **`aot: true` ไม่ได้แปลว่ามีการสร้างไฟล์ไว้ตอน build** ส่วน `precompile` ใช้ควบคุมว่าจะประกอบ route ล่วงหน้าหรือรอจนมีการเรียก ดูการแยกสอง option นี้ใน [`index.ts` ของ version 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts)
 
-**JIT (Just-in-Time)** คือการเตรียมหรือ optimize โค้ดขณะโปรแกรมกำลังทำงาน เมื่อเอกสาร Elysia พูดถึง JIT “compiler” กำลังพูดถึงชั้นแรก ไม่ใช่ JIT ภายใน engine ส่วน **AOT (Ahead-of-Time)** หมายถึงย้ายงานเตรียมโค้ดไปก่อนช่วงที่จะใช้งาน แต่ต้องถามต่อว่า “ก่อน” ในขั้นตอนไหน
-
-| วิธีเตรียม handler | งานของ Elysia เกิดเมื่อไร | สิ่งที่แลกเปลี่ยน |
+| วิธีเตรียม handler | สร้างเมื่อไร | ผลที่ได้ |
 | --- | --- | --- |
-| Elysia 1.x แบบ lazy ตาม[เอกสาร internals](https://elysiajs.com/internal/jit-compiler) | request แรกของ route | เริ่มแอปได้โดยยังไม่เตรียมทุก route แต่ request แรกจ่ายต้นทุนนี้ |
-| Elysia 1.x ตั้ง [`precompile: true`](https://elysiajs.com/patterns/configuration#precompile) | ตอนเริ่มแอป | ย้ายต้นทุนจาก request แรกไป startup |
-| Elysia 2 beta แบบไม่ใช้ build plugin ตาม[ประกาศรุ่น](https://elysiajs.com/blog/elysia-20) | ตอนเริ่มแอป | เตรียม handler ของแต่ละ route ก่อนรับ request |
-| Elysia 2 beta ใช้ [AOT build plugin](https://elysiajs.com/blog/elysia-20) | ตอน build | ย้ายงานสร้าง handler ไปก่อนเริ่มแอป ต้องตั้งค่า build เพิ่ม |
+| Elysia 1.4.30 เปิด `aot` และใช้เส้นทาง lazy | เมื่อเรียก route ครั้งแรก | เลื่อนงานประกอบ route ไปจนกว่าจะใช้งาน |
+| Elysia 1.4.30 เปิด `aot` และ `precompile: true` | ระหว่างเตรียมแอป ก่อนเริ่มรับ request | ลดงานประกอบ route ใน request แรก โดยเพิ่มงานช่วง startup |
+| Elysia 2 beta ใช้ AOT build plugin ตามประกาศ | ตอน build | เตรียมโค้ดของ handler และ schema ที่ plugin รองรับไว้ใน build output |
 
-ณ วันที่ตรวจ **30 กันยายน 2026** Elysia 2 ยังเป็น beta ผ่าน `elysia@next` ตารางนี้จึงเทียบคำอธิบายของแต่ละรุ่น ไม่ใช่ตัวเลือกทั้งหมดในรุ่นเดียว ทั้งสี่กรณีต่างกันที่จังหวะจ่ายต้นทุนการเตรียม ส่วน JavaScript engine ยังจัดการโค้ดอีกชั้นขณะรัน
+ตารางนี้แยก **การเตรียมล่วงหน้าภายใน process** ออกจาก **build-time AOT** รายละเอียดอ้างอิง [`precompile`](https://elysiajs.com/patterns/configuration#precompile) และ [ blog Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation) ไม่ได้หมายความว่าทุก route หรือ adapter ใช้เส้นทางเดียวกัน เช่น static response อาจมีเส้นทางเฉพาะของ runtime
 
-**เทียบกับ Express 5:** ตารางนี้แสดงช่วงที่ Elysia สร้าง handler ในแต่ละรุ่น ไม่ใช่โหมดที่ต้องเลือกใน Express เมื่อ Express เรียก callback ที่ลงทะเบียนไว้ JavaScript engine ของ runtime ก็ยังอาจ JIT หรือ optimize callback นั้นได้เหมือนกัน ดังนั้น “Elysia มี JIT compiler” ไม่ได้แปลว่า “Express ไม่มี JIT เลย”
+อีกชั้นหนึ่งคือ **JIT ของ JavaScript engine** ซึ่งสามารถ compile และ optimize JavaScript เป็น machine code ระหว่างรัน ส่วน code generation ของ Elysia ให้ผลเป็น JavaScript ของ request pipeline การเปิด `precompile` จึงไม่ได้รับประกันว่า engine ทำ warm-up เสร็จแล้ว
 
-## Bun ช่วยตรงไหน และ Elysia ช่วยตรงไหน?
+## แล้ว Bun ช่วยตรงไหน?
 
-Bun เป็น runtime ที่ให้ HTTP server และ API สำหรับจัดการ request ส่วน Elysia เลือกว่าต้องทำขั้นตอนไหนก่อนเรียก handler สองส่วนนี้จึงช่วยกันได้: Elysia ลดขั้นตอนที่ไม่จำเป็นต่อ route และยังใช้ความสามารถเฉพาะของ Bun เมื่อเหมาะสม เช่น `Bun.serve.routes` สำหรับ routing หรือ `Bun.file` สำหรับไฟล์ ตาม[เอกสาร platform-specific optimization](https://elysiajs.com/internal/jit-compiler#platform-specific-optimization)
+Bun ให้ทั้ง JavaScript runtime และ HTTP server ผ่าน `Bun.serve()` โดยใช้ JavaScriptCore เป็น engine ส่วน Elysia จัดการ routing และ request lifecycle บนความสามารถเหล่านั้น ตาม[เอกสาร runtime](https://bun.sh/docs/runtime) และ[HTTP server ของ Bun](https://bun.sh/docs/runtime/http/server)
 
-ดังนั้นคำตอบของ “Elysia เร็วเพราะ Bun อย่างเดียวไหม?” คือ **ไม่ใช่อย่างเดียว** แต่ก็แยกผลของ Bun ออกจากผลของ framework ด้วยการดูตัวเลข throughput ตัวเดียวไม่ได้ ต้องทดสอบภายใต้ runtime และ workload เดียวกัน
+ประสิทธิภาพที่วัดได้จึงมาจากหลายชั้น: engine ที่รันโค้ด, HTTP server, adapter และ pipeline ของ framework การลดงานที่ Elysia ต้องทำเป็นเพียงส่วนหนึ่งของเส้นทางทั้งหมด
 
-**เทียบกับ Express 5:** Express ก็[รันบน Bun ได้](https://bun.sh/guides/ecosystem/express) ผ่าน API ที่เข้ากันได้กับ Node.js ถ้าเอา Elysia บน Bun ไปเทียบกับ Express บน Node.js ผลจะรวมความต่างของ runtime เข้าไปด้วย การรันทั้งคู่บน Bun ช่วยให้คำถามเรื่อง framework ชัดขึ้น แม้เส้นทาง HTTP ภายในและ middleware ที่ใช้ยังต้องดูให้ตรงกัน
+Elysia ยังใช้ความสามารถเฉพาะของ Bun ในเส้นทางที่รองรับ เช่น option `routes` ของ `Bun.serve()` สำหรับ native routing และ `Elysia.file` ที่เลือกใช้ `Bun.file` เมื่อมีให้ใช้งาน ดูรายละเอียดใน[ส่วน Platform Specific Optimization](https://elysiajs.com/internal/jit-compiler#platform-specific-optimization)
 
-## Benchmark บอกอะไร และควรใช้ตัดสินใจอย่างไร?
+ถ้าเทียบ Elysia บน Bun กับ Express บน Node.js ผลที่ได้คือความต่างของทั้ง stack การใช้ runtime เดียวกันช่วยลดตัวแปร แต่ยังต้องดู adapter, HTTP API และ configuration ด้วย จึงจะอธิบายได้ว่ากำลังเปรียบเทียบอะไร
 
-[Abstract ของ paper](https://doi.org/10.1145/3605098.3636068) ระบุว่าผู้วิจัยประเมิน Elysia เทียบกับโค้ดที่ยังไม่ optimize และ backend framework อื่น แต่ abstract ไม่แจกแจงว่ากลไกแต่ละตัวลดเวลาลงเท่าไร บทความนี้จึงไม่ดึงตัวเลขเฉพาะส่วนจาก paper มาฟันธงผลของแต่ละเทคนิค
+## เทียบกับ Express 5 แบบสั้น ๆ
 
-เวลาอ่าน benchmark ควรแยก **microbenchmark** ที่วัดขั้นตอนเล็ก ๆ ออกจาก **HTTP benchmark** ที่วัดทั้งเส้นทางรับส่ง request ตัวเลข operations/second ของการเรียกฟังก์ชันไม่ใช่ requests/second ของ API และทั้งคู่ยังไม่บอกโดยตรงว่าแอปที่คุยกับฐานข้อมูลจะเร็วขึ้นเท่าไร
+สำหรับ request `/user?id=42` เราเขียน Express 5 ให้คืนค่า `42` ได้เช่นกัน:
 
-ถ้าจะเทียบ Elysia กับ Express ให้เริ่มจาก route ที่ตอบข้อมูลเดียวกันบน runtime เดียวกัน แล้วระบุ middleware, validation และวิธีส่ง response ให้ครบ ตัวเลขที่ได้บอกผลของ *ทั้งเส้นทาง* ในเงื่อนไขนั้น ไม่ได้พิสูจน์ว่า Static Analysis เพียงตัวเดียวทำให้ต่างกันเท่าไร
+```js
+import express from 'express'
 
-ถ้า route ตอบข้อมูลที่อยู่ในหน่วยความจำและทำงานน้อย overhead ของ framework อาจเป็นสัดส่วนใหญ่ การลดงานต่อ request จึงเห็นผลได้ชัดขึ้น แต่ถ้าเวลาส่วนใหญ่หมดไปกับ database หรือ network การลดงานของ framework จะเปลี่ยนเวลารวมได้น้อยกว่า ตัวอย่างจาก[การทดสอบ Elysia กับ Hono บน PostgreSQL ของผม](/blog/th/elysia-hono-postgres-on-m5-air/) แสดงเหตุผลที่ควรวัดกับงานใกล้เคียงแอปจริงก่อนเลือก framework จากอันดับ benchmark
+const app = express()
 
-สรุปคือ Express ให้เราเลือก middleware และเข้าถึงข้อมูลจาก request เมื่อใช้ ส่วน Elysia เพิ่มการวิเคราะห์ route แล้วสร้าง handler ให้ทำงานพอดีกับข้อมูลที่ต้องใช้ Bun ช่วยให้ขั้นตอนที่เหลือทำงานได้เร็ว แต่ถ้าอยากรู้ว่าแอปของเราเร็วขึ้นแค่ไหน ต้องวัดว่าเวลาในแอปหมดอยู่ที่ framework จริงหรือเปล่า
+app.get('/user', (req, res) => {
+  res.send(String(req.query.id))
+})
+```
+
+Express จัดการ request ผ่าน middleware และ route callbacks ตามลำดับที่ลงทะเบียน โดย middleware อาจจบ response หรือส่งต่อด้วย `next()` เราเลือกได้ว่าจะติดตั้ง parser ให้ทั้งแอปหรือเฉพาะบาง route ตาม [คู่มือ middleware](https://expressjs.com/en/guide/using-middleware/)
+
+ตัวอย่างนี้ไม่ได้ parse JSON body หรือ cookies ให้อัตโนมัติ และ `req.query` ใน Express 5 เป็น getter ที่เรียก query parser ตาม configuration เมื่อเข้าถึงค่า ดู[เอกสารการเปลี่ยนแปลงใน Express 5](https://expressjs.com/en/guide/migrating-5/#req.query) และ[source ของ getter ใน 5.1.0](https://github.com/expressjs/express/blob/v5.1.0/lib/request.js#L208-L218)
+
+ความต่างที่กำลังพิจารณาจึงอยู่ที่วิธีประกอบ pipeline: Elysia ใช้การวิเคราะห์โค้ดร่วมกับข้อมูล route เพื่อสร้างฟังก์ชันเฉพาะ ส่วน Express ให้เราประกอบ middleware และ callbacks ตัวอย่างสั้น ๆ นี้ยังใช้สรุปความเร็วไม่ได้ และยังไม่ได้กำหนดให้ทั้งคู่ตอบเหมือนกันในกรณีไม่มี `id` หรือส่ง query ซ้ำ
+
+## สิ่งที่แลกมากับการสร้าง handler
+
+การประกอบโค้ดมีต้นทุน ถ้า route ใช้เส้นทาง lazy งานนี้จะเพิ่มเข้ามาใน request แรก การเปิด `precompile: true` ย้ายต้นทุนไปช่วงเตรียมแอป จึงควรวัดแยกทั้ง startup time, latency ของการเรียก route ครั้งแรก และผลหลัง warm-up
+
+โค้ดที่สร้างขึ้นต้องอยู่ในหน่วยความจำ ส่วนตัววิเคราะห์และตัวประกอบโค้ดก็เป็นส่วนหนึ่งของ framework ต้นทุนจริงขึ้นอยู่กับจำนวน route, schema และโหมดที่ใช้ ฝั่งผู้ดูแล framework ยังต้อง debug ทั้งตัวสร้างโค้ดและผลลัพธ์ที่มันสร้างด้วย ตาม[หัวข้อ overhead ของ Elysia](https://elysiajs.com/internal/jit-compiler#overhead-of-jit-compiler)
+
+สำหรับ build-time AOT ของ Elysia 2 beta มีข้อแลกเปลี่ยนเพิ่ม: plugin ทำ dry-run แอประหว่าง build จึงต้องจัดการโค้ด initialization ที่เปิด database pool หรือมี side effect และการลงทะเบียน route ต้องสอดคล้องกันระหว่าง build กับ runtime ตาม[ข้อกำหนด Build Time Environment](https://elysiajs.com/blog/elysia-20#build-time-environment)
+
+## แอปจริงจะเร็วขึ้นแค่ไหน?
+
+สำหรับ route ที่ตอบข้อมูลจากหน่วยความจำและมี business logic น้อย framework overhead อาจกินสัดส่วน CPU สูง การลดงานต่อ request จึงมีโอกาสเพิ่ม throughput ได้ชัด
+
+ถ้า latency ส่วนใหญ่เป็นเวลารอฐานข้อมูลหรือ API ภายนอก ผลต่อเวลารวมอาจเล็กกว่า สมมติ request ใช้เวลา 20 ms และมี framework overhead 1 ms ถ้าลดส่วนนี้เหลือ 0.5 ms โดยส่วนอื่นคงเดิม เวลารวมจะเหลือ 19.5 ms หรือลดลง 2.5% ตัวเลขนี้เป็นตัวอย่างคำนวณ ไม่ใช่ผล benchmark ของ Elysia
+
+ภายใต้โหลดสูง ผลอาจต่างออกไป: ถ้า CPU ของแอปเป็นคอขวด การลดงานต่อ request อาจลดเวลารอคิวได้ด้วย จึงควรวัดทั้ง throughput และ latency โดยเฉพาะ p95/p99 ซึ่งบอกเวลาที่ request 95%/99% เสร็จภายใน แทนการดูเฉพาะค่าเฉลี่ย
+
+เวลาประเมิน framework สำหรับ API ของเรา ผมจะเช็กอย่างน้อยสี่เรื่อง:
+
+- **งานที่ทำเท่ากัน:** response, status, headers, validation และ authentication ต้องมีพฤติกรรมตามข้อกำหนดเดียวกัน รวมถึงกรณี input ผิด
+- **สภาพแวดล้อมเทียบกันได้:** ระบุ version ของ framework/runtime, adapter, hardware, concurrency และ connection reuse ให้ครบ
+- **ช่วงที่วัดชัดเจน:** แยก startup และ request แรกออกจากช่วงหลัง warm-up; operations/second ของการเรียกฟังก์ชันไม่ใช่ requests/second ผ่าน HTTP
+- **คอขวดอยู่ตรงไหน:** ดู CPU, memory, error rate และ latency ควบคู่กับฐานข้อมูลและตัวยิงโหลด เพื่อไม่ให้ข้อจำกัดของส่วนอื่นกลบผลของ framework
+
+ลองดู[การทดสอบ Elysia กับ Hono บน PostgreSQL ของผม](/blog/th/elysia-hono-postgres-on-m5-air/) เป็นตัวอย่างของการวัดที่เพิ่มงานฐานข้อมูลเข้ามา ส่วนกลไกในบทความนี้อธิบายว่า Elysia ลดงานใน request pipeline ได้อย่างไร การจะบอกว่าเหมาะกับแอปของเราแค่ไหน ยังต้องดูผลวัดจาก workload และ configuration ที่เราจะใช้งานจริง

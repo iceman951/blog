@@ -3,7 +3,7 @@
 // in the surrounding figure, including when JavaScript or motion is disabled.
 ---
 
-<svg class="request-scene" viewBox="0 0 600 330" role="img" aria-label="Elysia อ่านโค้ดที่ใช้ query แล้วเตรียม handler ไว้ ซอง request หลายใบเดินผ่าน handler ตัวเดิมและได้คำตอบ 42 โดยไม่สร้าง handler ใหม่">
+<svg class="request-scene" viewBox="0 0 600 330" role="img" aria-label="Elysia วิเคราะห์การใช้ query แล้วประกอบ pipeline สำหรับ route แต่ละ request ใช้โค้ดเดิม แต่ได้คำตอบตามค่า id ของตัวเอง โดย handler คืนค่าเป็น string">
 	<g class="preparation">
 		<rect x="187" y="12" width="226" height="80" rx="4" class="paper" />
 		<path d="M187 33h226" class="line" />
@@ -21,7 +21,7 @@
 	<g class="client">
 		<rect x="15" y="156" width="124" height="86" rx="4" class="paper" />
 		<path d="M15 177h124M28 166h2m8 0h2" class="line" />
-		<text x="77" y="207" text-anchor="middle" class="code small">/user?id=42</text>
+		<text x="77" y="207" text-anchor="middle" class="code small" data-request-label>/user?id=42</text>
 		<path d="m113 219 5 13 3-5 6-2Z" class="cursor" />
 		<text x="77" y="273" text-anchor="middle" class="label">ผู้ใช้เรียก API</text>
 	</g>
@@ -33,18 +33,18 @@
 			<text x="300" y="211" text-anchor="middle" class="code">query</text>
 		</g>
 		<circle cx="349" cy="238" r="4" class="ready-light" />
-		<text x="300" y="273" text-anchor="middle" class="label">handler ตัวเดิม</text>
+		<text x="300" y="273" text-anchor="middle" class="label">pipeline ของ route</text>
 	</g>
 	<g class="response">
 		<path d="M478 148h65l29 29v73h-94Zm65 0v29h29" class="paper" />
-		<text x="525" y="223" text-anchor="middle" class="answer">42</text>
-		<text x="525" y="273" text-anchor="middle" class="label">คำตอบ</text>
+		<text x="525" y="223" text-anchor="middle" class="answer" data-response-label>'42'</text>
+		<text x="525" y="273" text-anchor="middle" class="label">ค่าที่ handler คืน</text>
 	</g>
 	<g class="request-packet" data-packet aria-hidden="true">
 		<rect x="145" y="187" width="36" height="26" rx="3" />
 		<path d="m146 189 17 12 17-12" />
 	</g>
-	<text x="300" y="311" text-anchor="middle" class="scene-hint">เตรียมครั้งเดียว แล้วรับ request ได้หลายครั้ง</text>
+	<text x="300" y="311" text-anchor="middle" class="scene-hint">ประกอบโค้ดครั้งเดียว อ่าน query ใหม่ทุก request</text>
 </svg>
 
 <style>

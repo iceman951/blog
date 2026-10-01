@@ -7,46 +7,47 @@ interface Props {
 }
 
 const { kind } = Astro.props;
+const diagramId = `elysia-${kind}-${crypto.randomUUID()}`;
 const titles = {
-	handler: 'เขียนโค้ดครั้งเดียว แล้วรับ request อย่างไร?',
+	handler: 'สร้าง pipeline แล้วใช้กับ request ถัดไปอย่างไร?',
 	parsing: 'Route ใช้แค่ query ต้องเตรียมอะไรบ้าง?',
 	compilation: 'งานสร้าง handler เกิดขึ้นตอนไหน?',
 };
 const steps = [
-	{ title: 'เขียนโค้ด' },
-	{ title: 'อ่านสิ่งที่ใช้' },
-	{ title: 'เตรียม handler' },
-	{ title: 'รับ request ซ้ำ' },
+	{ title: 'เขียน route handler' },
+	{ title: 'วิเคราะห์การใช้ context' },
+	{ title: 'ประกอบ pipeline' },
+	{ title: 'ใช้กับแต่ละ request' },
 ];
 const phases = ['ตอน build', 'ตอนเริ่มแอป', 'Request แรก', 'Request ถัดไป'];
 const timelines = [
-	{ title: 'AOT ใน paper ปี 2024', note: 'เปิดแอปแล้วค่อยเตรียม', compile: 1, actions: ['ยังไม่เตรียม', 'ประกอบ handler', 'พร้อมใช้', 'ใช้ตัวเดิม'] },
-	{ title: 'JIT แบบ lazy ใน docs', note: 'มีคนเรียก route ครั้งแรก แล้วค่อยเตรียม', compile: 2, actions: ['ยังไม่เตรียม', 'รอเรียกครั้งแรก', 'ประกอบแล้วใช้', 'ใช้ตัวเดิม'] },
-	{ title: 'Elysia 2 + build-time AOT', note: 'เตรียมใส่ไฟล์ไว้ก่อนเปิดแอป', compile: 0, actions: ['ประกอบ handler', 'โหลดไฟล์ที่เตรียมไว้', 'พร้อมใช้', 'ใช้ตัวเดิม'] },
+	{ title: 'Elysia 1.4.30 · precompile: true', note: 'เปิด aot และประกอบ route ก่อนเริ่มรับ request', compile: 1, actions: ['ยังไม่ประกอบ', 'ประกอบ handler', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
+	{ title: 'Elysia 1.4.30 · lazy compilation', note: 'เปิด aot และรอประกอบเมื่อเรียก route ครั้งแรก', compile: 2, actions: ['ยังไม่ประกอบ', 'รอเรียกครั้งแรก', 'ประกอบแล้วใช้', 'ใช้โค้ดเดิม'] },
+	{ title: 'Elysia 2 beta · build-time AOT', note: 'ใช้ AOT build plugin เตรียมโค้ดไว้ใน build output', compile: 0, actions: ['ประกอบ handler', 'โหลดโค้ดที่สร้างไว้', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
 ];
 const animation = kind === 'handler' ? [
 	{ step: 0, text: 'เริ่มจากโค้ดของเรา: route นี้อ่านแค่ query.id' },
-	{ step: 1, text: 'แว่นขยายแทน Sucrose: อ่านโค้ดแล้วพบว่าใช้แค่ query ไม่ต้องเรียกโค้ดให้ทำงาน' },
-	{ step: 2, text: 'ใส่เฉพาะขั้นตอนอ่าน query ลงใน handler ที่เตรียมไว้สำหรับ route นี้' },
-	{ step: 3, text: 'ซองที่ 1: ผู้ใช้ขอ /user?id=42 → handler อ่าน query → ส่งคำตอบ 42' },
-	{ step: 3, text: 'ซองที่ 2 ผ่าน handler ตัวเดิม ส่วนที่อ่านโค้ดด้านบนไม่ต้องทำใหม่' },
-	{ step: 3, text: 'ซองที่ 3 ก็ใช้ตัวเดิม: งานเตรียมทำครั้งเดียว แต่งานตอบ request ทำทุกครั้ง' },
+	{ step: 1, text: 'Sucrose อ่านโค้ดโดยไม่รัน handler และพบว่า handler นี้ใช้ query' },
+	{ step: 2, text: 'Elysia ใช้ผลวิเคราะห์ร่วมกับ hooks, schema และ HTTP method เพื่อประกอบ pipeline สำหรับ route นี้' },
+	{ step: 3, id: '42', text: "Request ที่ 1: /user?id=42 → อ่าน query ของ request นี้ → handler คืน string '42'" },
+	{ step: 3, id: '43', text: "Request ที่ 2: /user?id=43 → ใช้โค้ด pipeline เดิม แต่อ่าน query ใหม่ → คืน '43'" },
+	{ step: 3, id: '44', text: "Request ที่ 3: /user?id=44 → คืน '44' สิ่งที่ใช้ซ้ำคือโค้ด ไม่ใช่คำตอบจาก request ก่อน" },
 ] : kind === 'compilation' ? [
-	{ step: 0, text: 'ตอน build: Elysia 2 ที่เปิด build-time AOT เตรียม handler ไว้ใน artifact' },
-	{ step: 1, text: 'ตอนเริ่มแอป: AOT ใน paper สร้าง handler ส่วน build-time AOT โหลดผลที่เตรียมไว้' },
+	{ step: 0, text: 'ตอน build: AOT build plugin ของ Elysia 2 beta เตรียมโค้ดที่รองรับไว้ใน build output' },
+	{ step: 1, text: 'ตอนเริ่มแอป: precompile สร้าง handler ส่วน build-time AOT โหลดโค้ดที่สร้างไว้แล้ว' },
 	{ step: 2, text: 'Request แรกของ route: แบบ lazy ต้องสร้าง handler ก่อน ส่วนอีกสองแบบใช้ที่เตรียมไว้' },
-	{ step: 3, text: 'Request ถัดไป: ทั้งสามแบบใช้ handler เดิม ความต่างคือจ่ายงานสร้างไปตอนไหน' },
+	{ step: 3, text: 'Request ถัดไป: ทั้งสามแบบใช้โค้ด handler เดิม ต่างกันที่ช่วงเวลาที่ประกอบโค้ด' },
 ] : [];
 ---
 
 <elysia-flow-player data-frames={JSON.stringify(animation)}>
-<figure class="elysia-diagram" aria-labelledby={`elysia-${kind}-title`}>
-	<p class="diagram-title" id={`elysia-${kind}-title`}>{titles[kind]}</p>
+<figure class="elysia-diagram" aria-labelledby={`${diagramId}-title`}>
+	<p class="diagram-title" id={`${diagramId}-title`}>{titles[kind]}</p>
 	{animation.length > 0 && (
 		<div class="player-controls" hidden>
-			<p class="player-invitation">ภาพเล่นวนอัตโนมัติ — กดหยุดเพื่ออ่านค้างไว้ หรือเลือกดูทีละขั้นได้</p>
+			<p class="player-invitation">กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น</p>
 			<div class="player-buttons">
-				<button type="button" data-play aria-controls={`elysia-${kind}-graphic`}>
+				<button type="button" data-play aria-controls={`${diagramId}-graphic`}>
 					<svg class="play-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
 						<path class="icon-play" d="M7 3v18l15-9z" fill="currentColor" />
 						<path class="icon-pause" d="M5 4h5v16H5zm9 0h5v16h-5z" fill="currentColor" />
@@ -54,8 +55,9 @@ const animation = kind === 'handler' ? [
 					<span data-play-label>เล่นภาพเคลื่อนไหว</span>
 				</button>
 				<div class="secondary-controls">
-					<button type="button" data-next aria-controls={`elysia-${kind}-graphic`}>ทีละขั้น →</button>
-					<button type="button" data-reset aria-controls={`elysia-${kind}-graphic`}>ดูภาพรวม</button>
+					<button type="button" data-previous aria-controls={`${diagramId}-graphic`}>← ย้อนกลับ</button>
+					<button type="button" data-next aria-controls={`${diagramId}-graphic`}>ขั้นถัดไป →</button>
+					<button type="button" data-reset aria-controls={`${diagramId}-graphic`}>ดูภาพรวม</button>
 				</div>
 			</div>
 			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง</p>
@@ -63,7 +65,7 @@ const animation = kind === 'handler' ? [
 	)}
 	{kind === 'handler' && (
 		<>
-			<div id="elysia-handler-graphic">
+			<div id={`${diagramId}-graphic`}>
 			<ElysiaRequestScene />
 			<ol class="handler-flow">
 				{steps.map((step, index) => (
@@ -76,16 +78,16 @@ const animation = kind === 'handler' ? [
 				))}
 			</ol>
 			</div>
-			<p class="takeaway">JavaScript engine ยัง optimize / JIT โค้ดนี้ต่อได้ระหว่างที่แอปทำงาน</p>
-			<figcaption>ภาพแนวคิดของ route ที่ใช้ query อย่างเดียว โดยไม่มี hooks หรือ schema ที่ต้องใช้ข้อมูลส่วนอื่น ช่วงวิเคราะห์และสร้างอาจอยู่ตอน build, startup หรือ request แรก ตามโหมดที่ใช้ ภาพไม่ได้แสดงเวลาที่วัดจริง</figcaption>
+			<p class="takeaway">ใช้โค้ด pipeline เดิม แต่เตรียม context และอ่าน query ใหม่ทุก request</p>
+			<figcaption>ภาพแสดงเฉพาะส่วนที่เกี่ยวกับ query ของ route นี้ โดยไม่มี hooks หรือ schema ที่ต้องใช้ข้อมูลส่วนอื่น การประกอบ pipeline เกิดตอน build, startup หรือ request แรกตามโหมดที่ใช้ ส่วน engine JIT ยังทำงานระหว่างรันได้ ภาพไม่ได้แสดงเวลาที่วัดจริง</figcaption>
 		</>
 	)}
 	{kind === 'parsing' && (
 		<>
 			<div class="parsing-comparison">
 				<div class="parse-path">
-					<p class="path-title">เตรียมทุกส่วน</p>
-					<p class="endpoint">Request</p>
+					<p class="path-title">ฟังก์ชันกลาง (แบบจำลอง)<span class="detail">เรียกขั้นตอนเตรียมข้อมูลทุกส่วน</span></p>
+					<p class="endpoint"><code>GET /user?id=42</code></p>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<ul class="parse-list">
 						<li><span class="data-icon"><ElysiaDiagramIcon name="package" /></span> body</li>
@@ -97,24 +99,30 @@ const animation = kind === 'handler' ? [
 					<p class="endpoint">Handler อ่าน query.id</p>
 				</div>
 				<div class="parse-path specialized">
-					<p class="path-title">เตรียมตาม route</p>
-					<p class="endpoint">Request</p>
+					<p class="path-title">Pipeline ของ Elysia<span class="detail">เตรียมเฉพาะข้อมูลที่ route นี้ใช้</span></p>
+					<p class="endpoint"><code>GET /user?id=42</code></p>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<ul class="parse-list">
 						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
-						<li class="skipped">ไม่เตรียมส่วนที่ route ไม่ใช้ใน context</li>
 					</ul>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<p class="endpoint">Handler อ่าน query.id</p>
 				</div>
 			</div>
+			<aside class="omitted-work" aria-label="ขั้นตอนที่ Elysia ข้ามในตัวอย่างนี้">
+				<p class="path-title">ขั้นตอนที่ข้ามในตัวอย่างนี้</p>
+				<dl>
+					<div><dt>headers / cookies</dt><dd>ไม่ต้องเตรียมใน context เพราะ handler, hooks และ schema ไม่ได้ใช้</dd></div>
+					<div><dt>body</dt><dd>ไม่สร้างขั้นตอน parse สำหรับ GET / HEAD ตามเงื่อนไข HTTP method</dd></div>
+				</dl>
+			</aside>
 			<p class="takeaway">ได้ข้อมูลที่ handler ต้องใช้เหมือนกัน แต่เตรียมข้อมูลน้อยลง</p>
-			<figcaption>เทียบขั้นตอนสมมติ ไม่ใช่การวัดเวลา การไม่เตรียม headers ใน context ไม่ได้หมายถึง request ไม่มี headers และไม่ได้หมายความว่า framework อื่นทุกตัวเตรียมข้อมูลทุกส่วนเสมอ</figcaption>
+			<figcaption>ฝั่งซ้ายเป็นแบบจำลองในบทความ ส่วนฝั่งขวาอ้างอิง Elysia 1.4.30 และสมมติว่าไม่มี hooks หรือ schema ที่ใช้ข้อมูลส่วนอื่น Request ยังมี headers ได้แม้ไม่เตรียมใน context ภาพนี้ไม่ได้เปรียบเทียบความเร็วหรือแทนพฤติกรรมของ framework อื่นทุกตัว</figcaption>
 		</>
 	)}
 	{kind === 'compilation' && (
 		<>
-			<div class="timelines" id="elysia-compilation-graphic">
+			<div class="timelines" id={`${diagramId}-graphic`}>
 				{timelines.map((timeline) => (
 					<div class="timeline-row">
 						<p class="path-title">{timeline.title}<span class="detail">{timeline.note}</span></p>
@@ -141,16 +149,17 @@ const animation = kind === 'handler' ? [
 </elysia-flow-player>
 
 <script>
-	type Frame = { step: number; text: string };
+	type Frame = { step: number; text: string; id?: string };
 
 	class ElysiaFlowPlayer extends HTMLElement {
 		connectedCallback() {
 			const frames: Frame[] = JSON.parse(this.dataset.frames ?? '[]');
 			const controls = this.querySelector<HTMLElement>('.player-controls');
-			if (!frames.length || !controls || this.dataset.ready) return;
-			this.dataset.ready = 'true';
+			if (!frames.length || !controls || this.cleanup) return;
+			const events = new AbortController();
 			const play = this.querySelector<HTMLButtonElement>('[data-play]')!;
 			const playLabel = this.querySelector<HTMLElement>('[data-play-label]')!;
+			const previous = this.querySelector<HTMLButtonElement>('[data-previous]')!;
 			const next = this.querySelector<HTMLButtonElement>('[data-next]')!;
 			const reset = this.querySelector<HTMLButtonElement>('[data-reset]')!;
 			const status = this.querySelector<HTMLElement>('.player-status')!;
@@ -166,7 +175,7 @@ const animation = kind === 'handler' ? [
 					}
 				}
 			};
-			const idleLabel = () => reducedMotion.matches ? 'เริ่มดูทีละขั้น' : position >= 0 ? 'เล่นต่อ' : 'เล่นภาพเคลื่อนไหว';
+			const idleLabel = () => position === frames.length - 1 ? 'เริ่มใหม่' : reducedMotion.matches ? position === -1 ? 'เริ่มดูทีละขั้น' : 'ดูขั้นถัดไป' : position >= 0 ? 'เล่นต่อ' : 'เล่นภาพเคลื่อนไหว';
 			const pause = () => {
 				clearInterval(timer);
 				timer = undefined;
@@ -179,6 +188,11 @@ const animation = kind === 'handler' ? [
 				motions.forEach((motion) => motion.cancel());
 				motions = [];
 				const frame = frames[position];
+				const requestId = frame?.id ?? '42';
+				const requestLabel = this.querySelector('[data-request-label]');
+				const responseLabel = this.querySelector('[data-response-label]');
+				if (requestLabel) requestLabel.textContent = `/user?id=${requestId}`;
+				if (responseLabel) responseLabel.textContent = `'${requestId}'`;
 				this.dataset.stage = frame ? String(frame.step) : 'overview';
 				for (const node of nodes) {
 					const active = Boolean(frame && Number(node.dataset.step) === frame.step);
@@ -189,8 +203,10 @@ const animation = kind === 'handler' ? [
 				status.textContent = frame
 					? `${position + 1}/${frames.length} — ${frame.text}`
 					: 'กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง';
+				previous.disabled = position <= 0;
 				next.disabled = position === frames.length - 1;
 				reset.disabled = position === -1;
+				if (timer === undefined) playLabel.textContent = idleLabel();
 				if (animate && frame && !reducedMotion.matches) {
 					if (frame.step === 1) move('.scanner', [{ transform: 'translateX(-70px)' }, { transform: 'translateX(0)' }]);
 					if (frame.step === 2) move('.query-assembly', [{ transform: 'translateY(-85px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }]);
@@ -204,9 +220,9 @@ const animation = kind === 'handler' ? [
 			};
 			const start = () => {
 				if (timer !== undefined) return;
-				// Avoid repeatedly announcing every frame while the animation loops.
+				// Announce manual steps, but keep timed playback quiet for screen readers.
 				status.setAttribute('aria-live', reducedMotion.matches ? 'polite' : 'off');
-				if (position === -1 || reducedMotion.matches) {
+				if (position === -1 || position === frames.length - 1 || reducedMotion.matches) {
 					position = (position + 1) % frames.length;
 					show(true);
 				}
@@ -214,37 +230,48 @@ const animation = kind === 'handler' ? [
 				motions.forEach((motion) => motion.play());
 				playLabel.textContent = 'หยุดชั่วคราว';
 				play.toggleAttribute('data-playing', true);
-				timer = setInterval(() => { position = (position + 1) % frames.length; show(true); }, 2800);
+				timer = setInterval(() => {
+					if (position === frames.length - 1) return pause();
+					position += 1;
+					show(true);
+				}, 6000);
 			};
-			play.addEventListener('click', () => { if (timer !== undefined) pause(); else start(); });
+			play.addEventListener('click', () => { if (timer !== undefined) pause(); else start(); }, { signal: events.signal });
+			previous.addEventListener('click', () => {
+				pause();
+				position = Math.max(position - 1, 0);
+				show();
+			}, { signal: events.signal });
 			next.addEventListener('click', () => {
 				pause();
 				position = Math.min(position + 1, frames.length - 1);
 				show();
-			});
-			reset.addEventListener('click', () => { position = -1; pause(); show(); });
+			}, { signal: events.signal });
+			reset.addEventListener('click', () => { position = -1; pause(); show(); }, { signal: events.signal });
 			const updateInvitation = () => {
 				const invitation = this.querySelector<HTMLElement>('.player-invitation');
 				if (invitation) invitation.textContent = reducedMotion.matches
-					? 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มดูทีละขั้นเพื่ออ่านตามจังหวะของคุณ'
-					: 'ภาพเล่นวนอัตโนมัติ — กดหยุดเพื่ออ่านค้างไว้ หรือเลือกดูทีละขั้นได้';
+					? 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มขั้นถัดไปหรือย้อนกลับเพื่ออ่านตามจังหวะของคุณ'
+					: 'กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น';
 			};
 			const onMotionChange = () => { pause(); show(); updateInvitation(); };
-			reducedMotion.addEventListener('change', onMotionChange);
+			reducedMotion.addEventListener('change', onMotionChange, { signal: events.signal });
 			this.cleanup = () => {
 				pause();
 				motions.forEach((motion) => motion.cancel());
-				reducedMotion.removeEventListener('change', onMotionChange);
+				events.abort();
 			};
 			pause();
 			show();
 			controls.hidden = false;
 			updateInvitation();
-			if (!reducedMotion.matches) start();
 		}
 
 		cleanup?: () => void;
-		disconnectedCallback() { this.cleanup?.(); }
+		disconnectedCallback() {
+			this.cleanup?.();
+			this.cleanup = undefined;
+		}
 	}
 
 	if (!customElements.get('elysia-flow-player')) customElements.define('elysia-flow-player', ElysiaFlowPlayer);
@@ -312,7 +339,11 @@ const animation = kind === 'handler' ? [
 	.timeline-packet :global(svg) { display: block; width: 30px; height: 30px; background: var(--paper); }
 	.timeline li { text-align: center; }
 
-	.parse-list .skipped { border: 0; font-size: 0.78rem; color: var(--ink-soft); }
+	.omitted-work { margin-top: 1rem; padding: 0.75rem; border: 1px dashed var(--line); }
+	.omitted-work .path-title { margin-bottom: 0.5rem; }
+	.omitted-work dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0; font-size: 0.8rem; }
+	.omitted-work dt { font-weight: 600; }
+	.omitted-work dd { margin: 0.25rem 0 0; color: var(--ink-soft); }
 	.timeline-row + .timeline-row { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 	.timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
 	.timeline li { position: relative; margin: 0; padding: 0.5rem; border: 1px solid var(--line); border-bottom-width: 4px; background: var(--paper); }
@@ -326,6 +357,7 @@ const animation = kind === 'handler' ? [
 		.elysia-diagram { padding: 1rem; }
 		.player-buttons [data-play] { width: 100%; min-width: 0; }
 		.parsing-comparison { grid-template-columns: 1fr; gap: 1.5rem; }
+		.omitted-work dl { grid-template-columns: 1fr; }
 		.specialized { border-top: 1px solid var(--line); padding-top: 1.25rem; }
 		.timeline { grid-template-columns: 1fr; gap: 0.75rem; }
 		.handler-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }

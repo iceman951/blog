@@ -1,0 +1,69 @@
+---
+const fastifySteps = [
+	'Incoming request', 'Routing + instance logger', 'onRequest', 'preParsing',
+	'Parsing', 'preValidation', 'Validation', 'preHandler', 'User handler',
+	'Reply → preSerialization', 'Serialization → onSend', 'Outgoing response', 'onResponse',
+];
+---
+
+<div class="lifecycles">
+	<figure aria-labelledby="express-lifecycle-heading">
+		<p class="diagram-title" id="express-lifecycle-heading">Express · ตามลำดับที่ลงทะเบียน</p>
+		<svg viewBox="0 0 320 430" role="img" aria-labelledby="express-flow-title express-flow-desc">
+			<title id="express-flow-title">ตัวอย่าง request flow ของ Express</title>
+			<desc id="express-flow-desc">Request ผ่าน middleware ที่ตรงกับ path ตามลำดับที่ลงทะเบียน เมื่อเรียก next จะไปขั้นถัดไปจนถึง route handler แต่ middleware สามารถส่ง response และจบการตอบกลับก่อนถึง handler ได้</desc>
+			<defs>
+				<marker id="express-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker>
+				<marker id="express-early-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--vermilion)" /></marker>
+			</defs>
+			<g class="connections" marker-end="url(#express-arrow)">
+				<path d="M126 56V90" /><path d="M126 138V194" />
+				<path d="M126 242V298" /><path d="M126 346V380" />
+			</g>
+			<path class="early-connection" d="M228 114H290V404H228" marker-end="url(#express-early-arrow)" />
+			{[
+				{ label: 'Request', y: 8 }, { label: 'Middleware 1', y: 90 },
+				{ label: 'Middleware 2', y: 194 }, { label: 'Route handler', y: 298 },
+				{ label: 'Response', y: 380 },
+			].map(({ label, y }) => (
+				<g><rect x="24" y={y} width="204" height="48" rx="6" /><text x="126" y={y + 29} text-anchor="middle">{label}</text></g>
+			))}
+			<text class="edge-label" x="138" y="172">next()</text>
+			<text class="edge-label" x="138" y="276">next()</text>
+			<text class="early-label" transform="translate(308 260) rotate(-90)" text-anchor="middle">res.send() → จบก่อนถึง handler</text>
+		</svg>
+		<figcaption>ตัวอย่างเมื่อ middleware และ route ตรงกับ request; parser ก็เป็น middleware ที่เลือกติดตั้งได้ เส้นสีแดงแสดงการตอบกลับแล้วไม่เรียก <code>next()</code> ภาพละเส้นทาง error ไว้<br />อ้างอิง: <a href="https://expressjs.com/en/guide/using-middleware/">Express: Using middleware</a></figcaption>
+	</figure>
+	<figure aria-labelledby="fastify-lifecycle-heading">
+		<p class="diagram-title" id="fastify-lifecycle-heading">Fastify · lifecycle ที่กำหนดไว้</p>
+		<svg viewBox="0 0 320 840" role="img" aria-labelledby="fastify-flow-title fastify-flow-desc">
+			<title id="fastify-flow-title">Request lifecycle ของ Fastify</title>
+			<desc id="fastify-flow-desc">{fastifySteps.join(' → ')} ภาพแสดงเส้นทางปกติที่ไม่มี error หรือการตอบกลับก่อนถึง handler</desc>
+			<defs><marker id="fastify-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker></defs>
+			{fastifySteps.map((label, index) => (
+				<g>
+					{index > 0 && <path class="connections" d={`M160 ${8 + (index - 1) * 64 + 48}v16`} marker-end="url(#fastify-arrow)" />}
+					<rect class:list={{ handler: label === 'User handler' }} x="16" y={8 + index * 64} width="288" height="48" rx="6" />
+					<text x="160" y={37 + index * 64} text-anchor="middle">{label}</text>
+				</g>
+			))}
+		</svg>
+		<figcaption>เส้นทางปกติแบบย่อ: hooks บางช่วงตอบกลับก่อนได้ และ error จะแยกไปเส้นทางจัดการข้อผิดพลาด การ serialize ขึ้นอยู่กับ payload โดย <code>onResponse</code> ทำงานหลังส่ง response แล้ว<br />อ้างอิง: <a href="https://fastify.dev/docs/latest/Reference/Lifecycle/">Fastify: Lifecycle</a></figcaption>
+	</figure>
+</div>
+
+<style>
+	.lifecycles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 2rem 0; align-items: start; }
+	figure { min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--line); background: var(--paper-alt); color: var(--ink); font-family: var(--stack-meta); }
+	.diagram-title { margin: 0 0 1rem; font-size: 0.9rem; font-weight: 600; }
+	svg { display: block; width: 100%; height: auto; }
+	rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+	rect.handler { stroke: var(--indigo); stroke-width: 2.5; }
+	text { fill: var(--ink); font-family: var(--stack-meta); font-size: 17px; }
+	.connections { fill: none; stroke: var(--indigo); stroke-width: 2; }
+	.early-connection { fill: none; stroke: var(--vermilion); stroke-width: 2; }
+	.edge-label, .early-label { font-size: 15px; }
+	.early-label { fill: var(--vermilion); }
+	figcaption { margin-top: 1rem; color: var(--ink-soft); font-size: 0.75rem; line-height: 1.8; }
+	@media (max-width: 600px) { .lifecycles { grid-template-columns: 1fr; } }
+</style>
