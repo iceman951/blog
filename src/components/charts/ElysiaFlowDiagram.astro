@@ -9,16 +9,10 @@ interface Props {
 const { kind } = Astro.props;
 const diagramId = `elysia-${kind}-${crypto.randomUUID()}`;
 const titles = {
-	handler: 'สร้าง pipeline แล้วใช้กับ request ถัดไปอย่างไร?',
+	handler: 'Elysia สร้าง pipeline แล้วนำมาใช้กับแต่ละ request อย่างไร?',
 	parsing: 'Route ใช้แค่ query ต้องเตรียมอะไรบ้าง?',
 	compilation: 'งานสร้าง handler เกิดขึ้นตอนไหน?',
 };
-const steps = [
-	{ title: 'เขียน route handler' },
-	{ title: 'วิเคราะห์การใช้ context' },
-	{ title: 'ประกอบ pipeline' },
-	{ title: 'ใช้กับแต่ละ request' },
-];
 const phases = ['ตอน build', 'ตอนเริ่มแอป', 'Request แรก', 'Request ถัดไป'];
 const timelines = [
 	{ title: 'Elysia 1.4.30 · precompile: true', note: 'เปิด aot และประกอบ route ก่อนเริ่มรับ request', compile: 1, actions: ['ยังไม่ประกอบ', 'ประกอบ handler', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
@@ -26,12 +20,13 @@ const timelines = [
 	{ title: 'Elysia 2 beta · build-time AOT', note: 'ใช้ AOT build plugin เตรียมโค้ดไว้ใน build output', compile: 0, actions: ['ประกอบ handler', 'โหลดโค้ดที่สร้างไว้', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
 ];
 const animation = kind === 'handler' ? [
-	{ step: 0, text: 'เริ่มจากโค้ดของเรา: route นี้อ่านแค่ query.id' },
-	{ step: 1, text: 'Sucrose อ่านโค้ดโดยไม่รัน handler และพบว่า handler นี้ใช้ query' },
-	{ step: 2, text: 'Elysia ใช้ผลวิเคราะห์ร่วมกับ hooks, schema และ HTTP method เพื่อประกอบ pipeline สำหรับ route นี้' },
-	{ step: 3, id: '42', text: "Request ที่ 1: /user?id=42 → อ่าน query ของ request นี้ → handler คืน string '42'" },
-	{ step: 3, id: '43', text: "Request ที่ 2: /user?id=43 → ใช้โค้ด pipeline เดิม แต่อ่าน query ใหม่ → คืน '43'" },
-	{ step: 3, id: '44', text: "Request ที่ 3: /user?id=44 → คืน '44' สิ่งที่ใช้ซ้ำคือโค้ด ไม่ใช่คำตอบจาก request ก่อน" },
+	{ step: 0, text: 'เริ่มจาก handler ที่อ่าน query.id' },
+	{ step: 1, text: 'Elysia สร้าง pipeline ให้ route นี้ พร้อมนำไปใช้กับทุก request' },
+	...['42', '43', '44'].flatMap((id, index) => [
+		{ step: 2, id, text: `Request ${index + 1}: อ่าน ?id=${id} ได้ query.id = '${id}'` },
+		{ step: 3, id, text: `Request ${index + 1}: handler อ่าน query.id แล้วคืน '${id}'` },
+		{ step: 4, id, text: `Request ${index + 1} เสร็จแล้ว — pipeline ยังเป็นชุดเดิม` },
+	]),
 ] : kind === 'compilation' ? [
 	{ step: 0, text: 'ตอน build: AOT build plugin ของ Elysia 2 beta เตรียมโค้ดที่รองรับไว้ใน build output' },
 	{ step: 1, text: 'ตอนเริ่มแอป: precompile สร้าง handler ส่วน build-time AOT โหลดโค้ดที่สร้างไว้แล้ว' },
@@ -40,8 +35,8 @@ const animation = kind === 'handler' ? [
 ] : [];
 ---
 
-<elysia-flow-player data-frames={JSON.stringify(animation)}>
-<figure class="elysia-diagram" aria-labelledby={`${diagramId}-title`}>
+<elysia-flow-player data-kind={kind} data-frames={JSON.stringify(animation)} data-interval={kind === 'handler' ? 2000 : 6000}>
+<figure class:list={['elysia-diagram', { 'handler-diagram': kind === 'handler' }]} aria-labelledby={`${diagramId}-title`}>
 	<p class="diagram-title" id={`${diagramId}-title`}>{titles[kind]}</p>
 	{animation.length > 0 && (
 		<div class="player-controls" hidden>
@@ -60,26 +55,16 @@ const animation = kind === 'handler' ? [
 					<button type="button" data-reset aria-controls={`${diagramId}-graphic`}>ดูภาพรวม</button>
 				</div>
 			</div>
-			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง</p>
+			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">ดูภาพรวม หรือกดเล่นเพื่อดูแต่ละขั้นตอน</p>
 		</div>
 	)}
 	{kind === 'handler' && (
 		<>
-			<div id={`${diagramId}-graphic`}>
-			<ElysiaRequestScene />
-			<ol class="handler-flow">
-				{steps.map((step, index) => (
-					<li data-step={index}>
-						<span class="step-number" aria-hidden="true">{index + 1}</span>
-						<div>
-							<strong>{step.title}</strong>
-						</div>
-					</li>
-				))}
-			</ol>
+			<div class="handler-graphic" id={`${diagramId}-graphic`}>
+				<ElysiaRequestScene />
 			</div>
-			<p class="takeaway">ใช้โค้ด pipeline เดิม แต่เตรียม context และอ่าน query ใหม่ทุก request</p>
-			<figcaption>ภาพแสดงเฉพาะส่วนที่เกี่ยวกับ query ของ route นี้ โดยไม่มี hooks หรือ schema ที่ต้องใช้ข้อมูลส่วนอื่น การประกอบ pipeline เกิดตอน build, startup หรือ request แรกตามโหมดที่ใช้ ส่วน engine JIT ยังทำงานระหว่างรันได้ ภาพไม่ได้แสดงเวลาที่วัดจริง</figcaption>
+			<p class="takeaway">สร้าง pipeline ไว้ใช้ซ้ำ แล้วอ่าน query ใหม่ทุก request</p>
+			<figcaption>ตัวอย่าง route ที่ใช้เฉพาะ query และคืนค่าเป็น string โดยไม่มี hooks หรือ schema ที่ใช้ข้อมูลอื่น เวลาที่สร้าง pipeline ขึ้นอยู่กับโหมด: ตอน build, ตอนเริ่มแอป หรือเมื่อรับ request แรก ภาพแสดงลำดับการทำงาน ไม่ได้แสดงความเร็วจริง</figcaption>
 		</>
 	)}
 	{kind === 'parsing' && (
@@ -165,6 +150,8 @@ const animation = kind === 'handler' ? [
 			const status = this.querySelector<HTMLElement>('.player-status')!;
 			const nodes = this.querySelectorAll<HTMLElement>('[data-step]');
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			const isHandler = this.dataset.kind === 'handler';
+			const requestIds = ['42', '43', '44'];
 			let position = -1;
 			let timer: ReturnType<typeof setInterval> | undefined;
 			let motions: Animation[] = [];
@@ -175,7 +162,7 @@ const animation = kind === 'handler' ? [
 					}
 				}
 			};
-			const idleLabel = () => position === frames.length - 1 ? 'เริ่มใหม่' : reducedMotion.matches ? position === -1 ? 'เริ่มดูทีละขั้น' : 'ดูขั้นถัดไป' : position >= 0 ? 'เล่นต่อ' : 'เล่นภาพเคลื่อนไหว';
+			const idleLabel = () => position === frames.length - 1 ? 'เล่นอีกครั้ง' : reducedMotion.matches ? position === -1 ? 'เริ่มดูทีละขั้น' : 'ดูขั้นถัดไป' : position >= 0 ? 'เล่นต่อ' : isHandler ? 'เล่นตัวอย่าง' : 'เล่นภาพเคลื่อนไหว';
 			const pause = () => {
 				clearInterval(timer);
 				timer = undefined;
@@ -188,11 +175,29 @@ const animation = kind === 'handler' ? [
 				motions.forEach((motion) => motion.cancel());
 				motions = [];
 				const frame = frames[position];
-				const requestId = frame?.id ?? '42';
-				const requestLabel = this.querySelector('[data-request-label]');
-				const responseLabel = this.querySelector('[data-response-label]');
-				if (requestLabel) requestLabel.textContent = `/user?id=${requestId}`;
-				if (responseLabel) responseLabel.textContent = `'${requestId}'`;
+				if (isHandler) {
+					const overview = !frame;
+					const requestIndex = requestIds.indexOf(frame?.id ?? '');
+					const completed = overview ? requestIds.length : Math.max(0, requestIndex + (frame.step === 4 ? 1 : 0));
+					const built = overview || frame.step >= 1;
+					this.querySelector('[data-build-count]')!.textContent = built ? '1' : '0';
+					this.querySelector('[data-response-count]')!.textContent = String(completed);
+					this.querySelector('[data-build-state]')!.textContent = built ? 'สร้างแล้ว · ใช้ชุดเดิม' : 'ยังไม่สร้าง';
+					this.querySelector('[data-query-value]')!.textContent = frame?.id ? `query.id = '${frame.id}'` : overview ? 'query.id' : 'รอ request';
+					this.querySelector('[data-handler-value]')!.textContent = frame?.id && frame.step >= 3 ? `return '${frame.id}'` : overview ? 'return query.id' : 'รอ query';
+					for (const [index, id] of requestIds.entries()) {
+						const request = this.querySelector<HTMLElement>(`[data-request="${id}"]`)!;
+						const result = this.querySelector<HTMLElement>(`[data-result="${id}"]`)!;
+						const active = frame?.id === id && frame.step < 4;
+						const done = index < completed;
+						request.toggleAttribute('data-active', active);
+						request.querySelector('[data-request-state]')!.textContent = done ? 'ส่งแล้ว' : active ? 'กำลังทำงาน' : 'รอส่ง';
+						result.toggleAttribute('data-active', frame?.id === id && frame.step === 4);
+						result.toggleAttribute('data-pending', !done);
+						result.querySelector('[data-result-value]')!.textContent = done ? `'${id}'` : '—';
+						result.querySelector('[data-result-state]')!.textContent = done ? 'เสร็จแล้ว' : 'รอผลลัพธ์';
+					}
+				}
 				this.dataset.stage = frame ? String(frame.step) : 'overview';
 				for (const node of nodes) {
 					const active = Boolean(frame && Number(node.dataset.step) === frame.step);
@@ -202,18 +207,33 @@ const animation = kind === 'handler' ? [
 				}
 				status.textContent = frame
 					? `${position + 1}/${frames.length} — ${frame.text}`
-					: 'กดเล่นหรือดูทีละขั้น — แสดงลำดับแนวคิด ไม่ใช่ระยะเวลาที่วัดจริง';
+					: isHandler ? 'Request 3 ครั้ง ผ่าน pipeline ชุดเดียว ได้ผลลัพธ์ตาม id ที่ส่งมา' : 'ดูภาพรวม หรือกดเล่นเพื่อดูแต่ละขั้นตอน';
 				previous.disabled = position <= 0;
 				next.disabled = position === frames.length - 1;
 				reset.disabled = position === -1;
 				if (timer === undefined) playLabel.textContent = idleLabel();
 				if (animate && frame && !reducedMotion.matches) {
-					if (frame.step === 1) move('.scanner', [{ transform: 'translateX(-70px)' }, { transform: 'translateX(0)' }]);
-					if (frame.step === 2) move('.query-assembly', [{ transform: 'translateY(-85px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }]);
-					if (frame.step === 3) {
-						move('[data-packet]', [{ transform: 'translateX(0)', offset: 0 }, { transform: 'translateX(110px)', offset: 0.4 }, { transform: 'translateX(110px)', offset: 0.6 }, { transform: 'translateX(305px)', offset: 1 }]);
-						move('.response', [{ opacity: 0.25 }, { opacity: 1 }], 400, 1200);
+					if (isHandler && frame.id) {
+						const route = frame.step === 2
+							? [`[data-request="${frame.id}"] code`, '[data-query-value]', `?id=${frame.id}`]
+							: frame.step === 3
+								? ['[data-query-value]', '[data-handler-value]', `query.id = '${frame.id}'`]
+								: ['[data-handler-value]', `[data-result="${frame.id}"] code`, `'${frame.id}'`];
+						const token = this.querySelector<HTMLElement>('[data-flow-token]')!;
+						token.textContent = route[2];
+						const board = this.querySelector('.flow-board')!.getBoundingClientRect();
+						const tokenBox = token.getBoundingClientRect();
+						const points = route.slice(0, 2).map((selector) => {
+							const box = this.querySelector(selector)!.getBoundingClientRect();
+							return `translate(${box.left - board.left + (box.width - tokenBox.width) / 2}px, ${box.top - board.top + (box.height - tokenBox.height) / 2}px)`;
+						});
+						move('[data-flow-token]', [
+							{ transform: points[0], opacity: 1 },
+							{ transform: points[1], opacity: 1, offset: 0.85 },
+							{ transform: points[1], opacity: 0 },
+						], 500);
 					}
+					move('.pipeline-step[data-current] code, [data-result][data-active] code', [{ transform: 'translateY(6px)', opacity: 0.3 }, { transform: 'translateY(0)', opacity: 1 }], 300);
 					move('[data-current] [data-illustration="build"] > svg', [{ transform: 'translateY(-12px)', opacity: 0.3 }, { transform: 'translateY(0)', opacity: 1 }], 800);
 					move('[data-current] [data-delivery]', [{ transform: 'translateX(-35px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1, offset: 0.3 }, { transform: 'translateX(35px)', opacity: 0 }], 1000, 800);
 				}
@@ -234,7 +254,7 @@ const animation = kind === 'handler' ? [
 					if (position === frames.length - 1) return pause();
 					position += 1;
 					show(true);
-				}, 6000);
+				}, Number(this.dataset.interval ?? 6000));
 			};
 			play.addEventListener('click', () => { if (timer !== undefined) pause(); else start(); }, { signal: events.signal });
 			previous.addEventListener('click', () => {
@@ -252,7 +272,7 @@ const animation = kind === 'handler' ? [
 				const invitation = this.querySelector<HTMLElement>('.player-invitation');
 				if (invitation) invitation.textContent = reducedMotion.matches
 					? 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มขั้นถัดไปหรือย้อนกลับเพื่ออ่านตามจังหวะของคุณ'
-					: 'กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น';
+						: isHandler ? 'ดูข้อมูลผ่านแต่ละขั้น หรือกดขั้นถัดไปเพื่ออ่านเอง' : 'กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น';
 			};
 			const onMotionChange = () => { pause(); show(); updateInvitation(); };
 			reducedMotion.addEventListener('change', onMotionChange, { signal: events.signal });
@@ -301,8 +321,6 @@ const animation = kind === 'handler' ? [
 	.player-buttons button:disabled { opacity: 0.5; cursor: default; }
 	.player-buttons button:focus-visible { outline: 2px solid var(--vermilion); outline-offset: 3px; }
 	.player-status { margin: 0.75rem 0 0; min-height: 5.1em; font-size: 0.8rem; }
-	.handler-flow li[data-current] { border-color: var(--vermilion); background: var(--paper); }
-	.handler-flow li[data-current] .step-number { background: var(--indigo); color: var(--paper); }
 	.timeline li[data-current] { border-bottom: 4px solid var(--vermilion); background: var(--paper-deep); }
 	@media print { .player-controls { display: none; } }
 	.elysia-diagram {
@@ -318,10 +336,7 @@ const animation = kind === 'handler' ? [
 	.diagram-title { margin: 0 0 1.25rem; font-size: 1rem; font-weight: 600; }
 	.elysia-diagram strong { display: block; font-weight: 600; }
 	.detail { display: block; color: var(--ink-soft); font-size: 0.8rem; font-weight: 400; }
-	.handler-flow, .parse-list, .timeline { margin: 0; padding: 0; list-style: none; }
-	.handler-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 1rem; }
-	.handler-flow li { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; margin: 0; border: 1px solid var(--line); font-size: 0.75rem; }
-	.step-number { display: grid; place-items: center; flex: 0 0 1.5rem; height: 1.5rem; background: var(--paper); font-variant-numeric: tabular-nums; }
+	.parse-list, .timeline { margin: 0; padding: 0; list-style: none; }
 	.parsing-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
 	.parse-path { display: flex; flex-direction: column; min-width: 0; }
 	.path-title { margin: 0 0 0.75rem; font-weight: 600; }
@@ -353,6 +368,17 @@ const animation = kind === 'handler' ? [
 	.timeline strong { font-size: 0.78rem; }
 	.takeaway { margin: 1rem 0 0; padding-top: 0.75rem; border-top: 1px solid var(--line); font-weight: 500; }
 	figcaption { margin-top: 0.75rem; font-size: 0.75rem; color: var(--ink-soft); }
+	.handler-diagram { display: flex; flex-direction: column; }
+	.handler-diagram .diagram-title { order: 0; font-size: 1.1rem; line-height: 1.65; margin-bottom: 1rem; }
+	.handler-diagram .handler-graphic { order: 1; }
+	.handler-diagram .player-controls { order: 2; margin: 1rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--line); border-bottom: 0; }
+	.handler-diagram .takeaway { order: 3; }
+	.handler-diagram figcaption { order: 4; }
+	.handler-diagram .player-invitation { font-size: 0.85rem; color: var(--ink-soft); }
+	.handler-diagram .player-buttons { gap: 0.5rem; }
+	.handler-diagram .player-buttons [data-play] { min-width: 0; min-height: 44px; padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+	.handler-diagram .player-status { min-height: 3.6em; margin-top: 0.75rem; padding-left: 0.75rem; border-left: 2px solid var(--line); font-size: 0.85rem; line-height: 1.8; }
+	.handler-diagram figcaption { font-size: 0.8rem; line-height: 1.85; }
 	@media (max-width: 560px) {
 		.elysia-diagram { padding: 1rem; }
 		.player-buttons [data-play] { width: 100%; min-width: 0; }
@@ -360,7 +386,9 @@ const animation = kind === 'handler' ? [
 		.omitted-work dl { grid-template-columns: 1fr; }
 		.specialized { border-top: 1px solid var(--line); padding-top: 1.25rem; }
 		.timeline { grid-template-columns: 1fr; gap: 0.75rem; }
-		.handler-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+		.handler-diagram { padding: 0.85rem; }
+		.handler-diagram .secondary-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 0.35rem; }
+		.handler-diagram .secondary-controls button { padding: 0.4rem 0.25rem; font-size: 0.8rem; }
 		.timeline li { display: grid; grid-template-columns: 4.5rem 3rem minmax(0, 1fr); align-items: center; gap: 0.5rem; text-align: left; }
 		.timeline-picture { width: 44px; margin: 0; }
 		.timeline-picture > :global(svg) { width: 44px; height: 44px; }

@@ -1,81 +1,117 @@
 ---
-// The player sets data-stage and animates the envelope. All text stays available
-// in the surrounding figure, including when JavaScript or motion is disabled.
+const requests = ['42', '43', '44'];
 ---
 
-<svg class="request-scene" viewBox="0 0 600 330" role="img" aria-label="Elysia วิเคราะห์การใช้ query แล้วประกอบ pipeline สำหรับ route แต่ละ request ใช้โค้ดเดิม แต่ได้คำตอบตามค่า id ของตัวเอง โดย handler คืนค่าเป็น string">
-	<g class="preparation">
-		<rect x="187" y="12" width="226" height="80" rx="4" class="paper" />
-		<path d="M187 33h226" class="line" />
-		<circle cx="200" cy="23" r="3" class="dot" /><circle cx="211" cy="23" r="3" class="dot" />
-		<text x="300" y="58" text-anchor="middle" class="code">query.id</text>
-		<text x="300" y="80" text-anchor="middle" class="small">โค้ดที่เราเขียน</text>
-		<g class="scanner">
-			<circle cx="347" cy="56" r="25" class="lens" />
-			<path d="m365 75 17 17" class="thick" />
-		</g>
-		<path d="M300 97v32m-6-7 6 7 6-7" class="line" />
-	</g>
-
-	<path d="M139 202h93m-8-6 8 6-8 6M368 202h94m-8-6 8 6-8 6" class="track" />
-	<g class="client">
-		<rect x="15" y="156" width="124" height="86" rx="4" class="paper" />
-		<path d="M15 177h124M28 166h2m8 0h2" class="line" />
-		<text x="77" y="207" text-anchor="middle" class="code small" data-request-label>/user?id=42</text>
-		<path d="m113 219 5 13 3-5 6-2Z" class="cursor" />
-		<text x="77" y="273" text-anchor="middle" class="label">ผู้ใช้เรียก API</text>
-	</g>
-	<g class="handler-machine">
-		<rect x="237" y="142" width="126" height="108" rx="4" class="machine" />
-		<path d="M252 160h96M252 169h96" class="machine-lines" />
-		<g class="query-assembly">
-			<rect x="255" y="183" width="90" height="43" rx="2" class="query-piece" />
-			<text x="300" y="211" text-anchor="middle" class="code">query</text>
-		</g>
-		<circle cx="349" cy="238" r="4" class="ready-light" />
-		<text x="300" y="273" text-anchor="middle" class="label">pipeline ของ route</text>
-	</g>
-	<g class="response">
-		<path d="M478 148h65l29 29v73h-94Zm65 0v29h29" class="paper" />
-		<text x="525" y="223" text-anchor="middle" class="answer" data-response-label>'42'</text>
-		<text x="525" y="273" text-anchor="middle" class="label">ค่าที่ handler คืน</text>
-	</g>
-	<g class="request-packet" data-packet aria-hidden="true">
-		<rect x="145" y="187" width="36" height="26" rx="3" />
-		<path d="m146 189 17 12 17-12" />
-	</g>
-	<text x="300" y="311" text-anchor="middle" class="scene-hint">ประกอบโค้ดครั้งเดียว อ่าน query ใหม่ทุก request</text>
-</svg>
+<div class="request-scene">
+	<div class="source" data-step="0">
+		<p class="eyebrow">Handler ที่เราเขียน</p>
+		<code>{'({ query }) => query.id'}</code>
+		<p class="source-note">Sucrose วิเคราะห์ว่าใช้ query แล้ว Elysia สร้าง pipeline สำหรับ route นี้</p>
+	</div>
+	<div class="build-link" aria-hidden="true">↓</div>
+	<div class="flow-board">
+		<code class="flow-token" data-flow-token aria-hidden="true"></code>
+		<section class="requests" aria-label="Request ที่ส่งเข้ามา">
+			<p class="column-title">Request เข้า</p>
+			<p class="route-label"><code>GET /user</code></p>
+			<ol class="request-list">
+				{requests.map((id, index) => (
+					<li data-request={id}>
+						<span class="request-number">ครั้งที่ {index + 1}</span>
+						<code>?id={id}</code>
+						<span class="request-state" data-request-state>ส่งแล้ว</span>
+					</li>
+				))}
+			</ol>
+		</section>
+		<section class="pipeline" data-step="1" aria-label="Pipeline ที่นำกลับมาใช้">
+			<div class="pipeline-heading">
+				<strong>Pipeline ของ /user</strong>
+				<span class="build-state" data-build-state>สร้างแล้ว · ใช้ชุดเดิม</span>
+			</div>
+			<div class="pipeline-step" data-step="2">
+				<p><span class="step-number">1</span> อ่าน query</p>
+				<code data-query-value>query.id</code>
+			</div>
+			<div class="inside-arrow" aria-hidden="true">↓</div>
+			<div class="pipeline-step" data-step="3">
+				<p><span class="step-number">2</span> เรียก handler</p>
+				<code data-handler-value>return query.id</code>
+			</div>
+			<p class="pipeline-note">สองขั้นตอนเดิม<br />ทำกับข้อมูลใหม่ทุก request</p>
+		</section>
+		<section class="responses" aria-label="ค่าที่ handler คืน">
+			<p class="column-title">ค่าที่คืน</p>
+			<p class="route-label">ชนิด string</p>
+			<ol class="result-list">
+				{requests.map((id, index) => (
+					<li data-result={id}>
+						<span class="request-number">ครั้งที่ {index + 1}</span>
+						<code data-result-value>'{id}'</code>
+						<span class="result-state" data-result-state>เสร็จแล้ว</span>
+					</li>
+				))}
+			</ol>
+		</section>
+	</div>
+	<div class="counters">
+		<p>สร้าง pipeline <strong data-build-count>1</strong> ครั้ง</p>
+		<p>ตอบ request แล้ว <strong data-response-count>3</strong> ครั้ง</p>
+	</div>
+</div>
 
 <style>
-	.request-scene { display: block; width: 100%; height: auto; color: var(--ink); overflow: visible; }
-	.paper { fill: var(--paper); stroke: var(--ink-muted); stroke-width: 2; }
-	.line, .track { fill: none; stroke: var(--ink-muted); stroke-width: 2; stroke-linecap: round; }
-	.track { stroke-dasharray: 5 6; }
-	.dot { fill: var(--ink-muted); }
-	.code { font-family: monospace; font-size: 24px; fill: var(--ink); }
-	.small { font-size: 18px; fill: var(--ink-soft); }
-	.label { font-size: 21px; fill: var(--ink); }
-	.answer { font-size: 44px; font-weight: 600; fill: var(--indigo); }
-	.scene-hint { font-size: 20px; fill: var(--ink-soft); }
-	.cursor { fill: var(--indigo); }
-	.machine { fill: var(--indigo); stroke: var(--indigo); stroke-width: 2; }
-	.machine-lines { stroke: var(--paper); opacity: 0.5; stroke-width: 2; }
-	.query-piece { fill: var(--paper); }
-	.ready-light { fill: var(--paper); }
-	.lens { fill: var(--paper); fill-opacity: 0.35; stroke: var(--vermilion); stroke-width: 4; }
-	.thick { stroke: var(--vermilion); stroke-width: 7; stroke-linecap: round; }
-	.scanner { opacity: 0; }
-	.request-packet { fill: var(--paper); stroke: var(--vermilion); stroke-width: 2.5; transform: translateX(0); }
-	:global(elysia-flow-player[data-stage="0"]) .handler-machine,
-	:global(elysia-flow-player[data-stage="1"]) .handler-machine { opacity: 0.25; }
-	:global(elysia-flow-player[data-stage="0"]) .response,
-	:global(elysia-flow-player[data-stage="1"]) .response,
-	:global(elysia-flow-player[data-stage="2"]) .response { opacity: 0.25; }
-	:global(elysia-flow-player[data-stage="0"]) .request-packet,
-	:global(elysia-flow-player[data-stage="1"]) .request-packet,
-	:global(elysia-flow-player[data-stage="2"]) .request-packet { opacity: 0; }
-	:global(elysia-flow-player[data-stage="1"]) .scanner { opacity: 1; }
-	:global(elysia-flow-player[data-stage="3"]) .preparation { opacity: 0.35; }
-	:global(elysia-flow-player[data-stage="3"]) .request-packet { transform: translateX(305px); }
+	.request-scene { container-type: inline-size; font-size: 0.9rem; line-height: 1.7; }
+	p { margin: 0; }
+	code { border: 0; background: transparent; padding: 0; color: var(--indigo); font-family: var(--stack-mono); font-size: 0.85rem; overflow-wrap: anywhere; }
+	.source { padding: 0.85rem 1rem; border-left: 3px solid var(--indigo); background: var(--paper); }
+	.eyebrow { margin-bottom: 0.35rem; color: var(--ink-soft); font-size: 0.8rem; }
+	.source > code { font-size: 0.95rem; }
+	.source-note { margin-top: 0.5rem; font-size: 0.85rem; color: var(--ink-soft); }
+	.build-link { padding: 0.4rem 0; text-align: center; font-size: 1.25rem; color: var(--ink-muted); }
+	.flow-board { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+	.flow-token { position: absolute; top: 0; left: 0; z-index: 1; width: max-content; max-width: 100%; padding: 0.3rem 0.5rem; background: var(--indigo); color: var(--paper); opacity: 0; pointer-events: none; }
+	.column-title { font-weight: 600; }
+	.route-label { margin: 0.15rem 0 0.75rem; color: var(--ink-soft); font-size: 0.75rem; min-height: 1.7em; }
+	.route-label code { font-size: 0.75rem; }
+	.request-list, .result-list { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+	.request-list li, .result-list li { position: relative; display: grid; gap: 0.1rem; margin: 0; padding: 0.55rem 0.65rem; border: 1px solid var(--line); background: var(--paper); }
+	.request-number, .request-state, .result-state { font-size: 0.7rem; color: var(--ink-soft); }
+	.request-list code, .result-list code { font-size: 1rem; font-variant-numeric: tabular-nums; }
+	.pipeline { position: relative; padding: 0.9rem; border: 2px solid var(--indigo); background: var(--paper); }
+	.pipeline::before, .pipeline::after { position: absolute; top: 50%; color: var(--ink-muted); font-size: 1.1rem; content: '→'; }
+	.pipeline::before { left: -1.3rem; }
+	.pipeline::after { right: -1.3rem; }
+	.pipeline-heading { margin-bottom: 1rem; }
+	.pipeline-heading strong { display: block; font-size: 0.9rem; font-weight: 600; }
+	.build-state { color: var(--ink-soft); font-size: 0.75rem; }
+	.pipeline-step { padding: 0.65rem; border: 1px solid var(--line); }
+	.pipeline-step p { margin-bottom: 0.5rem; font-weight: 500; }
+	.pipeline-step code { display: block; min-height: 1.8em; font-size: 0.8rem; }
+	.step-number { color: var(--ink-muted); margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+	.inside-arrow { text-align: center; color: var(--ink-muted); line-height: 1.8; }
+	.pipeline-note { margin-top: 0.75rem; color: var(--ink-soft); font-size: 0.75rem; }
+	.counters { display: flex; justify-content: space-between; gap: 0.5rem 1rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--line); font-size: 0.8rem; }
+	.counters strong { display: inline; color: var(--indigo); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+	[data-current], [data-request][data-active], [data-result][data-active] { outline: 2px solid var(--vermilion); outline-offset: -2px; background: var(--paper-deep); }
+	[data-request][data-active] .request-state, [data-result][data-active] .result-state { color: var(--vermilion); font-weight: 600; }
+	[data-result][data-pending] code { color: var(--ink-muted); }
+	@container (max-width: 520px) {
+		.flow-board { grid-template-columns: 1fr; gap: 1.5rem; }
+		.request-list, .result-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+		.request-list li, .result-list li { padding: 0.5rem; }
+		.request-list code, .result-list code { font-size: 0.9rem; }
+		.pipeline { display: grid; grid-template-columns: minmax(0, 1fr) 1rem minmax(0, 1fr); gap: 0.5rem; }
+		.pipeline-heading, .pipeline-note { grid-column: 1 / -1; margin: 0; }
+		.pipeline-heading { margin-bottom: 0.5rem; }
+		.pipeline::before, .pipeline::after { content: '↓'; top: auto; left: 50%; right: auto; transform: translateX(-50%); }
+		.pipeline::before { top: -1.6rem; }
+		.pipeline::after { bottom: -1.6rem; }
+		.inside-arrow { align-self: center; font-size: 0; }
+		.inside-arrow::after { content: '→'; font-size: 1rem; }
+		.pipeline-step { padding: 0.5rem; }
+		.pipeline-step p { font-size: 0.85rem; }
+		.pipeline-note br { display: none; }
+		.counters { font-size: 0.75rem; }
+	}
 </style>
