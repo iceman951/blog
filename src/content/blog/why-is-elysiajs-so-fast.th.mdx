@@ -1,8 +1,7 @@
 ---
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
-pubDate: '2026-09-30'
-updatedDate: '2026-10-02T21:17:48+07:00'
+pubDate: 'Oct 02 2026'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -10,6 +9,8 @@ tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', '
 
 import ElysiaFlowDiagram from '../../components/charts/ElysiaFlowDiagram.astro';
 import FrameworkLifecycleDiagram from '../../components/charts/FrameworkLifecycleDiagram.astro';
+
+ElysiaJS กำลังเตรียมเข้าสู่เวอร์ชัน 2.0.0 โดยมี[รุ่น beta ให้ลองใช้แล้ว](https://elysiajs.com/blog/elysia-20) ระหว่างรอรุ่นเต็ม ผมเลยอยากชวนมาดูกลไกเบื้องหลังความเร็วของมันกันครับ
 
 เคยสงสัยกันไหมครับว่าทำไม ElysiaJS ถึงเร็ว?
 
@@ -125,13 +126,13 @@ Sucrose ตรวจข้อความนี้แล้วพบว่า pa
 }
 ```
 
-`true` หมายถึงพบการใช้ข้อมูลส่วนนั้น ส่วน `false` หมายถึงยังไม่พบจากการวิเคราะห์นี้ Sucrose จึงบอกได้ว่า “ต้องใช้ query” โดยยังไม่ต้องเรียก handler และยังไม่ต้องรู้ว่า request จริงจะส่ง `id` เป็นค่าอะไร ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L616-L719)
+`true` หมายถึงพบการใช้ข้อมูลส่วนนั้น ส่วน `false` หมายถึงยังไม่พบจากการวิเคราะห์นี้ Sucrose จึงบอกได้ว่า “ต้องใช้ query” โดยยังไม่ต้องเรียก handler และยังไม่ต้องรู้ว่า request จริงจะส่ง `id` เป็นค่าอะไร ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L653-L763)
 
 ผลนี้ระบุการใช้ `query` ทั้งส่วน ไม่ได้บอกว่าจะ parse เฉพาะ key `id` เสมอไป
 
 **ขั้นต่อมา: นำผลวิเคราะห์ไปเลือกงานที่ต้องทำ**
 
-เมื่อ Sucrose บอกแล้วว่าโค้ดใช้ข้อมูลส่วนไหน Elysia จะนำผลนั้นไปใช้ใน **ส่วนที่สร้างฟังก์ชันจัดการ request** ซึ่งอยู่ใน [`compose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/compose.ts#L508-L540) ส่วนนี้พิจารณาข้อมูลอื่นร่วมด้วย เช่น schema และ HTTP method เพื่อเลือกว่าฟังก์ชันของ route นั้นต้องมีขั้นตอนอะไรบ้าง
+เมื่อ Sucrose บอกแล้วว่าโค้ดใช้ข้อมูลส่วนไหน Elysia จะนำผลนั้นไปใช้ใน **ส่วนที่สร้างฟังก์ชันจัดการ request** ซึ่งอยู่ใน [`compose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/compose.ts#L573-L599) ส่วนนี้พิจารณาข้อมูลอื่นร่วมด้วย เช่น schema และ HTTP method เพื่อเลือกว่าฟังก์ชันของ route นั้นต้องมีขั้นตอนอะไรบ้าง
 
 ลำดับขั้นตอนที่ได้นี้เรียกว่า **pipeline** เช่น เตรียม query → เรียก handler → แปลงผลเป็น response โดย Elysia สร้างโค้ดที่รวมขั้นตอนเหล่านี้ไว้ในฟังก์ชันสำหรับ route นั้น
 
@@ -157,7 +158,7 @@ Sucrose ยังอ่านโค้ดของ **hooks** ซึ่งเป�
 context => service(context)
 ```
 
-แบบหลัง `service` อาจอ่าน body, headers หรือ cookie ข้างในอีกที เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนแบบนี้ มันจะเผื่อว่าฟังก์ชันปลายทางอาจใช้ข้อมูลทุกส่วนที่มันติดตาม จึงมีโอกาสตัดขั้นตอนเตรียมข้อมูลออกได้น้อยลง ดู[โค้ดตรวจการส่ง context ต่อ](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L516-L547)
+แบบหลัง `service` อาจอ่าน body, headers หรือ cookie ข้างในอีกที เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนแบบนี้ มันจะเผื่อว่าฟังก์ชันปลายทางอาจใช้ข้อมูลทุกส่วนที่มันติดตาม จึงมีโอกาสตัดขั้นตอนเตรียมข้อมูลออกได้น้อยลง ดู[โค้ดตรวจการส่ง context ต่อ](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L546-L617)
 
 วิธีอ่านรูปแบบโค้ดโดยไม่เรียกฟังก์ชันนี้เรียกว่า **static analysis** โดย Sucrose ทำงานเฉพาะด้านการตรวจว่ามีการใช้ข้อมูลอะไรบ้าง ไม่ได้อาศัย type information ของ TypeScript และไม่ได้เข้าใจ JavaScript ครบทุกกรณี การเขียนให้เห็นชัดว่าใช้ข้อมูลส่วนไหนจึงช่วยทั้งคนอ่านและตัววิเคราะห์
 
@@ -198,9 +199,11 @@ function tailoredHandler(request) {
 
 2. **สร้างตอนเริ่มแอป** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` ร่วมกับ `precompile: true` แอปจะสร้าง pipeline ก่อนเริ่มรับ request จึงใช้เวลาเตรียมแอปเพิ่มขึ้น แต่ request แรกไม่ต้องรอสร้าง pipeline ดู[เอกสาร `precompile`](https://elysiajs.com/patterns/configuration#precompile)
 
-3. **สร้างเมื่อมี request แรกของ route** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` และ `precompile: false` แอปจะรอจนมีการเรียก route นั้น แล้วจึงสร้าง pipeline มาใช้งาน Request ถัดไปใช้ฟังก์ชันที่สร้างไว้แล้ว วิธีรอสร้างเมื่อจะใช้นี้เรียกว่า **lazy compilation** ดู[การทำงานใน Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L912-L920)
+3. **สร้างเมื่อมี request แรกของ route** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` และ `precompile: false` แอปจะรอจนมีการเรียก route นั้น แล้วจึงสร้าง pipeline มาใช้งาน Request ถัดไปใช้ฟังก์ชันที่สร้างไว้แล้ว วิธีรอสร้างเมื่อจะใช้นี้เรียกว่า **lazy compilation** ดู[การทำงานใน Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L956-L964)
 
 ชื่อ `aot` ใน Elysia 1.4.30 อาจทำให้สับสน เพราะใช้เปิดการสร้างฟังก์ชันเฉพาะ route ส่วน `precompile` เป็นตัวกำหนดว่าจะสร้างเมื่อไร ดังนั้น **การตั้ง `aot: true` ใน version นี้ไม่ได้หมายถึงการสร้างโค้ดไว้ตอน build** แบบ AOT build plugin ของ Elysia 2 beta
+
+> หน้าเอกสาร configuration ของ Elysia ระบุว่า `aot` มีค่าเริ่มต้นเป็น `false` และอธิบายว่า `true` คือการ precompile ทุก route แต่ใน [source code ของ 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L387) ค่าเริ่มต้นของ `aot` คือ `true` (ปิดได้ด้วย `ELYSIA_AOT=false`) และการสร้างก่อนเริ่มรับ request ถูกกำหนดด้วย `precompile` บทความนี้จึงอธิบายตาม source code
 
 สำหรับสองแบบของ Elysia 1.4.30 ฟังก์ชันยังถูกสร้างขณะแอปรันอยู่ โดย Elysia นำโค้ด JavaScript ที่สร้างขึ้นมาเปลี่ยนเป็นฟังก์ชันด้วย `new Function(...)` [เอกสารภายในของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time)** ทั้งนี้ บาง route อาจมีวิธีจัดการเฉพาะ เช่น route ที่คืนค่าคงที่อาจใช้ความสามารถของ runtime โดยตรง
 
@@ -224,11 +227,16 @@ app.get('/user', (req, res) => {
 
 Express เรียก middleware และ handler ของ route ตามลำดับที่เราลงทะเบียนไว้ แต่ละ middleware จะส่ง response กลับเลยก็ได้ หรือเรียก `next()` เพื่อให้ขั้นตอนถัดไปทำงานต่อ ถ้าต้องใช้ middleware สำหรับ parse ข้อมูล เราก็เลือกใช้กับทั้งแอปหรือเฉพาะบาง route ได้ ดูตัวอย่างใน [คู่มือ middleware](https://expressjs.com/en/guide/using-middleware/)
 
-โค้ดนี้ไม่ได้เพิ่ม middleware สำหรับ parse JSON body หรือ cookies จึงไม่มีการ parse ข้อมูลสองส่วนนี้ ส่วน query จะถูก parse เมื่อเราอ่าน `req.query` เพราะใน Express 5 ค่านี้เป็น getter ที่เรียก query parser ตามที่แอปตั้งค่าไว้ ดูรายละเอียดใน [เอกสารการเปลี่ยนแปลงใน Express 5](https://expressjs.com/en/guide/migrating-5/#req.query) และ [โค้ดของ getter ในเวอร์ชัน 5.1.0](https://github.com/expressjs/express/blob/v5.1.0/lib/request.js#L208-L218)
+โค้ดนี้ไม่ได้เพิ่ม middleware สำหรับ parse JSON body หรือ cookies จึงไม่มีการ parse ข้อมูลสองส่วนนี้ ส่วน query จะถูก parse เมื่อเราอ่าน `req.query` เพราะใน Express 5 ค่านี้เป็น getter ที่เรียก query parser ตามที่แอปตั้งค่าไว้ (ค่าเริ่มต้นเปลี่ยนจาก `"extended"` เป็น `"simple"`) โดย getter นี้ไม่ได้เก็บผลไว้ จึง parse ใหม่ทุกครั้งที่อ่าน `req.query` ดูรายละเอียดใน [เอกสารการเปลี่ยนแปลงใน Express 5](https://expressjs.com/en/guide/migrating-5/#reqquery) และ [โค้ดของ getter ในเวอร์ชัน 5.1.0](https://github.com/expressjs/express/blob/v5.1.0/lib/request.js#L218-L229)
 
 จุดที่ต่างกันคือวิธีเตรียมขั้นตอนจัดการ request ครับ Elysia วิเคราะห์โค้ดและดูการตั้งค่าของ route แล้วสร้างฟังก์ชันที่รวมขั้นตอนที่ route นั้นต้องใช้ ส่วน Express เรียก middleware และ handler ตามที่เราเขียนและลงทะเบียนไว้
 
-ตัวอย่างนี้ช่วยให้เห็นวิธีทำงานของทั้งคู่ แต่ยังบอกไม่ได้ว่าใครเร็วกว่า ถ้าจะวัดความเร็ว ต้องกำหนดให้ทั้งคู่ทำงานเหมือนกันก่อน รวมถึงกรณีที่ไม่ได้ส่ง `id` หรือส่ง `id` มาหลายค่า เช่น `/user?id=42&id=43`
+ตัวอย่างนี้ช่วยให้เห็นวิธีทำงานของทั้งคู่ แต่ยังบอกไม่ได้ว่าใครเร็วกว่า ถ้าจะวัดความเร็ว ต้องกำหนดให้ทั้งคู่ทำงานเหมือนกันก่อน รวมถึงกรณีที่ไม่ได้ส่ง `id` หรือส่ง `id` มาหลายค่า เช่น `/user?id=42&id=43` ซึ่งตัวอย่างสองตัวนี้ตอบไม่เหมือนกัน:
+
+| Request | Elysia 1.4.30 (body ที่ตอบกลับ) | Express 5.1.0 (body ที่ตอบกลับ) |
+| --- | --- | --- |
+| `/user` | body ว่าง (`query.id` เป็น `undefined`) | `undefined` (`String(undefined)`) |
+| `/user?id=42&id=43` | `43` (ไม่มี schema กำหนดเป็น array จึงใช้ค่าสุดท้าย) | `42,43` (`req.query.id` เป็น array `['42', '43']` แล้วแปลงเป็น string) |
 
 ## การสร้าง handler ต้องใช้เวลาและหน่วยความจำ
 
