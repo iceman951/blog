@@ -2,7 +2,7 @@
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: '2026-09-30'
-updatedDate: '2026-10-02T20:59:47+07:00'
+updatedDate: '2026-10-02T21:17:48+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -13,9 +13,24 @@ import FrameworkLifecycleDiagram from '../../components/charts/FrameworkLifecycl
 
 เคยสงสัยกันไหมครับว่าทำไม ElysiaJS ถึงเร็ว?
 
-ก่อนจะหาคำตอบ ลองมาดูกันว่า framework อย่าง Express หรือ Fastify จัดการ request อย่างไร แล้วค่อยดูว่า ElysiaJS ทำอะไรต่างออกไปบ้าง
+เหตุผลหนึ่งคือ Elysia วิเคราะห์ว่าแต่ละ route ต้องทำอะไรบ้าง แล้วสร้างฟังก์ชันจัดการ request ให้มีเฉพาะขั้นตอนที่ route นั้นต้องใช้ เมื่อมี request เข้ามา จึงมีงานที่ต้องทำน้อยลง บทความนี้จะพาไปดูว่ามันอ่านอะไรจากโค้ดของเรา และนำข้อมูลนั้นไปสร้างฟังก์ชันได้อย่างไร
 
-รายละเอียด implementation ด้านล่างอ้างอิง **Elysia 1.4.30** โดยลิงก์ source code ระบุ version ไว้เพื่อให้ตรวจย้อนกลับได้ โค้ดใน version ใหม่อาจต่างจากที่อธิบาย ส่วน build-time AOT แยกอ้างอิงกับ [Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation) เพื่อไม่ปะปนกันระหว่าง version
+แนวคิดเบื้องหลังคือการใช้ **static analysis** ร่วมกับ **การสร้างโค้ดขณะรัน (dynamic code generation)** ซึ่งมีอธิบายไว้ในงานวิจัย [Elysia: Optimizing JavaScript Web Framework](https://dl.acm.org/doi/10.1145/3605098.3636068) ที่ตีพิมพ์ในเอกสารรวมบทความของงานประชุม ACM/SIGAPP SAC ปี 2024 ส่วนในบทความนี้ เราจะค่อย ๆ ดูแนวคิดเหล่านี้ผ่านตัวอย่าง route และโค้ดของ Elysia ครับ
+
+> โค้ดที่ใช้อธิบายอ้างอิง **Elysia 1.4.30** และลิงก์ source code ระบุ version ไว้ให้ตรวจตามได้ สำหรับการสร้างโค้ดตอน build หรือ build-time AOT จะอ้างอิง [Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation) แยกในหัวข้อที่เกี่ยวข้อง เพราะแต่ละ version มีรายละเอียดการทำงานต่างกัน
+
+**หัวข้อในบทความนี้** — อ่านตามลำดับ หรือกดข้ามไปยังส่วนที่สนใจได้เลยครับ
+
+- [Framework จัดการ request อย่างไร?](#framework-จัดการ-request-อย่างไร)
+- [ElysiaJS ทำต่างออกไปอย่างไร?](#elysiajs-ทำต่างออกไปอย่างไร)
+- [Sucrose: อ่านโค้ดก่อนเรียกใช้งาน](#sucrose-อ่านโค้ดก่อนเรียกใช้งาน)
+- [จากผลวิเคราะห์ สู่ handler เฉพาะ route](#จากผลวิเคราะห์-สู่-handler-เฉพาะ-route)
+- [JIT กับ AOT: Elysia สร้าง pipeline ตอนไหน?](#jit-กับ-aot-elysia-สร้าง-pipeline-ตอนไหน)
+- [แล้ว Express 5 ทำงานต่างกันอย่างไร?](#แล้ว-express-5-ทำงานต่างกันอย่างไร)
+- [การสร้าง handler ต้องใช้เวลาและหน่วยความจำ](#การสร้าง-handler-ต้องใช้เวลาและหน่วยความจำ)
+- [แอปจริงจะเร็วขึ้นแค่ไหน?](#แอปจริงจะเร็วขึ้นแค่ไหน)
+
+เพื่อให้เห็นว่า Elysia ลดงานตรงไหนได้บ้าง ลองเริ่มจากขั้นตอนที่ framework อย่าง Express หรือ Fastify ต้องทำเมื่อรับ request กันก่อนครับ
 
 ## Framework จัดการ request อย่างไร?
 
@@ -177,7 +192,7 @@ function tailoredHandler(request) {
 
 ## JIT กับ AOT: Elysia สร้าง pipeline ตอนไหน?
 
-เวลาที่ Elysia สร้าง pipeline ขึ้นอยู่กับรุ่นและการตั้งค่า บทความนี้เปรียบเทียบสามแบบต่อไปนี้:
+เวลาที่ Elysia สร้าง pipeline ขึ้นอยู่กับ version และการตั้งค่า บทความนี้เปรียบเทียบสามแบบต่อไปนี้:
 
 1. **สร้างตอน build แอป** — Elysia 2 beta มี AOT build plugin สำหรับสร้างโค้ดของ handler และ schema ที่รองรับ แล้วเก็บไว้ในไฟล์ที่ได้จากการ build เมื่อเปิดแอปก็ใช้โค้ดที่เตรียมไว้ วิธีนี้เรียกว่า **build-time AOT (Ahead-of-Time)** ตาม[ประกาศ Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation)
 
@@ -185,7 +200,7 @@ function tailoredHandler(request) {
 
 3. **สร้างเมื่อมี request แรกของ route** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` และ `precompile: false` แอปจะรอจนมีการเรียก route นั้น แล้วจึงสร้าง pipeline มาใช้งาน Request ถัดไปใช้ฟังก์ชันที่สร้างไว้แล้ว วิธีรอสร้างเมื่อจะใช้นี้เรียกว่า **lazy compilation** ดู[การทำงานใน Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L912-L920)
 
-ชื่อ `aot` ใน Elysia 1.4.30 อาจทำให้สับสน เพราะใช้เปิดการสร้างฟังก์ชันเฉพาะ route ส่วน `precompile` เป็นตัวกำหนดว่าจะสร้างเมื่อไร ดังนั้น **การตั้ง `aot: true` ในรุ่นนี้ไม่ได้หมายถึงการสร้างโค้ดไว้ตอน build** แบบ AOT build plugin ของ Elysia 2 beta
+ชื่อ `aot` ใน Elysia 1.4.30 อาจทำให้สับสน เพราะใช้เปิดการสร้างฟังก์ชันเฉพาะ route ส่วน `precompile` เป็นตัวกำหนดว่าจะสร้างเมื่อไร ดังนั้น **การตั้ง `aot: true` ใน version นี้ไม่ได้หมายถึงการสร้างโค้ดไว้ตอน build** แบบ AOT build plugin ของ Elysia 2 beta
 
 สำหรับสองแบบของ Elysia 1.4.30 ฟังก์ชันยังถูกสร้างขณะแอปรันอยู่ โดย Elysia นำโค้ด JavaScript ที่สร้างขึ้นมาเปลี่ยนเป็นฟังก์ชันด้วย `new Function(...)` [เอกสารภายในของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time)** ทั้งนี้ บาง route อาจมีวิธีจัดการเฉพาะ เช่น route ที่คืนค่าคงที่อาจใช้ความสามารถของ runtime โดยตรง
 
