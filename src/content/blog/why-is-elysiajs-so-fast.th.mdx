@@ -2,7 +2,7 @@
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: '2026-09-30'
-updatedDate: '2026-10-02T20:00:39+07:00'
+updatedDate: '2026-10-02T20:12:45+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -171,9 +171,9 @@ function tailoredHandler(request) {
 
 <ElysiaFlowDiagram kind="handler" />
 
-**สิ่งที่นำกลับมาใช้คือโค้ดของ pipeline** ส่วน context และข้อมูล query ยังมาจาก request ปัจจุบัน เช่น `/user?id=43` ก็ต้องคืน `'43'` กลไกนี้จึงแยกจาก response caching
+เมื่อมี request ใหม่เข้ามา Elysia จะเรียก **pipeline ที่สร้างไว้แล้ว** โดยสร้าง context และอ่าน query ใหม่ทุกครั้ง เช่น `/user?id=43` ก็ได้ `'43'` กลับมา แต่ละ request จึงยังต้องผ่านการประมวลผล ต่างจาก response caching ที่เก็บคำตอบไว้ใช้ในครั้งถัดไป
 
-นี่คือ **code generation**: นำการตัดสินใจที่อาศัยข้อมูลคงที่ของ route ไปทำตอนประกอบโค้ด เช่น route มี schema หรือ hooks ใดบ้าง ส่วนเงื่อนไขที่ขึ้นกับ request จริง เช่นข้อมูลผ่าน validation หรือไม่ ยังต้องตรวจทุกครั้ง
+การสร้างฟังก์ชันแบบนี้เรียกว่า **code generation** โดย Elysia ดูว่า route ต้องใช้ข้อมูลอะไร มี schema หรือ hooks อะไรบ้าง แล้วสร้างโค้ดให้มีขั้นตอนที่ต้องใช้ เช่น ถ้า route กำหนด schema ไว้ ก็เพิ่มขั้นตอนตรวจข้อมูลตาม schema ลงในฟังก์ชันนั้น เมื่อรับ request แต่ละครั้ง ขั้นตอนนี้ก็ยังทำงานเพื่อตรวจข้อมูลที่ส่งเข้ามา
 
 ## JIT กับ AOT เตรียมโค้ดเมื่อไร?
 
