@@ -39,7 +39,7 @@ ElysiaJS กำลังเตรียมเข้าสู่เวอร์�
 
 แต่ละ framework จัดลำดับงานต่างกัน ลองดูภาพด้านล่าง: Express เรียก middleware ตามลำดับที่เราลงทะเบียนไว้ ส่วน Fastify มีขั้นตอนหลักกำหนดไว้แล้ว และให้เราเพิ่มโค้ดผ่าน hooks ในแต่ละช่วง
 
-<FrameworkLifecycleDiagram />
+<FrameworkLifecycleDiagram lang="th" />
 
 งานส่วนหนึ่งคือการเตรียมข้อมูลให้ handler เช่น parse query string, decode JSON body หรือแปลง headers เป็น object ใน context แต่ละขั้นตอนใช้เวลาและทรัพยากรต่างกัน เช่น การอ่าน headers ที่ HTTP server เตรียมไว้แล้ว กับการ parse body เพื่อแปลงข้อมูลให้อยู่ในรูปที่ handler ใช้งานได้
 
@@ -84,7 +84,7 @@ const app = new Elysia()
 
 เมื่อไม่มี hooks หรือ schema ที่ต้องใช้ headers หรือ cookies เพิ่มเติม route นี้ก็ไม่จำเป็นต้องเตรียมข้อมูลเหล่านั้นใน context ส่วนการ parse body ยังขึ้นอยู่กับ HTTP method ด้วย โดย Elysia version ที่อ้างอิงจะไม่สร้างขั้นตอน parse body สำหรับ `GET` และ `HEAD` อยู่แล้ว การข้ามขั้นตอนนี้ในตัวอย่างจึงไม่ได้เป็นผลจาก static analysis เพียงอย่างเดียว
 
-<ElysiaFlowDiagram kind="parsing" />
+<ElysiaFlowDiagram kind="parsing" lang="th" />
 
 ภาพนี้เปรียบเทียบฟังก์ชันที่ทำทุกขั้นตอนกับ pipeline ที่เลือกทำเฉพาะขั้นตอนที่แต่ละ route ต้องใช้ ช่วยให้เห็นว่าข้ามขั้นตอนไหนได้บ้าง แต่ไม่ได้บอกว่าเร็วขึ้นกี่เท่า
 
@@ -185,7 +185,7 @@ function tailoredHandler(request) {
 
 ฟังก์ชันนี้ทำหน้าที่ครอบ handler ของเรา โดยมีเฉพาะขั้นตอนที่ route ต้องใช้ เมื่อสร้างเสร็จแล้ว ก็ใช้ฟังก์ชันเดิมจัดการ request ครั้งต่อ ๆ ไปที่เข้ามายัง route นี้ได้
 
-<ElysiaFlowDiagram kind="handler" />
+<ElysiaFlowDiagram kind="handler" lang="th" />
 
 เมื่อมี request ใหม่เข้ามา Elysia จะเรียก **pipeline ที่สร้างไว้แล้ว** โดยสร้าง context และอ่าน query ใหม่ทุกครั้ง เช่น `/user?id=43` ก็ได้ `'43'` กลับมา แต่ละ request จึงยังต้องผ่านการประมวลผล ต่างจาก response caching ที่เก็บคำตอบไว้ใช้ในครั้งถัดไป
 

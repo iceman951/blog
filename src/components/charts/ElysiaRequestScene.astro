@@ -1,62 +1,112 @@
 ---
+import type { UiLanguage } from '../../i18n';
+
+interface Props {
+	lang?: UiLanguage;
+}
+
+const { lang = 'th' } = Astro.props;
 const requests = ['42', '43', '44'];
+const copy = {
+	th: {
+		eyebrow: 'Handler ที่เราเขียน',
+		sourceNote: 'Sucrose วิเคราะห์ว่าใช้ query แล้ว Elysia สร้าง pipeline สำหรับ route นี้',
+		requestsLabel: 'Request ที่ส่งเข้ามา',
+		requestsTitle: 'Request เข้า',
+		requestNumber: (n: number) => `ครั้งที่ ${n}`,
+		sent: 'ส่งแล้ว',
+		pipelineLabel: 'Pipeline ที่นำกลับมาใช้',
+		pipelineTitle: 'Pipeline ของ /user',
+		built: 'สร้างแล้ว · ใช้ชุดเดิม',
+		readQuery: 'อ่าน query',
+		callHandler: 'เรียก handler',
+		pipelineNote: ['สองขั้นตอนเดิม', 'ทำกับข้อมูลใหม่ทุก request'],
+		responsesLabel: 'ค่าที่ handler คืน',
+		responsesTitle: 'ค่าที่คืน',
+		responseType: 'ชนิด string',
+		done: 'เสร็จแล้ว',
+		buildCount: ['สร้าง pipeline ', ' ครั้ง'],
+		responseCount: ['ตอบ request แล้ว ', ' ครั้ง'],
+	},
+	en: {
+		eyebrow: 'The handler we write',
+		sourceNote: 'Sucrose finds that it uses query, then Elysia builds a pipeline for this route',
+		requestsLabel: 'Incoming requests',
+		requestsTitle: 'Requests in',
+		requestNumber: (n: number) => `Request ${n}`,
+		sent: 'Sent',
+		pipelineLabel: 'Reused pipeline',
+		pipelineTitle: 'Pipeline for /user',
+		built: 'Built · reused',
+		readQuery: 'Read query',
+		callHandler: 'Call handler',
+		pipelineNote: ['The same two steps,', 'run on new data every request'],
+		responsesLabel: 'Values the handler returns',
+		responsesTitle: 'Returned',
+		responseType: 'type: string',
+		done: 'Done',
+		buildCount: ['Pipelines built: ', ''],
+		responseCount: ['Requests answered: ', ''],
+	},
+} satisfies Record<UiLanguage, unknown>;
+const t = copy[lang];
 ---
 
 <div class="request-scene">
 	<div class="source" data-step="0">
-		<p class="eyebrow">Handler ที่เราเขียน</p>
+		<p class="eyebrow">{t.eyebrow}</p>
 		<code>{'({ query }) => query.id'}</code>
-		<p class="source-note">Sucrose วิเคราะห์ว่าใช้ query แล้ว Elysia สร้าง pipeline สำหรับ route นี้</p>
+		<p class="source-note">{t.sourceNote}</p>
 	</div>
 	<div class="build-link" aria-hidden="true">↓</div>
 	<div class="flow-board">
 		<code class="flow-token" data-flow-token aria-hidden="true"></code>
-		<section class="requests" aria-label="Request ที่ส่งเข้ามา">
-			<p class="column-title">Request เข้า</p>
+		<section class="requests" aria-label={t.requestsLabel}>
+			<p class="column-title">{t.requestsTitle}</p>
 			<p class="route-label"><code>GET /user</code></p>
 			<ol class="request-list">
 				{requests.map((id, index) => (
 					<li data-request={id}>
-						<span class="request-number">ครั้งที่ {index + 1}</span>
+						<span class="request-number">{t.requestNumber(index + 1)}</span>
 						<code>?id={id}</code>
-						<span class="request-state" data-request-state>ส่งแล้ว</span>
+						<span class="request-state" data-request-state>{t.sent}</span>
 					</li>
 				))}
 			</ol>
 		</section>
-		<section class="pipeline" data-step="1" aria-label="Pipeline ที่นำกลับมาใช้">
+		<section class="pipeline" data-step="1" aria-label={t.pipelineLabel}>
 			<div class="pipeline-heading">
-				<strong>Pipeline ของ /user</strong>
-				<span class="build-state" data-build-state>สร้างแล้ว · ใช้ชุดเดิม</span>
+				<strong>{t.pipelineTitle}</strong>
+				<span class="build-state" data-build-state>{t.built}</span>
 			</div>
 			<div class="pipeline-step" data-step="2">
-				<p><span class="step-number">1</span> อ่าน query</p>
+				<p><span class="step-number">1</span> {t.readQuery}</p>
 				<code data-query-value>query.id</code>
 			</div>
 			<div class="inside-arrow" aria-hidden="true">↓</div>
 			<div class="pipeline-step" data-step="3">
-				<p><span class="step-number">2</span> เรียก handler</p>
+				<p><span class="step-number">2</span> {t.callHandler}</p>
 				<code data-handler-value>return query.id</code>
 			</div>
-			<p class="pipeline-note">สองขั้นตอนเดิม<br />ทำกับข้อมูลใหม่ทุก request</p>
+			<p class="pipeline-note">{t.pipelineNote[0]} <br />{t.pipelineNote[1]}</p>
 		</section>
-		<section class="responses" aria-label="ค่าที่ handler คืน">
-			<p class="column-title">ค่าที่คืน</p>
-			<p class="route-label">ชนิด string</p>
+		<section class="responses" aria-label={t.responsesLabel}>
+			<p class="column-title">{t.responsesTitle}</p>
+			<p class="route-label">{t.responseType}</p>
 			<ol class="result-list">
 				{requests.map((id, index) => (
 					<li data-result={id}>
-						<span class="request-number">ครั้งที่ {index + 1}</span>
+						<span class="request-number">{t.requestNumber(index + 1)}</span>
 						<code data-result-value>'{id}'</code>
-						<span class="result-state" data-result-state>เสร็จแล้ว</span>
+						<span class="result-state" data-result-state>{t.done}</span>
 					</li>
 				))}
 			</ol>
 		</section>
 	</div>
 	<div class="counters">
-		<p>สร้าง pipeline <strong data-build-count>1</strong> ครั้ง</p>
-		<p>ตอบ request แล้ว <strong data-response-count>3</strong> ครั้ง</p>
+		<p>{t.buildCount[0]}<strong data-build-count>1</strong>{t.buildCount[1]}</p>
+		<p>{t.responseCount[0]}<strong data-response-count>3</strong>{t.responseCount[1]}</p>
 	</div>
 </div>
 

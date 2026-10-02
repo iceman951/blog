@@ -1,120 +1,254 @@
 ---
+import type { UiLanguage } from '../../i18n';
 import ElysiaDiagramIcon from './ElysiaDiagramIcon.astro';
 import ElysiaRequestScene from './ElysiaRequestScene.astro';
 
 interface Props {
 	kind: 'handler' | 'parsing' | 'compilation';
+	lang?: UiLanguage;
 }
 
-const { kind } = Astro.props;
+const { kind, lang = 'th' } = Astro.props;
 const diagramId = `elysia-${kind}-${crypto.randomUUID()}`;
-const titles = {
-	handler: 'Elysia สร้าง pipeline แล้วนำมาใช้กับแต่ละ request อย่างไร?',
-	parsing: 'Route ใช้แค่ query ต้องเตรียมอะไรบ้าง?',
-	compilation: 'งานสร้าง handler เกิดขึ้นตอนไหน?',
-};
-const phases = ['ตอน build', 'ตอนเริ่มแอป', 'Request แรก', 'Request ถัดไป'];
-const timelines = [
-	{ title: 'Elysia 1.4.30 · precompile: true', note: 'เปิด aot และประกอบ route ก่อนเริ่มรับ request', compile: 1, actions: ['ยังไม่ประกอบ', 'ประกอบ handler', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
-	{ title: 'Elysia 1.4.30 · lazy compilation', note: 'เปิด aot และรอประกอบเมื่อเรียก route ครั้งแรก', compile: 2, actions: ['ยังไม่ประกอบ', 'รอเรียกครั้งแรก', 'ประกอบแล้วใช้', 'ใช้โค้ดเดิม'] },
-	{ title: 'Elysia 2 beta · build-time AOT', note: 'ใช้ AOT build plugin เตรียมโค้ดไว้ใน build output', compile: 0, actions: ['ประกอบ handler', 'โหลดโค้ดที่สร้างไว้', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
-];
+const copy = {
+	th: {
+		titles: {
+			handler: 'Elysia สร้าง pipeline แล้วนำมาใช้กับแต่ละ request อย่างไร?',
+			parsing: 'Route ใช้แค่ query ต้องเตรียมอะไรบ้าง?',
+			compilation: 'งานสร้าง handler เกิดขึ้นตอนไหน?',
+		},
+		phases: ['ตอน build', 'ตอนเริ่มแอป', 'Request แรก', 'Request ถัดไป'],
+		timelines: [
+			{ title: 'Elysia 1.4.30 · precompile: true', note: 'เปิด aot และประกอบ route ก่อนเริ่มรับ request', compile: 1, actions: ['ยังไม่ประกอบ', 'ประกอบ handler', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
+			{ title: 'Elysia 1.4.30 · lazy compilation', note: 'เปิด aot และรอประกอบเมื่อเรียก route ครั้งแรก', compile: 2, actions: ['ยังไม่ประกอบ', 'รอเรียกครั้งแรก', 'ประกอบแล้วใช้', 'ใช้โค้ดเดิม'] },
+			{ title: 'Elysia 2 beta · build-time AOT', note: 'ใช้ AOT build plugin เตรียมโค้ดไว้ใน build output', compile: 0, actions: ['ประกอบ handler', 'โหลดโค้ดที่สร้างไว้', 'เรียกใช้', 'ใช้โค้ดเดิม'] },
+		],
+		handlerFrames: {
+			start: 'เริ่มจาก handler ที่อ่าน query.id',
+			build: 'Elysia สร้าง pipeline ให้ route นี้ พร้อมนำไปใช้กับทุก request',
+			query: (n: number, id: string) => `Request ${n}: อ่าน ?id=${id} ได้ query.id = '${id}'`,
+			handler: (n: number, id: string) => `Request ${n}: handler อ่าน query.id แล้วคืน '${id}'`,
+			done: (n: number) => `Request ${n} เสร็จแล้ว — pipeline ยังเป็นชุดเดิม`,
+		},
+		compilationFrames: [
+			'ตอน build: AOT build plugin ของ Elysia 2 beta เตรียมโค้ดที่รองรับไว้ใน build output',
+			'ตอนเริ่มแอป: precompile สร้าง handler ส่วน build-time AOT โหลดโค้ดที่สร้างไว้แล้ว',
+			'Request แรกของ route: แบบ lazy ต้องสร้าง handler ก่อน ส่วนอีกสองแบบใช้ที่เตรียมไว้',
+			'Request ถัดไป: ทั้งสามแบบใช้โค้ด handler เดิม ต่างกันที่ช่วงเวลาที่ประกอบโค้ด',
+		],
+		controls: { previous: '← ย้อนกลับ', next: 'ขั้นถัดไป →', reset: 'ดูภาพรวม' },
+		handler: {
+			takeaway: 'สร้าง pipeline ไว้ใช้ซ้ำ แล้วอ่าน query ใหม่ทุก request',
+			caption: 'ตัวอย่าง route ที่ใช้เฉพาะ query และคืนค่าเป็น string โดยไม่มี hooks หรือ schema ที่ใช้ข้อมูลอื่น เวลาที่สร้าง pipeline ขึ้นอยู่กับโหมด: ตอน build, ตอนเริ่มแอป หรือเมื่อรับ request แรก ภาพแสดงลำดับการทำงาน ไม่ได้แสดงความเร็วจริง',
+		},
+		parsing: {
+			centralTitle: 'ฟังก์ชันกลาง (แบบจำลอง)',
+			centralDetail: 'เรียกขั้นตอนเตรียมข้อมูลทุกส่วน',
+			used: 'ใช้จริง ✓',
+			handlerReads: 'Handler อ่าน query.id',
+			elysiaTitle: 'Pipeline ของ Elysia',
+			elysiaDetail: 'เตรียมเฉพาะข้อมูลที่ route นี้ใช้',
+			omittedLabel: 'ขั้นตอนที่ Elysia ข้ามในตัวอย่างนี้',
+			omittedTitle: 'ขั้นตอนที่ข้ามในตัวอย่างนี้',
+			headersNote: 'ไม่ต้องเตรียมใน context เพราะ handler, hooks และ schema ไม่ได้ใช้',
+			bodyNote: 'ไม่สร้างขั้นตอน parse สำหรับ GET / HEAD ตามเงื่อนไข HTTP method',
+			takeaway: 'ได้ข้อมูลที่ handler ต้องใช้เหมือนกัน แต่เตรียมข้อมูลน้อยลง',
+			caption: 'ฝั่งซ้ายเป็นแบบจำลองในบทความ ส่วนฝั่งขวาอ้างอิง Elysia 1.4.30 และสมมติว่าไม่มี hooks หรือ schema ที่ใช้ข้อมูลส่วนอื่น Request ยังมี headers ได้แม้ไม่เตรียมใน context ภาพนี้ไม่ได้เปรียบเทียบความเร็วหรือแทนพฤติกรรมของ framework อื่นทุกตัว',
+		},
+		compilation: {
+			takeaway: 'ชิ้นส่วนจิ๊กซอว์ = กำลังเตรียม · ไฟล์ ✓ = พร้อมใช้ · ซอง = request ที่เข้ามา',
+			caption: 'แสดงเฉพาะงานสร้าง handler: <code>precompile: true</code> ย้ายงานแบบ lazy ไป startup ได้ ส่วน engine JIT เป็นอีกชั้นหนึ่งและยังเกิดระหว่างรันได้ในทั้งสามแบบ',
+		},
+		// Read by the player script, which swaps labels as playback advances.
+		player: {
+			invitation: 'กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น',
+			handlerInvitation: 'ดูข้อมูลผ่านแต่ละขั้น หรือกดขั้นถัดไปเพื่ออ่านเอง',
+			reducedInvitation: 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มขั้นถัดไปหรือย้อนกลับเพื่ออ่านตามจังหวะของคุณ',
+			overview: 'ดูภาพรวม หรือกดเล่นเพื่อดูแต่ละขั้นตอน',
+			handlerOverview: 'Request 3 ครั้ง ผ่าน pipeline ชุดเดียว ได้ผลลัพธ์ตาม id ที่ส่งมา',
+			play: 'เล่นภาพเคลื่อนไหว',
+			playExample: 'เล่นตัวอย่าง',
+			resume: 'เล่นต่อ',
+			replay: 'เล่นอีกครั้ง',
+			startSteps: 'เริ่มดูทีละขั้น',
+			nextStep: 'ดูขั้นถัดไป',
+			pause: 'หยุดชั่วคราว',
+			built: 'สร้างแล้ว · ใช้ชุดเดิม',
+			notBuilt: 'ยังไม่สร้าง',
+			waitRequest: 'รอ request',
+			waitQuery: 'รอ query',
+			sent: 'ส่งแล้ว',
+			running: 'กำลังทำงาน',
+			queued: 'รอส่ง',
+			done: 'เสร็จแล้ว',
+			waitResult: 'รอผลลัพธ์',
+		},
+	},
+	en: {
+		titles: {
+			handler: 'How does Elysia build a pipeline and reuse it for each request?',
+			parsing: 'What does a query-only route need to prepare?',
+			compilation: 'When does handler generation happen?',
+		},
+		phases: ['At build', 'At app start', 'First request', 'Later requests'],
+		timelines: [
+			{ title: 'Elysia 1.4.30 · precompile: true', note: 'aot on; routes composed before accepting requests', compile: 1, actions: ['Not composed yet', 'Compose handler', 'Run it', 'Reuse same code'] },
+			{ title: 'Elysia 1.4.30 · lazy compilation', note: 'aot on; composed when the route is first called', compile: 2, actions: ['Not composed yet', 'Wait for first call', 'Compose, then run', 'Reuse same code'] },
+			{ title: 'Elysia 2 beta · build-time AOT', note: 'AOT build plugin prepares code in the build output', compile: 0, actions: ['Compose handler', 'Load generated code', 'Run it', 'Reuse same code'] },
+		],
+		handlerFrames: {
+			start: 'Start with a handler that reads query.id',
+			build: 'Elysia builds a pipeline for this route, ready for every request',
+			query: (n: number, id: string) => `Request ${n}: reading ?id=${id} gives query.id = '${id}'`,
+			handler: (n: number, id: string) => `Request ${n}: the handler reads query.id and returns '${id}'`,
+			done: (n: number) => `Request ${n} done — still the same pipeline`,
+		},
+		compilationFrames: [
+			'At build: the Elysia 2 beta AOT build plugin prepares supported code in the build output',
+			'At app start: precompile builds the handler, while build-time AOT loads the code generated earlier',
+			'First request to the route: lazy mode must build the handler first; the other two use what was prepared',
+			'Later requests: all three reuse the same handler code; they differ only in when the code was composed',
+		],
+		controls: { previous: '← Back', next: 'Next step →', reset: 'Overview' },
+		handler: {
+			takeaway: 'Build the pipeline once for reuse, then read the query fresh on every request',
+			caption: 'An example route that uses only query and returns a string, with no hooks or schema that use other data. When the pipeline is built depends on the mode: at build, at app start, or on the first request. The diagram shows the order of work, not actual speed.',
+		},
+		parsing: {
+			centralTitle: 'Central function (model)',
+			centralDetail: 'Runs every data-preparation step',
+			used: 'Used ✓',
+			handlerReads: 'Handler reads query.id',
+			elysiaTitle: 'Elysia pipeline',
+			elysiaDetail: 'Prepares only the data this route uses',
+			omittedLabel: 'Steps Elysia skips in this example',
+			omittedTitle: 'Steps skipped in this example',
+			headersNote: 'Not prepared in the context, because the handler, hooks and schema do not use them',
+			bodyNote: 'No parse step is generated for GET / HEAD, based on the HTTP method',
+			takeaway: 'The handler gets the same data it needs, with less preparation',
+			caption: 'The left side is the model from this article; the right side is based on Elysia 1.4.30 and assumes no hooks or schema that use other data. The request still carries headers even though they are not prepared in the context. This diagram does not compare speed or represent the behavior of every other framework.',
+		},
+		compilation: {
+			takeaway: 'Puzzle piece = being prepared · File ✓ = ready · Envelope = incoming request',
+			caption: 'Shows handler generation only: <code>precompile: true</code> moves the lazy work to startup, while engine JIT is a separate layer that can still happen at runtime in all three modes.',
+		},
+		player: {
+			invitation: 'Press play to see the sequence, or step through it',
+			handlerInvitation: 'Watch the data pass through each step, or press Next step to read at your own pace',
+			reducedInvitation: 'Reduced motion — use Next step or Back to read at your own pace',
+			overview: 'View the overview, or press play to see each step',
+			handlerOverview: '3 requests through one pipeline, each returning the id it sent',
+			play: 'Play animation',
+			playExample: 'Play example',
+			resume: 'Resume',
+			replay: 'Play again',
+			startSteps: 'Start step by step',
+			nextStep: 'Next step',
+			pause: 'Pause',
+			built: 'Built · reused',
+			notBuilt: 'Not built yet',
+			waitRequest: 'Waiting for request',
+			waitQuery: 'Waiting for query',
+			sent: 'Sent',
+			running: 'Running',
+			queued: 'Queued',
+			done: 'Done',
+			waitResult: 'Waiting for result',
+		},
+	},
+} satisfies Record<UiLanguage, unknown>;
+const t = copy[lang];
 const animation = kind === 'handler' ? [
-	{ step: 0, text: 'เริ่มจาก handler ที่อ่าน query.id' },
-	{ step: 1, text: 'Elysia สร้าง pipeline ให้ route นี้ พร้อมนำไปใช้กับทุก request' },
+	{ step: 0, text: t.handlerFrames.start },
+	{ step: 1, text: t.handlerFrames.build },
 	...['42', '43', '44'].flatMap((id, index) => [
-		{ step: 2, id, text: `Request ${index + 1}: อ่าน ?id=${id} ได้ query.id = '${id}'` },
-		{ step: 3, id, text: `Request ${index + 1}: handler อ่าน query.id แล้วคืน '${id}'` },
-		{ step: 4, id, text: `Request ${index + 1} เสร็จแล้ว — pipeline ยังเป็นชุดเดิม` },
+		{ step: 2, id, text: t.handlerFrames.query(index + 1, id) },
+		{ step: 3, id, text: t.handlerFrames.handler(index + 1, id) },
+		{ step: 4, id, text: t.handlerFrames.done(index + 1) },
 	]),
-] : kind === 'compilation' ? [
-	{ step: 0, text: 'ตอน build: AOT build plugin ของ Elysia 2 beta เตรียมโค้ดที่รองรับไว้ใน build output' },
-	{ step: 1, text: 'ตอนเริ่มแอป: precompile สร้าง handler ส่วน build-time AOT โหลดโค้ดที่สร้างไว้แล้ว' },
-	{ step: 2, text: 'Request แรกของ route: แบบ lazy ต้องสร้าง handler ก่อน ส่วนอีกสองแบบใช้ที่เตรียมไว้' },
-	{ step: 3, text: 'Request ถัดไป: ทั้งสามแบบใช้โค้ด handler เดิม ต่างกันที่ช่วงเวลาที่ประกอบโค้ด' },
-] : [];
+] : kind === 'compilation' ? t.compilationFrames.map((text, step) => ({ step, text })) : [];
 ---
 
-<elysia-flow-player data-kind={kind} data-frames={JSON.stringify(animation)} data-interval={kind === 'handler' ? 2000 : 6000}>
+<elysia-flow-player data-kind={kind} data-frames={JSON.stringify(animation)} data-labels={JSON.stringify(t.player)} data-interval={kind === 'handler' ? 2000 : 6000}>
 <figure class:list={['elysia-diagram', { 'handler-diagram': kind === 'handler' }]} aria-labelledby={`${diagramId}-title`}>
-	<p class="diagram-title" id={`${diagramId}-title`}>{titles[kind]}</p>
+	<p class="diagram-title" id={`${diagramId}-title`}>{t.titles[kind]}</p>
 	{animation.length > 0 && (
 		<div class="player-controls" hidden>
-			<p class="player-invitation">กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น</p>
+			<p class="player-invitation">{t.player.invitation}</p>
 			<div class="player-buttons">
 				<button type="button" data-play aria-controls={`${diagramId}-graphic`}>
 					<svg class="play-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
 						<path class="icon-play" d="M7 3v18l15-9z" fill="currentColor" />
 						<path class="icon-pause" d="M5 4h5v16H5zm9 0h5v16h-5z" fill="currentColor" />
 					</svg>
-					<span data-play-label>เล่นภาพเคลื่อนไหว</span>
+					<span data-play-label>{t.player.play}</span>
 				</button>
 				<div class="secondary-controls">
-					<button type="button" data-previous aria-controls={`${diagramId}-graphic`}>← ย้อนกลับ</button>
-					<button type="button" data-next aria-controls={`${diagramId}-graphic`}>ขั้นถัดไป →</button>
-					<button type="button" data-reset aria-controls={`${diagramId}-graphic`}>ดูภาพรวม</button>
+					<button type="button" data-previous aria-controls={`${diagramId}-graphic`}>{t.controls.previous}</button>
+					<button type="button" data-next aria-controls={`${diagramId}-graphic`}>{t.controls.next}</button>
+					<button type="button" data-reset aria-controls={`${diagramId}-graphic`}>{t.controls.reset}</button>
 				</div>
 			</div>
-			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">ดูภาพรวม หรือกดเล่นเพื่อดูแต่ละขั้นตอน</p>
+			<p class="player-status" role="status" aria-live="polite" aria-atomic="true">{t.player.overview}</p>
 		</div>
 	)}
 	{kind === 'handler' && (
 		<>
 			<div class="handler-graphic" id={`${diagramId}-graphic`}>
-				<ElysiaRequestScene />
+				<ElysiaRequestScene lang={lang} />
 			</div>
-			<p class="takeaway">สร้าง pipeline ไว้ใช้ซ้ำ แล้วอ่าน query ใหม่ทุก request</p>
-			<figcaption>ตัวอย่าง route ที่ใช้เฉพาะ query และคืนค่าเป็น string โดยไม่มี hooks หรือ schema ที่ใช้ข้อมูลอื่น เวลาที่สร้าง pipeline ขึ้นอยู่กับโหมด: ตอน build, ตอนเริ่มแอป หรือเมื่อรับ request แรก ภาพแสดงลำดับการทำงาน ไม่ได้แสดงความเร็วจริง</figcaption>
+			<p class="takeaway">{t.handler.takeaway}</p>
+			<figcaption>{t.handler.caption}</figcaption>
 		</>
 	)}
 	{kind === 'parsing' && (
 		<>
 			<div class="parsing-comparison">
 				<div class="parse-path">
-					<p class="path-title">ฟังก์ชันกลาง (แบบจำลอง)<span class="detail">เรียกขั้นตอนเตรียมข้อมูลทุกส่วน</span></p>
+					<p class="path-title">{t.parsing.centralTitle}<span class="detail">{t.parsing.centralDetail}</span></p>
 					<p class="endpoint"><code>GET /user?id=42</code></p>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<ul class="parse-list">
 						<li><span class="data-icon"><ElysiaDiagramIcon name="package" /></span> body</li>
-						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
+						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">{t.parsing.used}</span></li>
 						<li><span class="data-icon"><ElysiaDiagramIcon name="code" /></span> headers</li>
 						<li><span class="data-icon"><ElysiaDiagramIcon name="package" /></span> cookies</li>
 					</ul>
 					<span class="down-arrow" aria-hidden="true">↓</span>
-					<p class="endpoint">Handler อ่าน query.id</p>
+					<p class="endpoint">{t.parsing.handlerReads}</p>
 				</div>
 				<div class="parse-path specialized">
-					<p class="path-title">Pipeline ของ Elysia<span class="detail">เตรียมเฉพาะข้อมูลที่ route นี้ใช้</span></p>
+					<p class="path-title">{t.parsing.elysiaTitle}<span class="detail">{t.parsing.elysiaDetail}</span></p>
 					<p class="endpoint"><code>GET /user?id=42</code></p>
 					<span class="down-arrow" aria-hidden="true">↓</span>
 					<ul class="parse-list">
-						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">ใช้จริง ✓</span></li>
+						<li class="needed"><span class="data-icon"><ElysiaDiagramIcon name="search" /></span> query <span class="used-label">{t.parsing.used}</span></li>
 					</ul>
 					<span class="down-arrow" aria-hidden="true">↓</span>
-					<p class="endpoint">Handler อ่าน query.id</p>
+					<p class="endpoint">{t.parsing.handlerReads}</p>
 				</div>
 			</div>
-			<aside class="omitted-work" aria-label="ขั้นตอนที่ Elysia ข้ามในตัวอย่างนี้">
-				<p class="path-title">ขั้นตอนที่ข้ามในตัวอย่างนี้</p>
+			<aside class="omitted-work" aria-label={t.parsing.omittedLabel}>
+				<p class="path-title">{t.parsing.omittedTitle}</p>
 				<dl>
-					<div><dt>headers / cookies</dt><dd>ไม่ต้องเตรียมใน context เพราะ handler, hooks และ schema ไม่ได้ใช้</dd></div>
-					<div><dt>body</dt><dd>ไม่สร้างขั้นตอน parse สำหรับ GET / HEAD ตามเงื่อนไข HTTP method</dd></div>
+					<div><dt>headers / cookies</dt><dd>{t.parsing.headersNote}</dd></div>
+					<div><dt>body</dt><dd>{t.parsing.bodyNote}</dd></div>
 				</dl>
 			</aside>
-			<p class="takeaway">ได้ข้อมูลที่ handler ต้องใช้เหมือนกัน แต่เตรียมข้อมูลน้อยลง</p>
-			<figcaption>ฝั่งซ้ายเป็นแบบจำลองในบทความ ส่วนฝั่งขวาอ้างอิง Elysia 1.4.30 และสมมติว่าไม่มี hooks หรือ schema ที่ใช้ข้อมูลส่วนอื่น Request ยังมี headers ได้แม้ไม่เตรียมใน context ภาพนี้ไม่ได้เปรียบเทียบความเร็วหรือแทนพฤติกรรมของ framework อื่นทุกตัว</figcaption>
+			<p class="takeaway">{t.parsing.takeaway}</p>
+			<figcaption>{t.parsing.caption}</figcaption>
 		</>
 	)}
 	{kind === 'compilation' && (
 		<>
 			<div class="timelines" id={`${diagramId}-graphic`}>
-				{timelines.map((timeline) => (
+				{t.timelines.map((timeline) => (
 					<div class="timeline-row">
 						<p class="path-title">{timeline.title}<span class="detail">{timeline.note}</span></p>
 						<ol class="timeline">
 							{timeline.actions.map((action, index) => (
 								<li data-step={index} class:list={{ compilation: index === timeline.compile }}>
-									<span class="phase">{phases[index]}</span>
+									<span class="phase">{t.phases[index]}</span>
 									<span class="timeline-picture" data-illustration={index === timeline.compile ? 'build' : 'ready'}>
 										<ElysiaDiagramIcon name={index < timeline.compile ? 'wait' : index === timeline.compile ? 'build' : index === 1 ? 'package' : 'ready'} />
 										{index >= 2 && <span class="timeline-packet" data-delivery><ElysiaDiagramIcon name="request" /></span>}
@@ -126,8 +260,8 @@ const animation = kind === 'handler' ? [
 					</div>
 				))}
 			</div>
-			<p class="takeaway">ชิ้นส่วนจิ๊กซอว์ = กำลังเตรียม · ไฟล์ ✓ = พร้อมใช้ · ซอง = request ที่เข้ามา</p>
-			<figcaption>แสดงเฉพาะงานสร้าง handler: <code>precompile: true</code> ย้ายงานแบบ lazy ไป startup ได้ ส่วน engine JIT เป็นอีกชั้นหนึ่งและยังเกิดระหว่างรันได้ในทั้งสามแบบ</figcaption>
+			<p class="takeaway">{t.compilation.takeaway}</p>
+			<figcaption set:html={t.compilation.caption} />
 		</>
 	)}
 </figure>
@@ -139,6 +273,7 @@ const animation = kind === 'handler' ? [
 	class ElysiaFlowPlayer extends HTMLElement {
 		connectedCallback() {
 			const frames: Frame[] = JSON.parse(this.dataset.frames ?? '[]');
+			const labels: Record<string, string> = JSON.parse(this.dataset.labels ?? '{}');
 			const controls = this.querySelector<HTMLElement>('.player-controls');
 			if (!frames.length || !controls || this.cleanup) return;
 			const events = new AbortController();
@@ -162,7 +297,7 @@ const animation = kind === 'handler' ? [
 					}
 				}
 			};
-			const idleLabel = () => position === frames.length - 1 ? 'เล่นอีกครั้ง' : reducedMotion.matches ? position === -1 ? 'เริ่มดูทีละขั้น' : 'ดูขั้นถัดไป' : position >= 0 ? 'เล่นต่อ' : isHandler ? 'เล่นตัวอย่าง' : 'เล่นภาพเคลื่อนไหว';
+			const idleLabel = () => position === frames.length - 1 ? labels.replay : reducedMotion.matches ? position === -1 ? labels.startSteps : labels.nextStep : position >= 0 ? labels.resume : isHandler ? labels.playExample : labels.play;
 			const pause = () => {
 				clearInterval(timer);
 				timer = undefined;
@@ -182,20 +317,20 @@ const animation = kind === 'handler' ? [
 					const built = overview || frame.step >= 1;
 					this.querySelector('[data-build-count]')!.textContent = built ? '1' : '0';
 					this.querySelector('[data-response-count]')!.textContent = String(completed);
-					this.querySelector('[data-build-state]')!.textContent = built ? 'สร้างแล้ว · ใช้ชุดเดิม' : 'ยังไม่สร้าง';
-					this.querySelector('[data-query-value]')!.textContent = frame?.id ? `query.id = '${frame.id}'` : overview ? 'query.id' : 'รอ request';
-					this.querySelector('[data-handler-value]')!.textContent = frame?.id && frame.step >= 3 ? `return '${frame.id}'` : overview ? 'return query.id' : 'รอ query';
+					this.querySelector('[data-build-state]')!.textContent = built ? labels.built : labels.notBuilt;
+					this.querySelector('[data-query-value]')!.textContent = frame?.id ? `query.id = '${frame.id}'` : overview ? 'query.id' : labels.waitRequest;
+					this.querySelector('[data-handler-value]')!.textContent = frame?.id && frame.step >= 3 ? `return '${frame.id}'` : overview ? 'return query.id' : labels.waitQuery;
 					for (const [index, id] of requestIds.entries()) {
 						const request = this.querySelector<HTMLElement>(`[data-request="${id}"]`)!;
 						const result = this.querySelector<HTMLElement>(`[data-result="${id}"]`)!;
 						const active = frame?.id === id && frame.step < 4;
 						const done = index < completed;
 						request.toggleAttribute('data-active', active);
-						request.querySelector('[data-request-state]')!.textContent = done ? 'ส่งแล้ว' : active ? 'กำลังทำงาน' : 'รอส่ง';
+						request.querySelector('[data-request-state]')!.textContent = done ? labels.sent : active ? labels.running : labels.queued;
 						result.toggleAttribute('data-active', frame?.id === id && frame.step === 4);
 						result.toggleAttribute('data-pending', !done);
 						result.querySelector('[data-result-value]')!.textContent = done ? `'${id}'` : '—';
-						result.querySelector('[data-result-state]')!.textContent = done ? 'เสร็จแล้ว' : 'รอผลลัพธ์';
+						result.querySelector('[data-result-state]')!.textContent = done ? labels.done : labels.waitResult;
 					}
 				}
 				this.dataset.stage = frame ? String(frame.step) : 'overview';
@@ -207,7 +342,7 @@ const animation = kind === 'handler' ? [
 				}
 				status.textContent = frame
 					? `${position + 1}/${frames.length} — ${frame.text}`
-					: isHandler ? 'Request 3 ครั้ง ผ่าน pipeline ชุดเดียว ได้ผลลัพธ์ตาม id ที่ส่งมา' : 'ดูภาพรวม หรือกดเล่นเพื่อดูแต่ละขั้นตอน';
+					: isHandler ? labels.handlerOverview : labels.overview;
 				previous.disabled = position <= 0;
 				next.disabled = position === frames.length - 1;
 				reset.disabled = position === -1;
@@ -248,7 +383,7 @@ const animation = kind === 'handler' ? [
 				}
 				if (reducedMotion.matches) return pause();
 				motions.forEach((motion) => motion.play());
-				playLabel.textContent = 'หยุดชั่วคราว';
+				playLabel.textContent = labels.pause;
 				play.toggleAttribute('data-playing', true);
 				timer = setInterval(() => {
 					if (position === frames.length - 1) return pause();
@@ -271,8 +406,8 @@ const animation = kind === 'handler' ? [
 			const updateInvitation = () => {
 				const invitation = this.querySelector<HTMLElement>('.player-invitation');
 				if (invitation) invitation.textContent = reducedMotion.matches
-					? 'แสดงแบบลดการเคลื่อนไหว — ใช้ปุ่มขั้นถัดไปหรือย้อนกลับเพื่ออ่านตามจังหวะของคุณ'
-						: isHandler ? 'ดูข้อมูลผ่านแต่ละขั้น หรือกดขั้นถัดไปเพื่ออ่านเอง' : 'กดเล่นเพื่อดูลำดับการทำงาน หรือเลือกดูทีละขั้น';
+					? labels.reducedInvitation
+						: isHandler ? labels.handlerInvitation : labels.invitation;
 			};
 			const onMotionChange = () => { pause(); show(); updateInvitation(); };
 			reducedMotion.addEventListener('change', onMotionChange, { signal: events.signal });

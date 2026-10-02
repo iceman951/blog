@@ -1,17 +1,49 @@
 ---
+import type { UiLanguage } from '../../i18n';
+
+interface Props {
+	lang?: UiLanguage;
+}
+
+const { lang = 'th' } = Astro.props;
 const fastifySteps = [
 	'Incoming request', 'Routing + instance logger', 'onRequest', 'preParsing',
 	'Parsing', 'preValidation', 'Validation', 'preHandler', 'User handler',
 	'Reply → preSerialization', 'Serialization → onSend', 'Outgoing response', 'onResponse',
 ];
+const copy = {
+	th: {
+		expressHeading: 'Express · ตามลำดับที่ลงทะเบียน',
+		expressTitle: 'ตัวอย่าง request flow ของ Express',
+		expressDesc: 'Request ผ่าน middleware ที่ตรงกับ path ตามลำดับที่ลงทะเบียน เมื่อเรียก next จะไปขั้นถัดไปจนถึง route handler แต่ middleware สามารถส่ง response และจบการตอบกลับก่อนถึง handler ได้',
+		earlyLabel: 'res.send() → จบก่อนถึง handler',
+		expressCaption: 'ตัวอย่างเมื่อ middleware และ route ตรงกับ request; parser ก็เป็น middleware ที่เลือกติดตั้งได้ เส้นสีแดงแสดงการตอบกลับแล้วไม่เรียก <code>next()</code> ภาพละเส้นทาง error ไว้<br />อ้างอิง: <a href="https://expressjs.com/en/guide/using-middleware/">Express: Using middleware</a>',
+		fastifyHeading: 'Fastify · lifecycle ที่กำหนดไว้',
+		fastifyTitle: 'Request lifecycle ของ Fastify',
+		fastifyDescNote: 'ภาพแสดงเส้นทางปกติที่ไม่มี error หรือการตอบกลับก่อนถึง handler',
+		fastifyCaption: 'เส้นทางปกติแบบย่อ: hooks บางช่วงตอบกลับก่อนได้ และ error จะแยกไปเส้นทางจัดการข้อผิดพลาด การ serialize ขึ้นอยู่กับ payload โดย <code>onResponse</code> ทำงานหลังส่ง response แล้ว<br />อ้างอิง: <a href="https://fastify.dev/docs/latest/Reference/Lifecycle/">Fastify: Lifecycle</a>',
+	},
+	en: {
+		expressHeading: 'Express · in registration order',
+		expressTitle: 'Example Express request flow',
+		expressDesc: 'The request passes through middleware matching the path in registration order. Calling next moves to the next step until the route handler, but middleware can send a response and finish before the handler is reached.',
+		earlyLabel: 'res.send() → ends before handler',
+		expressCaption: 'Example where the middleware and route match the request; parsers are also optional middleware. The red line shows responding without calling <code>next()</code>. Error paths are omitted.<br />Reference: <a href="https://expressjs.com/en/guide/using-middleware/">Express: Using middleware</a>',
+		fastifyHeading: 'Fastify · predefined lifecycle',
+		fastifyTitle: 'Fastify request lifecycle',
+		fastifyDescNote: 'The diagram shows the normal path with no errors or early responses before the handler.',
+		fastifyCaption: 'Simplified normal path: some hooks can respond early, and errors branch off to the error-handling path. Serialization depends on the payload, and <code>onResponse</code> runs after the response has been sent.<br />Reference: <a href="https://fastify.dev/docs/latest/Reference/Lifecycle/">Fastify: Lifecycle</a>',
+	},
+} satisfies Record<UiLanguage, Record<string, string>>;
+const t = copy[lang];
 ---
 
 <div class="lifecycles">
 	<figure aria-labelledby="express-lifecycle-heading">
-		<p class="diagram-title" id="express-lifecycle-heading">Express · ตามลำดับที่ลงทะเบียน</p>
+		<p class="diagram-title" id="express-lifecycle-heading">{t.expressHeading}</p>
 		<svg viewBox="0 0 320 430" role="img" aria-labelledby="express-flow-title express-flow-desc">
-			<title id="express-flow-title">ตัวอย่าง request flow ของ Express</title>
-			<desc id="express-flow-desc">Request ผ่าน middleware ที่ตรงกับ path ตามลำดับที่ลงทะเบียน เมื่อเรียก next จะไปขั้นถัดไปจนถึง route handler แต่ middleware สามารถส่ง response และจบการตอบกลับก่อนถึง handler ได้</desc>
+			<title id="express-flow-title">{t.expressTitle}</title>
+			<desc id="express-flow-desc">{t.expressDesc}</desc>
 			<defs>
 				<marker id="express-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker>
 				<marker id="express-early-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--vermilion)" /></marker>
@@ -30,15 +62,15 @@ const fastifySteps = [
 			))}
 			<text class="edge-label" x="138" y="172">next()</text>
 			<text class="edge-label" x="138" y="276">next()</text>
-			<text class="early-label" transform="translate(308 260) rotate(-90)" text-anchor="middle">res.send() → จบก่อนถึง handler</text>
+			<text class="early-label" transform="translate(308 260) rotate(-90)" text-anchor="middle">{t.earlyLabel}</text>
 		</svg>
-		<figcaption>ตัวอย่างเมื่อ middleware และ route ตรงกับ request; parser ก็เป็น middleware ที่เลือกติดตั้งได้ เส้นสีแดงแสดงการตอบกลับแล้วไม่เรียก <code>next()</code> ภาพละเส้นทาง error ไว้<br />อ้างอิง: <a href="https://expressjs.com/en/guide/using-middleware/">Express: Using middleware</a></figcaption>
+		<figcaption set:html={t.expressCaption} />
 	</figure>
 	<figure aria-labelledby="fastify-lifecycle-heading">
-		<p class="diagram-title" id="fastify-lifecycle-heading">Fastify · lifecycle ที่กำหนดไว้</p>
+		<p class="diagram-title" id="fastify-lifecycle-heading">{t.fastifyHeading}</p>
 		<svg viewBox="0 0 320 840" role="img" aria-labelledby="fastify-flow-title fastify-flow-desc">
-			<title id="fastify-flow-title">Request lifecycle ของ Fastify</title>
-			<desc id="fastify-flow-desc">{fastifySteps.join(' → ')} ภาพแสดงเส้นทางปกติที่ไม่มี error หรือการตอบกลับก่อนถึง handler</desc>
+			<title id="fastify-flow-title">{t.fastifyTitle}</title>
+			<desc id="fastify-flow-desc">{`${fastifySteps.join(' → ')} ${t.fastifyDescNote}`}</desc>
 			<defs><marker id="fastify-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker></defs>
 			{fastifySteps.map((label, index) => (
 				<g>
@@ -48,7 +80,7 @@ const fastifySteps = [
 				</g>
 			))}
 		</svg>
-		<figcaption>เส้นทางปกติแบบย่อ: hooks บางช่วงตอบกลับก่อนได้ และ error จะแยกไปเส้นทางจัดการข้อผิดพลาด การ serialize ขึ้นอยู่กับ payload โดย <code>onResponse</code> ทำงานหลังส่ง response แล้ว<br />อ้างอิง: <a href="https://fastify.dev/docs/latest/Reference/Lifecycle/">Fastify: Lifecycle</a></figcaption>
+		<figcaption set:html={t.fastifyCaption} />
 	</figure>
 </div>
 
