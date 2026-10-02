@@ -2,7 +2,7 @@
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: '2026-09-30'
-updatedDate: '2026-10-02T20:12:45+07:00'
+updatedDate: '2026-10-02T20:59:47+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -175,35 +175,27 @@ function tailoredHandler(request) {
 
 การสร้างฟังก์ชันแบบนี้เรียกว่า **code generation** โดย Elysia ดูว่า route ต้องใช้ข้อมูลอะไร มี schema หรือ hooks อะไรบ้าง แล้วสร้างโค้ดให้มีขั้นตอนที่ต้องใช้ เช่น ถ้า route กำหนด schema ไว้ ก็เพิ่มขั้นตอนตรวจข้อมูลตาม schema ลงในฟังก์ชันนั้น เมื่อรับ request แต่ละครั้ง ขั้นตอนนี้ก็ยังทำงานเพื่อตรวจข้อมูลที่ส่งเข้ามา
 
-## JIT กับ AOT เตรียมโค้ดเมื่อไร?
+## JIT กับ AOT: Elysia สร้าง pipeline ตอนไหน?
 
-[บทความ internals ของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time) “compiler”** โดยใช้ `Function` constructor สร้างฟังก์ชันจากข้อความ JavaScript ระหว่างที่แอปทำงาน ในเส้นทางแบบ lazy งานประกอบ pipeline จะเกิดเมื่อ route ถูกเรียกครั้งแรก
+เวลาที่ Elysia สร้าง pipeline ขึ้นอยู่กับรุ่นและการตั้งค่า บทความนี้เปรียบเทียบสามแบบต่อไปนี้:
 
-จุดที่ชวนสับสนคือ Elysia 1.x ใช้ชื่อ option ว่า `aot` สำหรับเปิดเส้นทาง code generation นี้ด้วย ดังนั้น **`aot: true` ไม่ได้แปลว่ามีการสร้างไฟล์ไว้ตอน build** ส่วน `precompile` ใช้ควบคุมว่าจะประกอบ route ล่วงหน้าหรือรอจนมีการเรียก ดูการแยกสอง option นี้ใน [`index.ts` ของ version 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts)
+1. **สร้างตอน build แอป** — Elysia 2 beta มี AOT build plugin สำหรับสร้างโค้ดของ handler และ schema ที่รองรับ แล้วเก็บไว้ในไฟล์ที่ได้จากการ build เมื่อเปิดแอปก็ใช้โค้ดที่เตรียมไว้ วิธีนี้เรียกว่า **build-time AOT (Ahead-of-Time)** ตาม[ประกาศ Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation)
 
-| วิธีเตรียม handler | สร้างเมื่อไร | ผลที่ได้ |
-| --- | --- | --- |
-| Elysia 1.4.30 เปิด `aot` และใช้เส้นทาง lazy | เมื่อเรียก route ครั้งแรก | เลื่อนงานประกอบ route ไปจนกว่าจะใช้งาน |
-| Elysia 1.4.30 เปิด `aot` และ `precompile: true` | ระหว่างเตรียมแอป ก่อนเริ่มรับ request | ลดงานประกอบ route ใน request แรก โดยเพิ่มงานช่วง startup |
-| Elysia 2 beta ใช้ AOT build plugin ตามประกาศ | ตอน build | เตรียมโค้ดของ handler และ schema ที่ plugin รองรับไว้ใน build output |
+2. **สร้างตอนเริ่มแอป** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` ร่วมกับ `precompile: true` แอปจะสร้าง pipeline ก่อนเริ่มรับ request จึงใช้เวลาเตรียมแอปเพิ่มขึ้น แต่ request แรกไม่ต้องรอสร้าง pipeline ดู[เอกสาร `precompile`](https://elysiajs.com/patterns/configuration#precompile)
 
-ตารางนี้แยก **การเตรียมล่วงหน้าภายใน process** ออกจาก **build-time AOT** รายละเอียดอ้างอิง [`precompile`](https://elysiajs.com/patterns/configuration#precompile) และ [ blog Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation) ไม่ได้หมายความว่าทุก route หรือ adapter ใช้เส้นทางเดียวกัน เช่น static response อาจมีเส้นทางเฉพาะของ runtime
+3. **สร้างเมื่อมี request แรกของ route** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` และ `precompile: false` แอปจะรอจนมีการเรียก route นั้น แล้วจึงสร้าง pipeline มาใช้งาน Request ถัดไปใช้ฟังก์ชันที่สร้างไว้แล้ว วิธีรอสร้างเมื่อจะใช้นี้เรียกว่า **lazy compilation** ดู[การทำงานใน Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L912-L920)
 
-อีกชั้นหนึ่งคือ **JIT ของ JavaScript engine** ซึ่งสามารถ compile และ optimize JavaScript เป็น machine code ระหว่างรัน ส่วน code generation ของ Elysia ให้ผลเป็น JavaScript ของ request pipeline การเปิด `precompile` จึงไม่ได้รับประกันว่า engine ทำ warm-up เสร็จแล้ว
+ชื่อ `aot` ใน Elysia 1.4.30 อาจทำให้สับสน เพราะใช้เปิดการสร้างฟังก์ชันเฉพาะ route ส่วน `precompile` เป็นตัวกำหนดว่าจะสร้างเมื่อไร ดังนั้น **การตั้ง `aot: true` ในรุ่นนี้ไม่ได้หมายถึงการสร้างโค้ดไว้ตอน build** แบบ AOT build plugin ของ Elysia 2 beta
 
-## แล้ว Bun ช่วยตรงไหน?
+สำหรับสองแบบของ Elysia 1.4.30 ฟังก์ชันยังถูกสร้างขณะแอปรันอยู่ โดย Elysia นำโค้ด JavaScript ที่สร้างขึ้นมาเปลี่ยนเป็นฟังก์ชันด้วย `new Function(...)` [เอกสารภายในของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time)** ทั้งนี้ บาง route อาจมีวิธีจัดการเฉพาะ เช่น route ที่คืนค่าคงที่อาจใช้ความสามารถของ runtime โดยตรง
 
-Bun ให้ทั้ง JavaScript runtime และ HTTP server ผ่าน `Bun.serve()` โดยใช้ JavaScriptCore เป็น engine ส่วน Elysia จัดการ routing และ request lifecycle บนความสามารถเหล่านั้น ตาม[เอกสาร runtime](https://bun.sh/docs/runtime) และ[HTTP server ของ Bun](https://bun.sh/docs/runtime/http/server)
+ส่วน **JIT ของ JavaScript engine** มีหน้าที่แปลง JavaScript เป็น machine code และปรับประสิทธิภาพจากข้อมูลที่ได้ระหว่างรัน เช่นที่[ทีม WebKit อธิบายไว้สำหรับ JavaScriptCore](https://webkit.org/blog/10308/speculation-in-javascriptcore/) การสร้าง pipeline เสร็จจึงไม่ได้แปลว่า engine ปรับโค้ดเสร็จด้วย แม้เปิด `precompile` แล้ว ผลวัดตอนเริ่มแอปกับผลหลัง **warm-up** หรือการรันซ้ำก่อนเก็บผล ก็ยังอาจต่างกัน
 
-ประสิทธิภาพที่วัดได้จึงมาจากหลายชั้น: engine ที่รันโค้ด, HTTP server, adapter และ pipeline ของ framework การลดงานที่ Elysia ต้องทำเป็นเพียงส่วนหนึ่งของเส้นทางทั้งหมด
+ความเร็วของแอปยังขึ้นอยู่กับ runtime ที่ใช้ด้วย หากเปรียบเทียบ Elysia บน Bun กับ Express บน Node.js ตัวเลขที่ได้จะรวมความต่างของทั้ง framework และ runtime การใช้ runtime เดียวกันจึงช่วยให้เห็นผลของ framework ชัดขึ้น แต่ยังต้องกำหนดงานและการตั้งค่าให้ใกล้เคียงกันด้วย
 
-Elysia ยังใช้ความสามารถเฉพาะของ Bun ในเส้นทางที่รองรับ เช่น option `routes` ของ `Bun.serve()` สำหรับ native routing และ `Elysia.file` ที่เลือกใช้ `Bun.file` เมื่อมีให้ใช้งาน ดูรายละเอียดใน[ส่วน Platform Specific Optimization](https://elysiajs.com/internal/jit-compiler#platform-specific-optimization)
+## แล้ว Express 5 ทำงานต่างกันอย่างไร?
 
-ถ้าเทียบ Elysia บน Bun กับ Express บน Node.js ผลที่ได้คือความต่างของทั้ง stack การใช้ runtime เดียวกันช่วยลดตัวแปร แต่ยังต้องดู adapter, HTTP API และ configuration ด้วย จึงจะอธิบายได้ว่ากำลังเปรียบเทียบอะไร
-
-## เทียบกับ Express 5 แบบสั้น ๆ
-
-สำหรับ request `/user?id=42` เราเขียน Express 5 ให้คืนค่า `42` ได้เช่นกัน:
+ถ้าใช้ Express 5 เราก็เขียน route ที่รับ `/user?id=42` แล้วตอบกลับด้วยข้อความ `42` ได้แบบนี้:
 
 ```js
 import express from 'express'
@@ -215,33 +207,37 @@ app.get('/user', (req, res) => {
 })
 ```
 
-Express จัดการ request ผ่าน middleware และ route callbacks ตามลำดับที่ลงทะเบียน โดย middleware อาจจบ response หรือส่งต่อด้วย `next()` เราเลือกได้ว่าจะติดตั้ง parser ให้ทั้งแอปหรือเฉพาะบาง route ตาม [คู่มือ middleware](https://expressjs.com/en/guide/using-middleware/)
+Express เรียก middleware และ handler ของ route ตามลำดับที่เราลงทะเบียนไว้ แต่ละ middleware จะส่ง response กลับเลยก็ได้ หรือเรียก `next()` เพื่อให้ขั้นตอนถัดไปทำงานต่อ ถ้าต้องใช้ middleware สำหรับ parse ข้อมูล เราก็เลือกใช้กับทั้งแอปหรือเฉพาะบาง route ได้ ดูตัวอย่างใน [คู่มือ middleware](https://expressjs.com/en/guide/using-middleware/)
 
-ตัวอย่างนี้ไม่ได้ parse JSON body หรือ cookies ให้อัตโนมัติ และ `req.query` ใน Express 5 เป็น getter ที่เรียก query parser ตาม configuration เมื่อเข้าถึงค่า ดู[เอกสารการเปลี่ยนแปลงใน Express 5](https://expressjs.com/en/guide/migrating-5/#req.query) และ[source ของ getter ใน 5.1.0](https://github.com/expressjs/express/blob/v5.1.0/lib/request.js#L208-L218)
+โค้ดนี้ไม่ได้เพิ่ม middleware สำหรับ parse JSON body หรือ cookies จึงไม่มีการ parse ข้อมูลสองส่วนนี้ ส่วน query จะถูก parse เมื่อเราอ่าน `req.query` เพราะใน Express 5 ค่านี้เป็น getter ที่เรียก query parser ตามที่แอปตั้งค่าไว้ ดูรายละเอียดใน [เอกสารการเปลี่ยนแปลงใน Express 5](https://expressjs.com/en/guide/migrating-5/#req.query) และ [โค้ดของ getter ในเวอร์ชัน 5.1.0](https://github.com/expressjs/express/blob/v5.1.0/lib/request.js#L208-L218)
 
-ความต่างที่กำลังพิจารณาจึงอยู่ที่วิธีประกอบ pipeline: Elysia ใช้การวิเคราะห์โค้ดร่วมกับข้อมูล route เพื่อสร้างฟังก์ชันเฉพาะ ส่วน Express ให้เราประกอบ middleware และ callbacks ตัวอย่างสั้น ๆ นี้ยังใช้สรุปความเร็วไม่ได้ และยังไม่ได้กำหนดให้ทั้งคู่ตอบเหมือนกันในกรณีไม่มี `id` หรือส่ง query ซ้ำ
+จุดที่ต่างกันคือวิธีเตรียมขั้นตอนจัดการ request ครับ Elysia วิเคราะห์โค้ดและดูการตั้งค่าของ route แล้วสร้างฟังก์ชันที่รวมขั้นตอนที่ route นั้นต้องใช้ ส่วน Express เรียก middleware และ handler ตามที่เราเขียนและลงทะเบียนไว้
 
-## สิ่งที่แลกมากับการสร้าง handler
+ตัวอย่างนี้ช่วยให้เห็นวิธีทำงานของทั้งคู่ แต่ยังบอกไม่ได้ว่าใครเร็วกว่า ถ้าจะวัดความเร็ว ต้องกำหนดให้ทั้งคู่ทำงานเหมือนกันก่อน รวมถึงกรณีที่ไม่ได้ส่ง `id` หรือส่ง `id` มาหลายค่า เช่น `/user?id=42&id=43`
 
-การประกอบโค้ดมีต้นทุน ถ้า route ใช้เส้นทาง lazy งานนี้จะเพิ่มเข้ามาใน request แรก การเปิด `precompile: true` ย้ายต้นทุนไปช่วงเตรียมแอป จึงควรวัดแยกทั้ง startup time, latency ของการเรียก route ครั้งแรก และผลหลัง warm-up
+## การสร้าง handler ต้องใช้เวลาและหน่วยความจำ
 
-โค้ดที่สร้างขึ้นต้องอยู่ในหน่วยความจำ ส่วนตัววิเคราะห์และตัวประกอบโค้ดก็เป็นส่วนหนึ่งของ framework ต้นทุนจริงขึ้นอยู่กับจำนวน route, schema และโหมดที่ใช้ ฝั่งผู้ดูแล framework ยังต้อง debug ทั้งตัวสร้างโค้ดและผลลัพธ์ที่มันสร้างด้วย ตาม[หัวข้อ overhead ของ Elysia](https://elysiajs.com/internal/jit-compiler#overhead-of-jit-compiler)
+การสร้างฟังก์ชันจัดการ request ต้องใช้เวลา ถ้า Elysia รอสร้างฟังก์ชันตอนที่ route ถูกเรียกครั้งแรก (lazy compilation) request แรกก็ต้องรอขั้นตอนนี้ด้วย การเปิด `precompile: true` จะให้ Elysia ทำงานส่วนนี้ตั้งแต่เริ่มแอปแทน จึงควรแยกวัดเวลาเริ่มแอป เวลาตอบกลับของ request แรก และเวลาตอบกลับหลังเรียกใช้งานไปสักระยะแล้ว (warm-up)
 
-สำหรับ build-time AOT ของ Elysia 2 beta มีข้อแลกเปลี่ยนเพิ่ม: plugin ทำ dry-run แอประหว่าง build จึงต้องจัดการโค้ด initialization ที่เปิด database pool หรือมี side effect และการลงทะเบียน route ต้องสอดคล้องกันระหว่าง build กับ runtime ตาม[ข้อกำหนด Build Time Environment](https://elysiajs.com/blog/elysia-20#build-time-environment)
+โค้ดที่สร้างขึ้นต้องเก็บไว้ในหน่วยความจำเพื่อใช้กับ request ถัดไป ส่วนโค้ดที่ใช้วิเคราะห์และสร้างฟังก์ชันก็ทำให้ framework มีขนาดใหญ่ขึ้น จะใช้เวลาและหน่วยความจำเพิ่มเท่าไรขึ้นอยู่กับจำนวน route, schema และโหมดที่ใช้ นอกจากนี้ ผู้พัฒนา framework ยังต้องหาข้อผิดพลาดทั้งในส่วนที่สร้างโค้ดและในโค้ดที่สร้างออกมา อ่านเพิ่มเติมได้ใน[หัวข้อ overhead ของ Elysia](https://elysiajs.com/internal/jit-compiler#overhead-of-jit-compiler)
+
+สำหรับ build-time AOT ของ Elysia 2 beta มีเรื่องที่ต้องดูแลเพิ่ม เพราะ plugin จะลองรันแอประหว่าง build (dry-run) โค้ดที่ทำงานตอนเริ่มแอปจึงอาจทำงานในขั้นตอนนี้ด้วย เช่น การเปิด connection pool ของฐานข้อมูล ซึ่งอาจทำให้ process ไม่ยอมจบหลัง build เสร็จ เราจึงต้องจัดการการเชื่อมต่อเหล่านี้ รวมถึงตรวจว่าแอปลงทะเบียน route เหมือนกันทั้งตอน build และตอนรันจริง ตาม[ข้อกำหนด Build Time Environment](https://elysiajs.com/blog/elysia-20#build-time-environment)
 
 ## แอปจริงจะเร็วขึ้นแค่ไหน?
 
-สำหรับ route ที่ตอบข้อมูลจากหน่วยความจำและมี business logic น้อย framework overhead อาจกินสัดส่วน CPU สูง การลดงานต่อ request จึงมีโอกาสเพิ่ม throughput ได้ชัด
+ถ้า route ตอบข้อมูลที่อยู่ในหน่วยความจำได้เลย และแทบไม่มีงานอื่นให้ทำ เวลาที่ CPU ใช้จัดการ request ส่วนใหญ่อาจหมดไปกับขั้นตอนของ framework การลดขั้นตอนเหล่านี้จึงอาจช่วยให้แอปรองรับ request ต่อวินาทีได้มากขึ้นอย่างชัดเจน หรือที่เรียกว่า throughput สูงขึ้น
 
-ถ้า latency ส่วนใหญ่เป็นเวลารอฐานข้อมูลหรือ API ภายนอก ผลต่อเวลารวมอาจเล็กกว่า สมมติ request ใช้เวลา 20 ms และมี framework overhead 1 ms ถ้าลดส่วนนี้เหลือ 0.5 ms โดยส่วนอื่นคงเดิม เวลารวมจะเหลือ 19.5 ms หรือลดลง 2.5% ตัวเลขนี้เป็นตัวอย่างคำนวณ ไม่ใช่ผล benchmark ของ Elysia
+แต่ถ้า request ใช้เวลาส่วนใหญ่รอฐานข้อมูลหรือ API ภายนอก การลดงานของ framework อาจช่วยให้ตอบกลับเร็วขึ้นเพียงเล็กน้อย สมมติ request ใช้เวลาทั้งหมด 20 ms โดยเป็นเวลาที่ framework ใช้จัดการ request 1 ms ถ้าลดส่วนนี้เหลือ 0.5 ms และส่วนอื่นใช้เวลาเท่าเดิม เวลารวมจะเหลือ 19.5 ms หรือลดลง 2.5% ตัวเลขนี้เป็นเพียงตัวอย่างคำนวณ ไม่ใช่ผล benchmark ของ Elysia
 
-ภายใต้โหลดสูง ผลอาจต่างออกไป: ถ้า CPU ของแอปเป็นคอขวด การลดงานต่อ request อาจลดเวลารอคิวได้ด้วย จึงควรวัดทั้ง throughput และ latency โดยเฉพาะ p95/p99 ซึ่งบอกเวลาที่ request 95%/99% เสร็จภายใน แทนการดูเฉพาะค่าเฉลี่ย
+เมื่อมี request เข้ามาพร้อมกันมาก ๆ ผลอาจต่างออกไป ถ้า CPU ทำงานเต็มจน request ต้องรอคิว การลดงานที่ต้องทำในแต่ละ request ก็อาจช่วยลดเวลารอด้วย จึงควรวัดทั้งจำนวน request ที่รองรับได้ต่อวินาที (throughput) และเวลาตอบกลับ (latency) โดยดูค่า p95/p99 ควบคู่กับค่าเฉลี่ย เช่น ถ้า p95 อยู่ที่ 50 ms หมายความว่า 95% ของ request ที่วัดใช้เวลาไม่เกิน 50 ms ส่วน p99 ก็ใช้หลักเดียวกันกับ 99% ของ request
 
 เวลาประเมิน framework สำหรับ API ของเรา ผมจะเช็กอย่างน้อยสี่เรื่อง:
 
-- **งานที่ทำเท่ากัน:** response, status, headers, validation และ authentication ต้องมีพฤติกรรมตามข้อกำหนดเดียวกัน รวมถึงกรณี input ผิด
-- **สภาพแวดล้อมเทียบกันได้:** ระบุ version ของ framework/runtime, adapter, hardware, concurrency และ connection reuse ให้ครบ
-- **ช่วงที่วัดชัดเจน:** แยก startup และ request แรกออกจากช่วงหลัง warm-up; operations/second ของการเรียกฟังก์ชันไม่ใช่ requests/second ผ่าน HTTP
-- **คอขวดอยู่ตรงไหน:** ดู CPU, memory, error rate และ latency ควบคู่กับฐานข้อมูลและตัวยิงโหลด เพื่อไม่ให้ข้อจำกัดของส่วนอื่นกลบผลของ framework
+- **แต่ละแอปทำงานเหมือนกันหรือไม่:** ต้องส่งข้อมูลตอบกลับ, status และ headers ตามข้อกำหนดเดียวกัน รวมถึงตรวจข้อมูลและยืนยันตัวตนด้วยเงื่อนไขเดียวกัน ทั้งกรณีที่ส่งข้อมูลถูกและผิด
+- **ทดสอบด้วยอะไรและตั้งค่าอย่างไร:** ระบุ version ของ framework และ runtime, adapter, สเปกเครื่อง, จำนวน request ที่ส่งพร้อมกัน และการใช้ connection เดิมซ้ำ เพื่อให้รู้ว่าผลเทียบกันได้แค่ไหน
+- **วัดช่วงไหน:** แยกเวลาเริ่มแอปและ request แรกออกจากผลหลัง warm-up และแยกให้ออกว่าตัวเลขนั้นวัดการเรียกฟังก์ชันต่อวินาที (operations/second) หรือการรับส่ง request ผ่าน HTTP ต่อวินาที (requests/second)
+- **อะไรจำกัดความเร็วของระบบ:** ดูการใช้ CPU และหน่วยความจำ สัดส่วน request ที่เกิดข้อผิดพลาด และเวลาตอบกลับ พร้อมตรวจว่าฐานข้อมูลหรือเครื่องมือส่ง request ทดสอบทำงานเต็มกำลังแล้วหรือยัง เพราะอาจเป็นส่วนที่จำกัดความเร็วแทน framework
 
-ลองดู[การทดสอบ Elysia กับ Hono บน PostgreSQL ของผม](/blog/th/elysia-hono-postgres-on-m5-air/) เป็นตัวอย่างของการวัดที่เพิ่มงานฐานข้อมูลเข้ามา ส่วนกลไกในบทความนี้อธิบายว่า Elysia ลดงานใน request pipeline ได้อย่างไร การจะบอกว่าเหมาะกับแอปของเราแค่ไหน ยังต้องดูผลวัดจาก workload และ configuration ที่เราจะใช้งานจริง
+ผมเคย[ทดสอบ Elysia กับ Hono โดยใช้ PostgreSQL](/blog/th/elysia-hono-postgres-on-m5-air/) ไว้ด้วย ถ้าอยากดูตัวอย่างที่แต่ละ request ต้องทำงานกับฐานข้อมูล ลองอ่านต่อได้ครับ
+
+แนวคิดที่น่าสนใจของ Elysia คือการใช้ข้อมูลที่รู้เกี่ยวกับแต่ละ route มาเตรียมงานไว้ล่วงหน้า เพื่อให้ตอนรับ request เหลืองานที่ต้องทำน้อยลง แนวคิดนี้นำกลับไปใช้กับโค้ดของเราได้เหมือนกัน ลองดูว่างานไหนทำซ้ำอยู่ทุกครั้ง งานไหนเตรียมไว้ก่อนได้ แล้ววัดผลว่าการเปลี่ยนแปลงนั้นช่วยแอปของเราได้แค่ไหนครับ
