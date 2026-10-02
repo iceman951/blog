@@ -2,7 +2,7 @@
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: '2026-09-30'
-updatedDate: '2026-10-02T01:57:51+07:00'
+updatedDate: '2026-10-02T13:05:48+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -76,27 +76,79 @@ const app = new Elysia()
 
 ## Sucrose: อ่านโค้ดก่อนเรียกใช้งาน
 
-**Sucrose** เป็นโมดูลวิเคราะห์การเข้าถึง context ของ handler และ lifecycle hooks เช่น `query`, `body`, `headers`, `cookie` และ `set`
+**Sucrose คือตัวช่วยของ Elysia ที่อ่านโค้ดฟังก์ชัน แล้วจดว่า “ฟังก์ชันนี้ต้องใช้ข้อมูลส่วนไหนบ้าง”** เพื่อให้ Elysia เลือกเตรียมข้อมูลให้เหมาะกับ route นั้นครับ
 
-มันเรียก `toString()` บนฟังก์ชันแล้วใช้ pattern matching ตรวจรูปแบบการเข้าถึงข้อมูล โดยไม่ต้องรัน handler วิธีนี้เป็น **static analysis แบบเฉพาะงาน** ไม่ได้ใช้ type information ของ TypeScript หรือวิเคราะห์ความหมายของ JavaScript ได้ครบทุกกรณี ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts)
-
-จากตัวอย่างของเรา:
+ลองกลับมาดู route เดิม:
 
 ```ts
-({ query }) => query.id
+app.get('/user', ({ query }) => query.id)
 ```
 
-Sucrose พบการใช้ `query` แล้วบันทึกผลให้ส่วนประกอบ pipeline นำไปใช้ ผลนี้บอกว่าต้องเตรียม query ไม่ได้แปลว่าจะ parse เฉพาะ key `id` เสมอไป
+ฟังก์ชัน `({ query }) => query.id` คือ **handler** ส่วน **context** คือ object ที่ Elysia ส่งให้ handler ใช้จัดการ request ในตัวอย่างนี้เราใช้ `{ query }` ดึงเฉพาะข้อมูล query ออกมาจาก context
 
-ผลจาก hooks ต้องรวมเข้ามาด้วย เช่น `beforeHandle` ที่อ่าน `headers.authorization` ทำให้ pipeline ต้องเตรียม headers แม้ handler หลักจะอ่านแค่ query ส่วน schema เป็นข้อมูลอีกทางที่ตัวประกอบ pipeline ใช้ตัดสินใจว่าจะเตรียมและ validate อะไร
+เมื่อ request `/user?id=42` เข้ามา Elysia ต้องแปลงข้อความ `id=42` ใน URL ให้เป็นข้อมูลประมาณ `{ id: '42' }` ก่อน handler จึงจะอ่าน `query.id` ได้ แต่ Elysia จะรู้ได้อย่างไรว่าต้องเตรียม query? ตรงนี้คือหน้าที่ของ Sucrose
 
-การวิเคราะห์มีข้อจำกัดด้วย เช่น เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนให้ฟังก์ชันอื่น มันจะเผื่อว่าฟังก์ชันนั้นอาจใช้ข้อมูลทุกส่วน ผลคือมีโอกาสตัดขั้นตอนออกได้น้อยลง การเขียน `({ query }) => service(query.id)` จึงเปิดเผย dependency ชัดกว่า `context => service(context)` ทั้งกับคนอ่านและตัววิเคราะห์
+**ขั้นแรก: เปลี่ยนฟังก์ชันเป็นข้อความ แล้วอ่านรูปแบบโค้ด**
 
-คำว่า “static” อธิบายวิธีวิเคราะห์โดยไม่รัน handler ไม่ได้ระบุว่าต้องเกิดตอน build; จังหวะวิเคราะห์ขึ้นอยู่กับเส้นทางการเตรียม route ของ version และโหมดที่ใช้
+JavaScript สามารถเรียก `toString()` บนฟังก์ชันได้ ลองแยก handler ออกมาให้เห็นชัด ๆ:
+
+```js
+const handler = ({ query }) => query.id
+
+handler.toString()
+// ได้ข้อความประมาณ "({ query }) => query.id"
+```
+
+Sucrose ตรวจข้อความนี้แล้วพบว่า parameter ดึง `query` ออกมาใช้ จึงบันทึกผลประมาณนี้ โดยย่อเฉพาะบางช่อง:
+
+```js
+{
+  query: true,
+  body: false,
+  headers: false,
+  cookie: false
+}
+```
+
+`true` หมายถึงพบการใช้ข้อมูลส่วนนั้น ส่วน `false` หมายถึงยังไม่พบจากการวิเคราะห์นี้ Sucrose จึงบอกได้ว่า “ต้องใช้ query” โดยยังไม่ต้องเรียก handler และยังไม่ต้องรู้ว่า request จริงจะส่ง `id` เป็นค่าอะไร ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L616-L719)
+
+ผลนี้ระบุการใช้ `query` ทั้งส่วน ไม่ได้บอกว่าจะ parse เฉพาะ key `id` เสมอไป
+
+**ขั้นต่อมา: นำผลวิเคราะห์ไปเลือกงานที่ต้องทำ**
+
+Elysia มีอีกส่วนที่ทำหน้าที่ประกอบ **pipeline** หรือ “ลำดับขั้นตอนจัดการ request” ส่วนนี้นำผลจาก Sucrose มาใช้ร่วมกับข้อมูลอื่น เช่น schema และ HTTP method เพื่อตัดสินใจว่าจะใส่ขั้นตอนเตรียมข้อมูลอะไรบ้าง ตามโค้ดใน [`compose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/compose.ts#L508-L540)
+
+สำหรับตัวอย่างนี้ ถ้าไม่มี hooks หรือ schema ที่ต้องใช้ headers และ cookies เพิ่มเติม pipeline ก็ไม่จำเป็นต้องมีขั้นตอนเตรียมข้อมูลสองส่วนนี้ใน context งานที่ลดลงตรงนี้ช่วยลดต้นทุนต่อ request
+
+เราจึงแยกหน้าที่แต่ละส่วนได้แบบนี้:
+
+- **Sucrose:** อ่านโค้ดแล้วบอกว่า “พบการใช้ query”
+- **ตัวประกอบ pipeline:** ตัดสินใจว่า “ต้องใส่ขั้นตอนเตรียม query”
+- **เมื่อจัดการ request จริง:** pipeline เตรียม query จาก URL ของ request นั้น แล้วเรียก handler
+
+Sucrose ยังอ่านโค้ดของ **hooks** ซึ่งเป็นฟังก์ชันที่เราให้ Elysia เรียกในช่วงต่าง ๆ ของการจัดการ request ด้วย เช่น ถ้ามี `beforeHandle` ที่อ่าน `headers.authorization` เพื่อตรวจสิทธิ์ ผลวิเคราะห์รวมก็ต้องระบุว่าใช้ headers แม้ handler หลักจะอ่านแค่ query ส่วน schema หรือข้อกำหนดรูปแบบข้อมูล ก็เป็นอีกเหตุผลที่ pipeline อาจต้องเตรียมข้อมูลมาตรวจสอบ
+
+**แล้วถ้าโค้ดไม่ได้บอกชัด ๆ ว่าใช้ข้อมูลอะไร?**
+
+ลองเทียบสองแบบนี้:
+
+```ts
+// เห็นชัดว่า handler ใช้ query แล้วส่งค่า id ต่อไป
+({ query }) => service(query.id)
+
+// ส่ง context ทั้งก้อนไปให้ service
+context => service(context)
+```
+
+แบบหลัง `service` อาจอ่าน body, headers หรือ cookie ข้างในอีกที เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนแบบนี้ มันจะเผื่อว่าฟังก์ชันปลายทางอาจใช้ข้อมูลทุกส่วนที่มันติดตาม จึงมีโอกาสตัดขั้นตอนเตรียมข้อมูลออกได้น้อยลง ดู[โค้ดตรวจการส่ง context ต่อ](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L516-L547)
+
+วิธีอ่านรูปแบบโค้ดโดยไม่เรียกฟังก์ชันนี้เรียกว่า **static analysis** โดย Sucrose ทำงานเฉพาะด้านการตรวจว่ามีการใช้ข้อมูลอะไรบ้าง ไม่ได้อาศัย type information ของ TypeScript และไม่ได้เข้าใจ JavaScript ครบทุกกรณี การเขียนให้เห็นชัดว่าใช้ข้อมูลส่วนไหนจึงช่วยทั้งคนอ่านและตัววิเคราะห์
+
+คำว่า “static” ตรงนี้อธิบาย **วิธีวิเคราะห์** ส่วน **วิเคราะห์เมื่อไร** เป็นอีกเรื่องหนึ่ง อาจเกิดระหว่างเตรียมแอปหรือเมื่อเรียก route ครั้งแรก ขึ้นอยู่กับ version และโหมดที่ใช้ เราจะดูเรื่องจังหวะนี้ต่อในหัวข้อ JIT กับ AOT
 
 ## จากผลวิเคราะห์ สู่ handler เฉพาะ route
 
-เมื่อได้ผลวิเคราะห์และ configuration ของ route แล้ว Elysia ก็ประกอบ JavaScript สำหรับ request pipeline ได้ สำหรับ handler แบบ synchronous ในตัวอย่าง แนวคิดของโค้ดที่สร้างขึ้นเป็นแบบนี้:
+เมื่อรู้แล้วว่า route ต้องใช้ข้อมูลอะไร Elysia ก็นำผลวิเคราะห์มารวมกับการตั้งค่าของ route แล้วสร้างฟังก์ชันที่เตรียมข้อมูลและเรียก handler ของเรา สำหรับตัวอย่างที่ handler คืนค่าได้ทันทีโดยไม่ต้อง `await` แนวคิดของโค้ดที่สร้างขึ้นเป็นแบบนี้:
 
 ```js
 function tailoredHandler(request) {
