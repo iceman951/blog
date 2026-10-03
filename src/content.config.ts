@@ -40,6 +40,9 @@ const blog = defineCollection({
 				pubDate: z.coerce.date(),
 				updatedDate: z.coerce.date().optional(),
 				heroImage: z.optional(image()),
+				// Social card only (og:image), never shown on the page. Must be raster:
+				// Discord, X and Facebook ignore SVG cards.
+				ogImage: z.optional(image()),
 				lang: z.enum(['en', 'th']).default('en'),
 				tags: z.array(z.string()).optional(),
 				translationKey: z.string().optional(),

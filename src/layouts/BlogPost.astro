@@ -39,6 +39,7 @@ const {
 	pubDate,
 	updatedDate,
 	heroImage,
+	ogImage,
 	tags,
 	lang = 'en',
 	translations,
@@ -50,12 +51,21 @@ const {
 	seriesContext,
 } = Astro.props;
 
-const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาที' : readingMinutes + ' min read';
+// Link previews don't render SVG, so an SVG hero falls back to the site card.
+const shareImage = ogImage ?? (heroImage?.format === 'svg' ? undefined : heroImage);
+
+const readLabel =lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาที' : readingMinutes + ' min read';
 ---
 
 <html lang={lang} data-translation-en={translations?.en} data-translation-th={translations?.th}>
 	<head>
-		<BaseHead title={title} description={description} lang={lang} translations={translations} />
+		<BaseHead
+			title={title}
+			description={description}
+			image={shareImage}
+			lang={lang}
+			translations={translations}
+		/>
 		<slot name="head" />
 	</head>
 

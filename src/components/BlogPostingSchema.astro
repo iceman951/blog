@@ -8,10 +8,11 @@ import { isoDate } from '../lib/dates';
 
 type Props = Pick<
 	CollectionEntry<'blog'>['data'],
-	'title' | 'description' | 'pubDate' | 'updatedDate' | 'heroImage' | 'lang'
+	'title' | 'description' | 'pubDate' | 'updatedDate' | 'heroImage' | 'ogImage' | 'lang'
 >;
 
-const { title, description, pubDate, updatedDate, heroImage, lang } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, ogImage, lang } = Astro.props;
+const image = ogImage ?? heroImage;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
@@ -21,7 +22,7 @@ const jsonLd = {
 	headline: title,
 	description,
 	// Omitted rather than faked when a post has no hero image.
-	...(heroImage && { image: new URL(heroImage.src, Astro.site).href }),
+	...(image && { image: new URL(image.src, Astro.site).href }),
 	datePublished: isoDate(pubDate),
 	dateModified: isoDate(updatedDate ?? pubDate),
 	inLanguage: lang,
