@@ -2,6 +2,7 @@
 title: 'Why is ElysiaJS fast? Understanding static analysis, JIT and AOT'
 description: 'A look inside Sucrose and how Elysia generates request handlers, separating framework JIT, engine JIT and build-time AOT, with the trade-offs and how to evaluate the gains on a real API.'
 pubDate: 'Oct 02 2026'
+updatedDate: '2026-10-03T19:09:28+07:00'
 lang: 'en'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -35,7 +36,7 @@ To see where Elysia cuts work, let's start with the steps a framework like Expre
 
 ## How does a framework handle a request?
 
-Besides matching the HTTP method and path, a framework handles other steps before and after calling the handler, such as parsing, validation, hooks, error handling, and turning the returned value into an HTTP response. Every request spends time and resources on these steps, even when the business logic is only a few lines.
+Besides matching the HTTP method and path, handling a request may involve other steps before and after calling the handler, such as parsing, validation, hooks, error handling, and preparing an HTTP response. Which steps actually run depends on the framework, middleware and app configuration. For example, Express requires us to add input validation through our own code or middleware. Each request may therefore spend time and resources on these steps, even when the business logic is only a few lines.
 
 Each framework orders this work differently. Look at the diagram below: Express calls middleware in the order we registered it, while Fastify has a predefined set of core steps and lets us add code through hooks at each stage.
 
@@ -126,7 +127,7 @@ Sucrose inspects this text and finds that the parameter destructures `query`, so
 }
 ```
 
-`true` means a use of that data was found, and `false` means this analysis did not find one. Sucrose can therefore say "query is needed" without calling the handler and without knowing what value a real request will send for `id`. See the mechanism in [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L653-L763).
+`true` means the data should be treated as needed, either because the code uses it directly or because the analysis conservatively assumes it might be used. `false` means this analysis has not marked it as needed. In this example, Sucrose can therefore say "query is needed" without calling the handler and without knowing what value a real request will send for `id`. See the mechanism in [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L653-L763).
 
 This result marks `query` as used as a whole; it doesn't mean only the `id` key will be parsed.
 
@@ -155,12 +156,12 @@ Compare these two:
 ({ query }) => service(query.id)
 
 // Passes the whole context to service
-context => service(context)
+(context) => service(context)
 ```
 
 In the second one, `service` might read the body, headers or cookies internally. When Sucrose detects the whole context being passed on like this, it assumes the receiving function may use every part of the data it tracks, so there's less opportunity to cut preparation steps. See [the code that detects the context being passed on](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L546-L617).
 
-Reading code patterns without calling the function like this is called **static analysis**. Sucrose only checks which data is used; it doesn't rely on TypeScript type information and doesn't understand every JavaScript case. Writing code that makes clear which data it uses helps both human readers and the analyzer.
+Reading code patterns without calling the function like this is called **static analysis**. Sucrose only checks which data is used; it doesn't rely on TypeScript type information and doesn't understand every JavaScript case. The result also depends on the text returned by `toString()`. For example, testing Elysia 1.4.30 on Node.js v26.7.0 detected the context being passed on in `(context) => service(context)`, but not in `context => service(context)`. Check the behavior of the built code on the runtime you use. Writing code that makes clear which data it uses helps both human readers and the analyzer.
 
 "Static" here describes **how the analysis is done**. **When it's done** is a separate matter: it may happen while the app is being prepared or when a route is first called, depending on the version and mode. The JIT vs AOT section below explains when Elysia prepares the request-handling function.
 
@@ -197,7 +198,7 @@ When Elysia builds the pipeline depends on the version and configuration. This a
 
 1. **Build when the app is built** — Elysia 2 beta has an AOT build plugin that generates code for handlers and supported schemas and stores it in the build output. When the app starts, it uses the prepared code. This is called **build-time AOT (Ahead-of-Time)**, according to the [Elysia 2 beta announcement](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation).
 
-2. **Build when the app starts** — In Elysia 1.4.30, using `aot: true` together with `precompile: true` makes the app build pipelines before it starts accepting requests. Startup takes longer, but the first request doesn't wait for a pipeline to be built. See [the `precompile` docs](https://elysiajs.com/patterns/configuration#precompile).
+2. **Build while preparing the app** — In Elysia 1.4.30, using `aot: true` together with `precompile: true` makes Elysia build the pipeline when the route is registered. For routes registered during startup, this moves the work ahead of receiving requests, so the first request doesn't wait for a pipeline to be built. See [the code that chooses immediate or deferred compilation](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L956-L964) and [the `precompile` docs](https://elysiajs.com/patterns/configuration#precompile).
 
 3. **Build on a route's first request** — In Elysia 1.4.30, with `aot: true` and `precompile: false`, the app waits until the route is called, then builds its pipeline. Later requests use the function that was already built. Waiting to build until it's needed is called **lazy compilation**. See [how it works in Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L956-L964).
 
@@ -205,7 +206,7 @@ The name `aot` in Elysia 1.4.30 can be confusing: it turns on route-specific fun
 
 > Elysia's configuration docs say `aot` defaults to `false` and describe `true` as precompiling every route. But in the [1.4.30 source code](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L387), `aot` defaults to `true` (it can be turned off with `ELYSIA_AOT=false`), and building before accepting requests is controlled by `precompile`. This article follows the source code.
 
-In both Elysia 1.4.30 approaches, the function is still built while the app is running: Elysia turns the generated JavaScript into a function with `new Function(...)`. [Elysia's internal docs](https://elysiajs.com/internal/jit-compiler) call this mechanism **JIT (Just-in-Time)**. Some routes may be handled specially; for example, a route that returns a constant value may use the runtime's own capabilities directly.
+In both Elysia 1.4.30 approaches, the function is still built while the app is running: Elysia turns the generated JavaScript into a function with `Function(...)`, the same constructor as `new Function(...)`. [Elysia's internal docs](https://elysiajs.com/internal/jit-compiler) call this mechanism **JIT (Just-in-Time)**. Some routes may be handled specially; for example, a route that returns a constant value may use the runtime's own capabilities directly.
 
 The **JavaScript engine's JIT**, on the other hand, compiles JavaScript to machine code and optimizes it based on information gathered at runtime, as [the WebKit team explains for JavaScriptCore](https://webkit.org/blog/10308/speculation-in-javascriptcore/). So a finished pipeline doesn't mean the engine has finished optimizing the code. Even with `precompile` on, measurements taken right after startup can still differ from those taken after **warm-up**, that is, after running the code repeatedly before collecting results.
 
@@ -238,13 +239,15 @@ This example shows how each one works, but it can't tell us which is faster. To 
 | `/user` | empty body (`query.id` is `undefined`) | `undefined` (`String(undefined)`) |
 | `/user?id=42&id=43` | `43` (no schema declares it an array, so the last value wins) | `42,43` (`req.query.id` is the array `['42', '43']`, converted to a string) |
 
+This table compares only the body, using the examples above and the default query parsers. See [the query parser in Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/parse-query.ts) for its behavior. Even when `/user?id=42` produces the same body, `42`, the `Content-Type` differs: testing on Node.js v26.7.0 returned `text/plain` through Elysia's `app.handle()` (Web Standard adapter), while Express over HTTP returned `text/html; charset=utf-8`. The headers also need to match before comparing performance.
+
 ## Building handlers costs time and memory
 
 Building a request-handling function takes time. If Elysia waits to build it until the route is first called (lazy compilation), the first request has to wait for this step too. Turning on `precompile: true` makes Elysia do this work at startup instead. So it's worth measuring startup time, first-request response time, and response time after the app has been running for a while (warm-up) separately.
 
 The generated code has to be kept in memory for later requests, and the code that analyzes and generates functions makes the framework larger. How much extra time and memory this costs depends on the number of routes, schemas and the mode used. Framework developers also have to debug both the code generator and the code it produces. Read more in [the overhead section of Elysia's docs](https://elysiajs.com/internal/jit-compiler#overhead-of-jit-compiler).
 
-Elysia 2 beta's build-time AOT needs extra care, because the plugin dry-runs the app during the build. Code that runs at app startup may run during this step too — for example, opening a database connection pool — which can keep the process from exiting after the build finishes. So we need to manage those connections, and make sure the app registers routes the same way at build time and at runtime, according to the [Build Time Environment requirements](https://elysiajs.com/blog/elysia-20#build-time-environment).
+Elysia 2 beta's build-time AOT needs extra care, because the plugin dry-runs the app during the build. Code that runs at app startup may run during this step too — for example, opening a database connection pool — which can keep the process from exiting after the build finishes. So we need to manage those connections, and make sure calls to Elysia APIs, such as registering routes and hooks, are the same at build time and at runtime, matching what the plugin recorded. See the [Build Time Environment requirements](https://elysiajs.com/blog/elysia-20#build-time-environment).
 
 ## How much faster will a real app be?
 

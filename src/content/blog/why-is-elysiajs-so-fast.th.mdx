@@ -2,6 +2,7 @@
 title: 'ทำไม ElysiaJS ถึงเร็ว? เข้าใจ Static Analysis, JIT และ AOT'
 description: 'เจาะกลไก Sucrose และการสร้าง request handler ของ Elysia แยก framework JIT, engine JIT และ build-time AOT พร้อมข้อจำกัดและวิธีประเมินผลกับ API จริง'
 pubDate: 'Oct 02 2026'
+updatedDate: '2026-10-03T19:09:28+07:00'
 lang: 'th'
 translationKey: 'why-is-elysiajs-so-fast'
 tags: ['Elysia', 'ElysiaJS', 'Bun', 'JavaScript', 'TypeScript', 'Performance', 'AOT', 'JIT']
@@ -35,7 +36,7 @@ ElysiaJS กำลังเตรียมเข้าสู่เวอร์�
 
 ## Framework จัดการ request อย่างไร?
 
-นอกจากจับคู่ HTTP method และ path แล้ว framework ยังจัดการขั้นตอนอื่น ๆ ทั้งก่อนและหลังเรียก handler เช่น parsing, validation, hooks, error handling และการแปลงค่าที่คืนมาเป็น HTTP response แต่ละ request จึงต้องใช้เวลาและทรัพยากรกับขั้นตอนเหล่านี้ด้วย แม้ business logic จะมีแค่ไม่กี่บรรทัด
+นอกจากจับคู่ HTTP method และ path แล้ว การจัดการ request ยังอาจมีขั้นตอนอื่น ๆ ทั้งก่อนและหลังเรียก handler เช่น parsing, validation, hooks, error handling และการเตรียม HTTP response ขั้นตอนที่มีจริงขึ้นอยู่กับ framework, middleware และการตั้งค่าของแอป เช่น Express ต้องเพิ่มการตรวจข้อมูลผ่านโค้ดหรือ middleware เอง แต่ละ request จึงอาจต้องใช้เวลาและทรัพยากรกับขั้นตอนเหล่านี้ด้วย แม้ business logic จะมีแค่ไม่กี่บรรทัด
 
 แต่ละ framework จัดลำดับงานต่างกัน ลองดูภาพด้านล่าง: Express เรียก middleware ตามลำดับที่เราลงทะเบียนไว้ ส่วน Fastify มีขั้นตอนหลักกำหนดไว้แล้ว และให้เราเพิ่มโค้ดผ่าน hooks ในแต่ละช่วง
 
@@ -126,7 +127,7 @@ Sucrose ตรวจข้อความนี้แล้วพบว่า pa
 }
 ```
 
-`true` หมายถึงพบการใช้ข้อมูลส่วนนั้น ส่วน `false` หมายถึงยังไม่พบจากการวิเคราะห์นี้ Sucrose จึงบอกได้ว่า “ต้องใช้ query” โดยยังไม่ต้องเรียก handler และยังไม่ต้องรู้ว่า request จริงจะส่ง `id` เป็นค่าอะไร ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L653-L763)
+`true` หมายถึงให้ถือว่าต้องใช้ข้อมูลส่วนนั้น อาจมาจากการพบว่าโค้ดใช้โดยตรง หรือเผื่อไว้เมื่อวิเคราะห์ได้ไม่แน่ชัด ส่วน `false` หมายถึงการวิเคราะห์นี้ยังไม่ได้ระบุว่าต้องใช้ ในตัวอย่างนี้ Sucrose จึงบอกได้ว่า “ต้องใช้ query” โดยยังไม่ต้องเรียก handler และยังไม่ต้องรู้ว่า request จริงจะส่ง `id` เป็นค่าอะไร ดูกลไกได้ใน [`sucrose.ts`](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L653-L763)
 
 ผลนี้ระบุการใช้ `query` ทั้งส่วน ไม่ได้บอกว่าจะ parse เฉพาะ key `id` เสมอไป
 
@@ -155,12 +156,12 @@ Sucrose ยังอ่านโค้ดของ **hooks** ซึ่งเป�
 ({ query }) => service(query.id)
 
 // ส่ง context ทั้งก้อนไปให้ service
-context => service(context)
+(context) => service(context)
 ```
 
 แบบหลัง `service` อาจอ่าน body, headers หรือ cookie ข้างในอีกที เมื่อ Sucrose ตรวจพบการส่ง context ทั้งก้อนแบบนี้ มันจะเผื่อว่าฟังก์ชันปลายทางอาจใช้ข้อมูลทุกส่วนที่มันติดตาม จึงมีโอกาสตัดขั้นตอนเตรียมข้อมูลออกได้น้อยลง ดู[โค้ดตรวจการส่ง context ต่อ](https://github.com/elysiajs/elysia/blob/1.4.30/src/sucrose.ts#L546-L617)
 
-วิธีอ่านรูปแบบโค้ดโดยไม่เรียกฟังก์ชันนี้เรียกว่า **static analysis** โดย Sucrose ทำงานเฉพาะด้านการตรวจว่ามีการใช้ข้อมูลอะไรบ้าง ไม่ได้อาศัย type information ของ TypeScript และไม่ได้เข้าใจ JavaScript ครบทุกกรณี การเขียนให้เห็นชัดว่าใช้ข้อมูลส่วนไหนจึงช่วยทั้งคนอ่านและตัววิเคราะห์
+วิธีอ่านรูปแบบโค้ดโดยไม่เรียกฟังก์ชันนี้เรียกว่า **static analysis** โดย Sucrose ทำงานเฉพาะด้านการตรวจว่ามีการใช้ข้อมูลอะไรบ้าง ไม่ได้อาศัย type information ของ TypeScript และไม่ได้เข้าใจ JavaScript ครบทุกกรณี ผลวิเคราะห์ขึ้นอยู่กับรูปข้อความที่ `toString()` คืนมาด้วย เช่น บน Node.js v26.7.0 ที่ทดสอบกับ Elysia 1.4.30 รูป `(context) => service(context)` ถูกตรวจพบว่ามีการส่ง context ต่อ แต่รูป `context => service(context)` ไม่ถูกตรวจพบ จึงควรตรวจพฤติกรรมหลัง build บน runtime ที่ใช้จริง การเขียนให้เห็นชัดว่าใช้ข้อมูลส่วนไหนช่วยทั้งคนอ่านและตัววิเคราะห์
 
 คำว่า “static” ตรงนี้อธิบาย **วิธีวิเคราะห์** ส่วน **วิเคราะห์เมื่อไร** เป็นอีกเรื่องหนึ่ง อาจเกิดระหว่างเตรียมแอปหรือเมื่อเรียก route ครั้งแรก ขึ้นอยู่กับ version และโหมดที่ใช้ หัวข้อ JIT กับ AOT ด้านล่างจะอธิบายเพิ่มเติมว่า Elysia เตรียมฟังก์ชันจัดการ request เมื่อไร
 
@@ -197,7 +198,7 @@ function tailoredHandler(request) {
 
 1. **สร้างตอน build แอป** — Elysia 2 beta มี AOT build plugin สำหรับสร้างโค้ดของ handler และ schema ที่รองรับ แล้วเก็บไว้ในไฟล์ที่ได้จากการ build เมื่อเปิดแอปก็ใช้โค้ดที่เตรียมไว้ วิธีนี้เรียกว่า **build-time AOT (Ahead-of-Time)** ตาม[ประกาศ Elysia 2 beta](https://elysiajs.com/blog/elysia-20#ahead-of-time-compilation)
 
-2. **สร้างตอนเริ่มแอป** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` ร่วมกับ `precompile: true` แอปจะสร้าง pipeline ก่อนเริ่มรับ request จึงใช้เวลาเตรียมแอปเพิ่มขึ้น แต่ request แรกไม่ต้องรอสร้าง pipeline ดู[เอกสาร `precompile`](https://elysiajs.com/patterns/configuration#precompile)
+2. **สร้างระหว่างเตรียมแอป** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` ร่วมกับ `precompile: true` Elysia จะสร้าง pipeline ขณะลงทะเบียน route จึงย้ายงานส่วนนี้มาอยู่ก่อนรับ request สำหรับ route ที่ลงทะเบียนไว้ตั้งแต่เริ่มแอป Request แรกจึงไม่ต้องรอสร้าง pipeline ดู[โค้ดที่เลือกว่าจะ compile ทันทีหรือรอ](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L956-L964) และ[เอกสาร `precompile`](https://elysiajs.com/patterns/configuration#precompile)
 
 3. **สร้างเมื่อมี request แรกของ route** — ใน Elysia 1.4.30 เมื่อใช้ `aot: true` และ `precompile: false` แอปจะรอจนมีการเรียก route นั้น แล้วจึงสร้าง pipeline มาใช้งาน Request ถัดไปใช้ฟังก์ชันที่สร้างไว้แล้ว วิธีรอสร้างเมื่อจะใช้นี้เรียกว่า **lazy compilation** ดู[การทำงานใน Elysia 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L956-L964)
 
@@ -205,7 +206,7 @@ function tailoredHandler(request) {
 
 > หน้าเอกสาร configuration ของ Elysia ระบุว่า `aot` มีค่าเริ่มต้นเป็น `false` และอธิบายว่า `true` คือการ precompile ทุก route แต่ใน [source code ของ 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/index.ts#L387) ค่าเริ่มต้นของ `aot` คือ `true` (ปิดได้ด้วย `ELYSIA_AOT=false`) และการสร้างก่อนเริ่มรับ request ถูกกำหนดด้วย `precompile` บทความนี้จึงอธิบายตาม source code
 
-สำหรับสองแบบของ Elysia 1.4.30 ฟังก์ชันยังถูกสร้างขณะแอปรันอยู่ โดย Elysia นำโค้ด JavaScript ที่สร้างขึ้นมาเปลี่ยนเป็นฟังก์ชันด้วย `new Function(...)` [เอกสารภายในของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time)** ทั้งนี้ บาง route อาจมีวิธีจัดการเฉพาะ เช่น route ที่คืนค่าคงที่อาจใช้ความสามารถของ runtime โดยตรง
+สำหรับสองแบบของ Elysia 1.4.30 ฟังก์ชันยังถูกสร้างขณะแอปรันอยู่ โดย Elysia นำโค้ด JavaScript ที่สร้างขึ้นมาเปลี่ยนเป็นฟังก์ชันด้วย `Function(...)` ซึ่งเป็น constructor เดียวกับ `new Function(...)` [เอกสารภายในของ Elysia](https://elysiajs.com/internal/jit-compiler) เรียกกลไกนี้ว่า **JIT (Just-in-Time)** ทั้งนี้ บาง route อาจมีวิธีจัดการเฉพาะ เช่น route ที่คืนค่าคงที่อาจใช้ความสามารถของ runtime โดยตรง
 
 ส่วน **JIT ของ JavaScript engine** มีหน้าที่แปลง JavaScript เป็น machine code และปรับประสิทธิภาพจากข้อมูลที่ได้ระหว่างรัน เช่นที่[ทีม WebKit อธิบายไว้สำหรับ JavaScriptCore](https://webkit.org/blog/10308/speculation-in-javascriptcore/) การสร้าง pipeline เสร็จจึงไม่ได้แปลว่า engine ปรับโค้ดเสร็จด้วย แม้เปิด `precompile` แล้ว ผลวัดตอนเริ่มแอปกับผลหลัง **warm-up** หรือการรันซ้ำก่อนเก็บผล ก็ยังอาจต่างกัน
 
@@ -238,13 +239,15 @@ Express เรียก middleware และ handler ของ route ตาม�
 | `/user` | body ว่าง (`query.id` เป็น `undefined`) | `undefined` (`String(undefined)`) |
 | `/user?id=42&id=43` | `43` (ไม่มี schema กำหนดเป็น array จึงใช้ค่าสุดท้าย) | `42,43` (`req.query.id` เป็น array `['42', '43']` แล้วแปลงเป็น string) |
 
+ตารางนี้เทียบเฉพาะ body โดยใช้ตัวอย่างข้างต้นและ query parser ค่าเริ่มต้น ตรวจพฤติกรรมของ Elysia ได้ใน [query parser ของ 1.4.30](https://github.com/elysiajs/elysia/blob/1.4.30/src/parse-query.ts) แม้กรณี `/user?id=42` จะได้ body เป็น `42` เหมือนกัน แต่ `Content-Type` ยังต่างกัน: ในการทดสอบบน Node.js v26.7.0 ผ่าน `app.handle()` ของ Elysia (Web Standard adapter) ได้ `text/plain` ส่วน Express ผ่าน HTTP ได้ `text/html; charset=utf-8` จึงต้องปรับ headers ให้ตรงกันด้วยก่อนนำไปเทียบความเร็ว
+
 ## การสร้าง handler ต้องใช้เวลาและหน่วยความจำ
 
 การสร้างฟังก์ชันจัดการ request ต้องใช้เวลา ถ้า Elysia รอสร้างฟังก์ชันตอนที่ route ถูกเรียกครั้งแรก (lazy compilation) request แรกก็ต้องรอขั้นตอนนี้ด้วย การเปิด `precompile: true` จะให้ Elysia ทำงานส่วนนี้ตั้งแต่เริ่มแอปแทน จึงควรแยกวัดเวลาเริ่มแอป เวลาตอบกลับของ request แรก และเวลาตอบกลับหลังเรียกใช้งานไปสักระยะแล้ว (warm-up)
 
 โค้ดที่สร้างขึ้นต้องเก็บไว้ในหน่วยความจำเพื่อใช้กับ request ถัดไป ส่วนโค้ดที่ใช้วิเคราะห์และสร้างฟังก์ชันก็ทำให้ framework มีขนาดใหญ่ขึ้น จะใช้เวลาและหน่วยความจำเพิ่มเท่าไรขึ้นอยู่กับจำนวน route, schema และโหมดที่ใช้ นอกจากนี้ ผู้พัฒนา framework ยังต้องหาข้อผิดพลาดทั้งในส่วนที่สร้างโค้ดและในโค้ดที่สร้างออกมา อ่านเพิ่มเติมได้ใน[หัวข้อ overhead ของ Elysia](https://elysiajs.com/internal/jit-compiler#overhead-of-jit-compiler)
 
-สำหรับ build-time AOT ของ Elysia 2 beta มีเรื่องที่ต้องดูแลเพิ่ม เพราะ plugin จะลองรันแอประหว่าง build (dry-run) โค้ดที่ทำงานตอนเริ่มแอปจึงอาจทำงานในขั้นตอนนี้ด้วย เช่น การเปิด connection pool ของฐานข้อมูล ซึ่งอาจทำให้ process ไม่ยอมจบหลัง build เสร็จ เราจึงต้องจัดการการเชื่อมต่อเหล่านี้ รวมถึงตรวจว่าแอปลงทะเบียน route เหมือนกันทั้งตอน build และตอนรันจริง ตาม[ข้อกำหนด Build Time Environment](https://elysiajs.com/blog/elysia-20#build-time-environment)
+สำหรับ build-time AOT ของ Elysia 2 beta มีเรื่องที่ต้องดูแลเพิ่ม เพราะ plugin จะลองรันแอประหว่าง build (dry-run) โค้ดที่ทำงานตอนเริ่มแอปจึงอาจทำงานในขั้นตอนนี้ด้วย เช่น การเปิด connection pool ของฐานข้อมูล ซึ่งอาจทำให้ process ไม่ยอมจบหลัง build เสร็จ เราจึงต้องจัดการการเชื่อมต่อเหล่านี้ รวมถึงตรวจว่าการเรียก API ของ Elysia เช่น การลงทะเบียน route และ hooks เหมือนกันทั้งตอน build และตอนรันจริง เพื่อให้ตรงกับข้อมูลที่ plugin บันทึกไว้ ตาม[ข้อกำหนด Build Time Environment](https://elysiajs.com/blog/elysia-20#build-time-environment)
 
 ## แอปจริงจะเร็วขึ้นแค่ไหน?
 
