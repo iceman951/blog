@@ -223,10 +223,29 @@ chips. The byline stays: the author's name on every article is part of the site'
 get revised as numbers change, and readers need to know which run they are looking at.
 
 ### Hero plate
-Hero images are static files (SVG charts, PNG/WebP diagrams) and cannot follow the theme
-toggle, so they always sit on a **plate**: `#ffffff` ground in both themes, 1px `--border`,
-6px radius, `--space-4` padding. They are drawn with the light chart palette (§7). Posts
-without a hero image get none — no stock placeholder.
+Hero images are files shown through `<img>`, which never see the theme toggle.
+
+- **SVG charts** sit on a **plate**: `#ffffff` ground in both themes, 1px `--border`, 6px
+  radius, `--space-4` padding, drawn with the light chart palette (§7). The plate shows an
+  SVG at no more than its drawn width, so its type renders at the size it was set in.
+- **Raster cards** (PNG/JPEG/WebP with their own ground) fill the frame with no padding
+  (`bleed`). A page can override either way with `heroBleed`.
+
+Posts without a hero image get none — no stock placeholder.
+
+### Type inside images
+Text in an image is read at the size the image is shown, not the size it was drawn. The
+floors below are what the generators (`scripts/generate-charts.mjs`,
+`scripts/generate-raster-cards.mjs`) are set to:
+
+| Image | Drawn at | Smallest text | Shown on a ~342px phone |
+| --- | --- | --- | --- |
+| Hero SVG chart | 720 units wide | 18 units (data labels 22) | ~9px (labels ~10px) |
+| Card (hero + og:image) | 1200×630, rendered 1.5× | 20px (headline 64–76px) | ~6px; ~8px in a 500px feed |
+| Inline chart component | 720-unit viewBox | 12 units | held at 600px wide and scrolled: ~10px |
+
+Images have no fake telemetry, prompt glyphs, grid textures or winner badges — the same
+rules as the page.
 
 ### Homepage
 1. A short intro (who writes this and what about) — one `h1`, two sentences, no hero number.
@@ -358,17 +377,20 @@ from the machine at run time (as in `PostgresBenchmarkResults`) use the same sty
 
 Implemented: tokens and base styles (`src/styles/global.css`), fonts (`astro.config.mjs`),
 the theme bootstrap and `ThemeToggle.astro`, header, footer, article layout, listings, series
-pages, 404, consent dialog, chart colours from CSS variables (`src/lib/chart.ts`), and the
-hero SVGs redrawn in the light palette (`scripts/build-hero-svg.ts` uses the same values).
+pages, 404, consent dialog, chart colours from CSS variables (`src/lib/chart.ts`), hero SVGs
+(`scripts/generate-charts.mjs`), and the raster cards — the ElysiaJS heroes, the About card and
+the site's default og:image `icerust-og-card.jpg` (`scripts/generate-raster-cards.mjs`, with
+the portrait re-grounded by `scripts/about-og/portrait.py`).
 The Japanese ornaments (`ink/*`, `HankoMark`, `VerticalNote`) are deleted.
 
 Not components on purpose: benchmark tables, environment tables and code blocks are written in
 Markdown and styled globally (§7, §9, §10), so no post has to be rewritten to adopt the design.
 
-Outstanding — raster brand assets still carry the previous Sumi-e identity and need new artwork:
+Outstanding:
 
-| Asset | What it shows now |
+| Asset | Why |
 | --- | --- |
-| `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` | The vermilion `氷` hanko seal |
-| `src/assets/icerust-og-anime.png` | Default social card and About hero: washi ground, serif wordmark, a `進` seal |
-| `src/assets/why-is-elysiajs-so-fast(.th).png` | Hero/OG with washi ground and hanko mark |
+| `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` | Still the vermilion `氷` hanko seal; needs new artwork |
+| `src/assets/what-is-financial-engineering(.th).webp` | Illustrated hero whose small side labels cannot be re-set without redrawing the image |
+| `src/assets/blog-placeholder-*.jpg` | Unused template leftovers |
+| `scripts/build-hero-svg.ts` | Older generator that also writes `energy-per-request-m5.svg`; superseded by `scripts/generate-charts.mjs` |

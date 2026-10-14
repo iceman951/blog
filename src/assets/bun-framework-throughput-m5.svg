@@ -1,8 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 510" width="1020" height="510" role="img" aria-label="Average throughput by framework on Bun, MacBook Air M5">
-<rect width="1020" height="510" fill="#ffffff"/>
-<text x="182" y="46" fill="#0f172a" font-size="25" font-weight="700" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Average throughput on Bun</text>
-<text x="182" y="72" fill="#64748b" font-size="14" text-anchor="start" font-family="Helvetica, Arial, sans-serif">requests/sec — 5 isolated rounds, randomised order, each averaging ping · query · body · video · MacBook Air M5</text>
-<line x1="322.3" y1="108" x2="322.3" y2="466" stroke="#e2e8f0" stroke-width="1"/><text x="322.3" y="100" fill="#64748b" font-size="11" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">25k</text><line x1="448.5" y1="108" x2="448.5" y2="466" stroke="#e2e8f0" stroke-width="1"/><text x="448.5" y="100" fill="#64748b" font-size="11" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">50k</text><line x1="574.8" y1="108" x2="574.8" y2="466" stroke="#e2e8f0" stroke-width="1"/><text x="574.8" y="100" fill="#64748b" font-size="11" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">75k</text><line x1="701.0" y1="108" x2="701.0" y2="466" stroke="#e2e8f0" stroke-width="1"/><text x="701.0" y="100" fill="#64748b" font-size="11" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">100k</text><line x1="827.3" y1="108" x2="827.3" y2="466" stroke="#e2e8f0" stroke-width="1"/><text x="827.3" y="100" fill="#64748b" font-size="11" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">125k</text>
-<path d="M196 126.75 H884.0 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="143.8" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">elysia</text><text x="900.0" y="143.8" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">137,024</text><path d="M196 170.25 H882.4 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="187.3" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">elysia-aot</text><text x="898.4" y="187.3" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">136,707</text><path d="M196 213.75 H858.8 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="230.8" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">bun</text><text x="874.8" y="230.8" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">132,032</text><path d="M196 257.25 H857.8 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="274.3" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">h3</text><text x="873.8" y="274.3" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">131,828</text><path d="M196 300.75 H851.3 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="317.8" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">hono</text><text x="867.3" y="317.8" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">130,556</text><path d="M196 344.25 H842.9 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="361.3" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">bun-web-standard</text><text x="858.9" y="361.3" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">128,878</text><path d="M196 387.75 H704.8 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="404.8" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">effect</text><text x="720.8" y="404.8" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">101,534</text><path d="M196 431.25 H491.3 a4 4 0 0 1 4 4 v18 a4 4 0 0 1 -4 4 H196 Z" fill="#0369a1"/><text x="182" y="448.3" fill="#0f172a" font-size="14" text-anchor="end" font-family="Helvetica, Arial, sans-serif">express</text><text x="507.3" y="448.3" fill="#64748b" font-size="13" font-family="Helvetica, Arial, sans-serif">59,273</text>
-<line x1="196" y1="108" x2="196" y2="466" stroke="#64748b" stroke-width="1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 614" width="720" height="614" role="img" aria-label="Average throughput by framework on Bun, MacBook Air M5">
+	<style>
+		text { font-family: Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, 'Noto Sans Thai', 'Leelawadee UI', Thonburi, sans-serif; fill: #0f172a; }
+		.title { font-size: 32px; font-weight: 600; letter-spacing: -0.01em; }
+		.subtitle { font-size: 20px; fill: #475569; }
+		.label { font-size: 22px; }
+		.value { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+		.tick { font-size: 18px; fill: #64748b; font-variant-numeric: tabular-nums; }
+		.note { font-size: 19px; fill: #475569; }
+		.grid { stroke: #e2e8f0; stroke-width: 1; }
+		.axis { stroke: #cbd5e1; stroke-width: 1.5; }
+	</style>
+
+	<text x="24" y="46" class="title">Average throughput on Bun</text>
+	<text x="24" y="80" class="subtitle">Requests/sec · mean of 5 isolated, reshuffled rounds</text>
+	<line x1="200" y1="116" x2="200" y2="492" class="grid"/>
+	<text x="200" y="520" class="tick" text-anchor="middle">0</text>
+	<line x1="325.3333333333333" y1="116" x2="325.3333333333333" y2="492" class="grid"/>
+	<text x="325.3333333333333" y="520" class="tick" text-anchor="middle">50k</text>
+	<line x1="450.66666666666663" y1="116" x2="450.66666666666663" y2="492" class="grid"/>
+	<text x="450.66666666666663" y="520" class="tick" text-anchor="middle">100k</text>
+	<line x1="576" y1="116" x2="576" y2="492" class="grid"/>
+	<text x="576" y="520" class="tick" text-anchor="middle">150k</text>
+	<line x1="200" y1="116" x2="200" y2="492" class="axis"/>
+	<text x="184" y="154" class="label" text-anchor="end">elysia</text>
+	<path d="M200 133 H539.4734933333334 A4 4 0 0 1 543.4734933333334 137 V157 A4 4 0 0 1 539.4734933333334 161 H200 Z" fill="#0369a1"/>
+	<text x="555.4734933333334" y="154" class="value">137,024</text>
+	<text x="184" y="200" class="label" text-anchor="end">elysia-aot</text>
+	<path d="M200 179 H538.6788799999999 A4 4 0 0 1 542.6788799999999 183 V203 A4 4 0 0 1 538.6788799999999 207 H200 Z" fill="#0369a1"/>
+	<text x="554.6788799999999" y="200" class="value">136,707</text>
+	<text x="184" y="246" class="label" text-anchor="end">bun</text>
+	<path d="M200 225 H526.9602133333333 A4 4 0 0 1 530.9602133333333 229 V249 A4 4 0 0 1 526.9602133333333 253 H200 Z" fill="#0369a1"/>
+	<text x="542.9602133333333" y="246" class="value">132,032</text>
+	<text x="184" y="292" class="label" text-anchor="end">h3</text>
+	<path d="M200 271 H526.4488533333333 A4 4 0 0 1 530.4488533333333 275 V295 A4 4 0 0 1 526.4488533333333 299 H200 Z" fill="#0369a1"/>
+	<text x="542.4488533333333" y="292" class="value">131,828</text>
+	<text x="184" y="338" class="label" text-anchor="end">hono</text>
+	<path d="M200 317 H523.2603733333333 A4 4 0 0 1 527.2603733333333 321 V341 A4 4 0 0 1 523.2603733333333 345 H200 Z" fill="#0369a1"/>
+	<text x="539.2603733333333" y="338" class="value">130,556</text>
+	<text x="184" y="384" class="label" text-anchor="end">bun-web-standard</text>
+	<path d="M200 363 H519.0541866666667 A4 4 0 0 1 523.0541866666667 367 V387 A4 4 0 0 1 519.0541866666667 391 H200 Z" fill="#0369a1"/>
+	<text x="535.0541866666667" y="384" class="value">128,878</text>
+	<text x="184" y="430" class="label" text-anchor="end">effect</text>
+	<path d="M200 409 H450.5118933333333 A4 4 0 0 1 454.5118933333333 413 V433 A4 4 0 0 1 450.5118933333333 437 H200 Z" fill="#0369a1"/>
+	<text x="466.5118933333333" y="430" class="value">101,534</text>
+	<text x="184" y="476" class="label" text-anchor="end">express</text>
+	<path d="M200 455 H344.57765333333333 A4 4 0 0 1 348.57765333333333 459 V479 A4 4 0 0 1 344.57765333333333 483 H200 Z" fill="#0369a1"/>
+	<text x="360.57765333333333" y="476" class="value">59,273</text>
+	<text x="24" y="568" class="note">Each round averages ping, query, body and video</text>
+	<text x="24" y="596" class="note">MacBook Air M5, 24 GB · Bun 1.4.0 · higher is better</text>
 </svg>

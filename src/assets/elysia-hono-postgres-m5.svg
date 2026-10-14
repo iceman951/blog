@@ -1,45 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 510" width="1020" height="510" role="img" aria-label="Median successful requests per second at 100 concurrent connections for Elysia and Hono over the same PostgreSQL layer on a MacBook Air M5. The two frameworks are within 1.75 percent in every workload.">
-<rect width="1020" height="510" fill="#ffffff"/>
-<text x="60" y="56" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#0f172a">No measurable difference — Elysia vs Hono on PostgreSQL</text>
-<text x="60" y="82" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#64748b">Median successful req/s at 100 concurrent connections, 5 repetitions each, shared Bun SQL layer, MacBook Air M5. Higher is better.</text>
-<rect x="640" y="96" width="11" height="11" rx="2" fill="#0369a1"/>
-<text x="657" y="106" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#0f172a">elysia</text>
-<rect x="748" y="96" width="11" height="11" rx="2" fill="#c2410c"/>
-<text x="765" y="106" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#0f172a">hono</text>
-<line x1="210.0" y1="112" x2="210.0" y2="456" stroke="#e2e8f0" stroke-width="1"/>
-<text x="210.0" y="476" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">0</text>
-<line x1="372.5" y1="112" x2="372.5" y2="456" stroke="#e2e8f0" stroke-width="1"/>
-<text x="372.5" y="476" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">20,000</text>
-<line x1="535.0" y1="112" x2="535.0" y2="456" stroke="#e2e8f0" stroke-width="1"/>
-<text x="535.0" y="476" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">40,000</text>
-<line x1="697.5" y1="112" x2="697.5" y2="456" stroke="#e2e8f0" stroke-width="1"/>
-<text x="697.5" y="476" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">60,000</text>
-<line x1="860.0" y1="112" x2="860.0" y2="456" stroke="#e2e8f0" stroke-width="1"/>
-<text x="860.0" y="476" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">80,000</text>
-<text x="196" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a" text-anchor="end">get-user</text>
-<path d="M210 126.0 H795.3194962520042 A4 4 0 0 1 799.3194962520042 130.0 V148.0 A4 4 0 0 1 795.3194962520042 152.0 H210 Z" fill="#0369a1"/>
-<text x="811.3" y="144.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">72,532</text>
-<path d="M210 158.0 H785.1714460676563 A4 4 0 0 1 789.1714460676563 162.0 V180.0 A4 4 0 0 1 785.1714460676563 184.0 H210 Z" fill="#c2410c"/>
-<text x="801.2" y="176.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">71,283</text>
-<text x="990" y="160.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="end">+1.75%</text>
-<text x="196" y="246.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a" text-anchor="end">list-users</text>
-<path d="M210 212.0 H579.3445075315636 A4 4 0 0 1 583.3445075315636 216.0 V234.0 A4 4 0 0 1 579.3445075315636 238.0 H210 Z" fill="#0369a1"/>
-<text x="595.3" y="230.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">45,950</text>
-<path d="M210 244.0 H577.9077705042429 A4 4 0 0 1 581.9077705042429 248.0 V266.0 A4 4 0 0 1 577.9077705042429 270.0 H210 Z" fill="#c2410c"/>
-<text x="593.9" y="262.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">45,773</text>
-<text x="990" y="246.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="end">+0.39%</text>
-<text x="196" y="332.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a" text-anchor="end">user-orders</text>
-<path d="M210 298.0 H635.6831421073548 A4 4 0 0 1 639.6831421073548 302.0 V320.0 A4 4 0 0 1 635.6831421073548 324.0 H210 Z" fill="#0369a1"/>
-<text x="651.7" y="316.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">52,884</text>
-<path d="M210 330.0 H634.5873793534379 A4 4 0 0 1 638.5873793534379 334.0 V352.0 A4 4 0 0 1 634.5873793534379 356.0 H210 Z" fill="#c2410c"/>
-<text x="650.6" y="348.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">52,749</text>
-<text x="990" y="332.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="end">+0.26%</text>
-<text x="196" y="418.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a" text-anchor="end">create-order</text>
-<path d="M210 384.0 H367.7915808685045 A4 4 0 0 1 371.7915808685045 388.0 V406.0 A4 4 0 0 1 367.7915808685045 410.0 H210 Z" fill="#0369a1"/>
-<text x="383.8" y="402.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">19,913</text>
-<path d="M210 416.0 H368.64444044906276 A4 4 0 0 1 372.64444044906276 420.0 V438.0 A4 4 0 0 1 368.64444044906276 442.0 H210 Z" fill="#c2410c"/>
-<text x="384.6" y="434.0" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">20,018</text>
-<text x="990" y="418.0" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="end">-0.52%</text>
-<line x1="210" y1="112" x2="210" y2="456" stroke="#64748b" stroke-width="1"/>
-<text x="60" y="502" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">Largest gap across all 16 workload/concurrency cells: 1.75%. Five identical repetitions of one cell vary by up to 12.67% — so this is a tie.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 606" width="720" height="606" role="img" aria-label="Elysia and Hono throughput with PostgreSQL on MacBook Air M5, by workload">
+	<style>
+		text { font-family: Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, 'Noto Sans Thai', 'Leelawadee UI', Thonburi, sans-serif; fill: #0f172a; }
+		.title { font-size: 32px; font-weight: 600; letter-spacing: -0.01em; }
+		.subtitle { font-size: 20px; fill: #475569; }
+		.label { font-size: 22px; }
+		.value { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+		.tick { font-size: 18px; fill: #64748b; font-variant-numeric: tabular-nums; }
+		.note { font-size: 19px; fill: #475569; }
+		.grid { stroke: #e2e8f0; stroke-width: 1; }
+		.axis { stroke: #cbd5e1; stroke-width: 1.5; }
+	</style>
+
+	<text x="24" y="46" class="title">Elysia vs Hono with PostgreSQL</text>
+	<text x="24" y="80" class="subtitle">Median successful req/s at 100 connections</text>
+	<rect x="24" y="102" width="16" height="16" rx="3" fill="#0369a1"/>
+	<text x="48" y="117" class="label">elysia</text>
+	<rect x="132" y="102" width="16" height="16" rx="3" fill="#c2410c"/>
+	<text x="156" y="117" class="label">hono</text>
+	<line x1="170" y1="150" x2="170" y2="480" class="grid"/>
+	<text x="170" y="508" class="tick" text-anchor="middle">0</text>
+	<line x1="272.5" y1="150" x2="272.5" y2="480" class="grid"/>
+	<text x="272.5" y="508" class="tick" text-anchor="middle">20k</text>
+	<line x1="375" y1="150" x2="375" y2="480" class="grid"/>
+	<text x="375" y="508" class="tick" text-anchor="middle">40k</text>
+	<line x1="477.5" y1="150" x2="477.5" y2="480" class="grid"/>
+	<text x="477.5" y="508" class="tick" text-anchor="middle">60k</text>
+	<line x1="580" y1="150" x2="580" y2="480" class="grid"/>
+	<text x="580" y="508" class="tick" text-anchor="middle">80k</text>
+	<line x1="170" y1="150" x2="170" y2="480" class="axis"/>
+	<text x="156" y="191" class="label" text-anchor="end">get-user</text>
+	<path d="M170 158 H537.7265 A4 4 0 0 1 541.7265 162 V178 A4 4 0 0 1 537.7265 182 H170 Z" fill="#0369a1"/>
+	<text x="551.7265" y="177" class="value">72,532</text>
+	<path d="M170 186 H531.325375 A4 4 0 0 1 535.325375 190 V206 A4 4 0 0 1 531.325375 210 H170 Z" fill="#c2410c"/>
+	<text x="545.325375" y="205" class="value">71,283</text>
+	<text x="156" y="277" class="label" text-anchor="end">list-users</text>
+	<path d="M170 244 H401.49375 A4 4 0 0 1 405.49375 248 V264 A4 4 0 0 1 401.49375 268 H170 Z" fill="#0369a1"/>
+	<text x="415.49375" y="263" class="value">45,950</text>
+	<path d="M170 272 H400.586625 A4 4 0 0 1 404.586625 276 V292 A4 4 0 0 1 400.586625 296 H170 Z" fill="#c2410c"/>
+	<text x="414.586625" y="291" class="value">45,773</text>
+	<text x="156" y="363" class="label" text-anchor="end">user-orders</text>
+	<path d="M170 330 H437.0305 A4 4 0 0 1 441.0305 334 V350 A4 4 0 0 1 437.0305 354 H170 Z" fill="#0369a1"/>
+	<text x="451.0305" y="349" class="value">52,884</text>
+	<path d="M170 358 H436.338625 A4 4 0 0 1 440.338625 362 V378 A4 4 0 0 1 436.338625 382 H170 Z" fill="#c2410c"/>
+	<text x="450.338625" y="377" class="value">52,749</text>
+	<text x="156" y="449" class="label" text-anchor="end">create-order</text>
+	<path d="M170 416 H268.054125 A4 4 0 0 1 272.054125 420 V436 A4 4 0 0 1 268.054125 440 H170 Z" fill="#0369a1"/>
+	<text x="282.054125" y="435" class="value">19,913</text>
+	<path d="M170 444 H268.59225 A4 4 0 0 1 272.59225 448 V464 A4 4 0 0 1 268.59225 468 H170 Z" fill="#c2410c"/>
+	<text x="282.59225" y="463" class="value">20,018</text>
+	<text x="24" y="550" class="note">Largest gap 1.75% (get-user), inside the 2.94% repeat</text>
+	<text x="24" y="578" class="note">spread — no winner named · 5 repetitions · MacBook Air M5</text>
 </svg>

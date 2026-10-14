@@ -19,6 +19,11 @@ type Props = CollectionEntry<'blog'>['data'] & {
 	/** Thai header copy for bilingual pages that switch language in place. */
 	titleTh?: string;
 	kickerTh?: string;
+	/**
+	 * The hero is a finished card with its own ground (like the About card), so it
+	 * fills the frame instead of sitting padded on the white plate.
+	 */
+	heroBleed?: boolean;
 	seriesContext?: {
 		id: string;
 		title: string;
@@ -35,6 +40,7 @@ const {
 	pubDate,
 	updatedDate,
 	heroImage,
+	heroBleed,
 	ogImage,
 	tags,
 	lang = 'en',
@@ -48,6 +54,10 @@ const {
 
 // Link previews don't render SVG, so an SVG hero falls back to the site card.
 const shareImage = ogImage ?? (heroImage?.format === 'svg' ? undefined : heroImage);
+// An SVG hero is a chart drawn for the white plate; a raster hero is a finished card
+// with its own ground, so it fills the frame unless a page says otherwise.
+const isSvgHero = heroImage?.format === 'svg';
+const bleed = heroBleed ?? (heroImage !== undefined && !isSvgHero);
 
 const readLabel = lang === 'th' ? 'อ่าน ' + readingMinutes + ' นาที' : readingMinutes + ' min read';
 // Benchmark posts are revised as numbers change; readers need to see which run
@@ -129,8 +139,15 @@ const isArticle = Boolean(readingMinutes);
 
 				{
 					heroImage && (
-						<figure class="hero-plate">
-							<img src={heroImage.src} width={heroImage.width} height={heroImage.height} alt="" decoding="async" />
+						<figure class:list={['hero-plate', { bleed }]}>
+							<img
+								src={heroImage.src}
+								width={heroImage.width}
+								height={heroImage.height}
+								alt=""
+								decoding="async"
+								style={isSvgHero ? `max-width: ${heroImage.width}px` : undefined}
+							/>
 						</figure>
 					)
 				}
@@ -250,8 +267,9 @@ const isArticle = Boolean(readingMinutes);
 		text-decoration: none;
 	}
 	/*
-	  Hero images are static files that cannot follow the theme toggle, so they sit
-	  on a white plate in both themes (DESIGN.md §6).
+	  Hero images are files shown through <img>: an SVG there sees the OS colour
+	  scheme but never the site's theme toggle, so it is drawn for, and sits on, a
+	  white plate in both themes (DESIGN.md §6).
 	*/
 	.hero-plate {
 		margin: 0 0 var(--space-12);
@@ -259,6 +277,15 @@ const isArticle = Boolean(readingMinutes);
 		border: 1px solid var(--border);
 		border-radius: var(--radius);
 		background: #ffffff;
+	}
+	.hero-plate.bleed {
+		padding: 0;
+		overflow: hidden;
+		background: transparent;
+	}
+	/* An SVG chart shows at no more than its drawn size, so its type stays at the sizes it was set in. */
+	.hero-plate img {
+		margin-inline: auto;
 	}
 	.hero-plate img {
 		display: block;

@@ -435,7 +435,7 @@ const animation = kind === 'handler' ? [
 <style>
 	elysia-flow-player { display: block; }
 	.player-controls { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-strong); }
-	.player-invitation { margin: 0 0 0.75rem; color: var(--text); font-size: 0.85rem; }
+	.player-invitation { margin: 0 0 0.75rem; color: var(--text); font-size: 0.9rem; }
 	.player-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
 	.secondary-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 	.player-buttons button {
@@ -455,7 +455,7 @@ const animation = kind === 'handler' ? [
 	[data-playing] .icon-pause { display: block; }
 	.player-buttons button:disabled { opacity: 0.5; cursor: default; }
 	.player-buttons button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-	.player-status { margin: 0.75rem 0 0; min-height: 5.1em; font-size: 0.8rem; }
+	.player-status { margin: 0.75rem 0 0; min-height: 5.1em; font-size: 0.86rem; }
 	.timeline li[data-current] { border-bottom: 4px solid var(--accent); background: var(--surface-alt); }
 	@media print { .player-controls { display: none; } }
 	.elysia-diagram {
@@ -465,12 +465,12 @@ const animation = kind === 'handler' ? [
 		background: var(--surface-alt);
 		color: var(--text);
 		font-family: var(--stack-sans);
-		font-size: 0.85rem;
+		font-size: 0.9rem;
 		line-height: 1.7;
 	}
 	.diagram-title { margin: 0 0 1.25rem; font-size: 1rem; font-weight: 600; }
 	.elysia-diagram strong { display: block; font-weight: 600; }
-	.detail { display: block; color: var(--text); font-size: 0.8rem; font-weight: 400; }
+	.detail { display: block; color: var(--text); font-size: 0.86rem; font-weight: 400; }
 	.parse-list, .timeline { margin: 0; padding: 0; list-style: none; }
 	.parsing-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
 	.parse-path { display: flex; flex-direction: column; min-width: 0; }
@@ -480,7 +480,7 @@ const animation = kind === 'handler' ? [
 	.parse-list { flex: 1; }
 	.parse-list li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; margin: 0 0 0.35rem; border: 1px solid var(--border-strong); }
 	.parse-list .needed { border: 2px solid var(--text); background: var(--bg); }
-	.needed .used-label { margin-left: auto; font-size: 0.75rem; }
+	.needed .used-label { margin-left: auto; font-size: 0.82rem; }
 	.data-icon { flex: 0 0 30px; line-height: 0; }
 	.data-icon :global(svg) { width: 30px; height: 30px; }
 	.timeline-picture { display: block; position: relative; width: 64px; margin: 0.5rem auto; color: var(--text); }
@@ -491,7 +491,7 @@ const animation = kind === 'handler' ? [
 
 	.omitted-work { margin-top: 1rem; padding: 0.75rem; border: 1px dashed var(--border-strong); }
 	.omitted-work .path-title { margin-bottom: 0.5rem; }
-	.omitted-work dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0; font-size: 0.8rem; }
+	.omitted-work dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0; font-size: 0.86rem; }
 	.omitted-work dt { font-weight: 600; }
 	.omitted-work dd { margin: 0.25rem 0 0; color: var(--text); }
 	.timeline-row + .timeline-row { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-strong); }
@@ -499,21 +499,21 @@ const animation = kind === 'handler' ? [
 	.timeline li { position: relative; margin: 0; padding: 0.5rem; border: 1px solid var(--border-strong); border-bottom-width: 4px; background: var(--bg); }
 	.timeline li:not(:last-child)::after { content: '→'; position: absolute; right: -0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 	.timeline .compilation { outline: 2px solid var(--text); outline-offset: -2px; }
-	.phase { display: block; color: var(--text); font-size: 0.7rem; margin-bottom: 0.25rem; }
-	.timeline strong { font-size: 0.78rem; }
+	.phase { display: block; color: var(--text); font-size: 0.8rem; margin-bottom: 0.25rem; }
+	.timeline strong { font-size: 0.84rem; }
 	.takeaway { margin: 1rem 0 0; padding-top: 0.75rem; border-top: 1px solid var(--border-strong); font-weight: 500; }
-	figcaption { margin-top: 0.75rem; font-size: 0.75rem; color: var(--text); }
+	figcaption { margin-top: 0.75rem; font-size: 0.82rem; color: var(--text); }
 	.handler-diagram { display: flex; flex-direction: column; }
 	.handler-diagram .diagram-title { order: 0; font-size: 1.1rem; line-height: 1.65; margin-bottom: 1rem; }
 	.handler-diagram .handler-graphic { order: 1; }
 	.handler-diagram .player-controls { order: 2; margin: 1rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--border-strong); border-bottom: 0; }
 	.handler-diagram .takeaway { order: 3; }
 	.handler-diagram figcaption { order: 4; }
-	.handler-diagram .player-invitation { font-size: 0.85rem; color: var(--text); }
+	.handler-diagram .player-invitation { font-size: 0.9rem; color: var(--text); }
 	.handler-diagram .player-buttons { gap: 0.5rem; }
-	.handler-diagram .player-buttons [data-play] { min-width: 0; min-height: 44px; padding: 0.4rem 0.75rem; font-size: 0.85rem; }
-	.handler-diagram .player-status { min-height: 3.6em; margin-top: 0.75rem; padding-left: 0.75rem; border-left: 2px solid var(--border-strong); font-size: 0.85rem; line-height: 1.8; }
-	.handler-diagram figcaption { font-size: 0.8rem; line-height: 1.85; }
+	.handler-diagram .player-buttons [data-play] { min-width: 0; min-height: 44px; padding: 0.4rem 0.75rem; font-size: 0.9rem; }
+	.handler-diagram .player-status { min-height: 3.6em; margin-top: 0.75rem; padding-left: 0.75rem; border-left: 2px solid var(--border-strong); font-size: 0.9rem; line-height: 1.8; }
+	.handler-diagram figcaption { font-size: 0.86rem; line-height: 1.85; }
 	@media (max-width: 560px) {
 		.elysia-diagram { padding: 1rem; }
 		.player-buttons [data-play] { width: 100%; min-width: 0; }
@@ -523,7 +523,7 @@ const animation = kind === 'handler' ? [
 		.timeline { grid-template-columns: 1fr; gap: 0.75rem; }
 		.handler-diagram { padding: 0.85rem; }
 		.handler-diagram .secondary-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 0.35rem; }
-		.handler-diagram .secondary-controls button { padding: 0.4rem 0.25rem; font-size: 0.8rem; }
+		.handler-diagram .secondary-controls button { padding: 0.4rem 0.25rem; font-size: 0.86rem; }
 		.timeline li { display: grid; grid-template-columns: 4.5rem 3rem minmax(0, 1fr); align-items: center; gap: 0.5rem; text-align: left; }
 		.timeline-picture { width: 44px; margin: 0; }
 		.timeline-picture > :global(svg) { width: 44px; height: 44px; }

@@ -28,7 +28,8 @@ const y = linear(0, Math.max(...axis), H - BOTTOM, TOP);
 const plotW = W - LEFT - RIGHT;
 const groupW = plotW / groups.length;
 // 2px surface gap between adjacent fills, per the mark spec.
-const barW = Math.min(26, (groupW - 18) / series.length - 2);
+// Wide enough that a value label (12px, five characters) sits over its own bar.
+const barW = Math.min(34, (groupW - 18) / series.length - 2);
 ---
 
 <ChartFrame title={title} ariaLabel={ariaLabel} note={note} width={W} height={H}>
@@ -36,7 +37,7 @@ const barW = Math.min(26, (groupW - 18) / series.length - 2);
 		series.map((name, s) => (
 			<g>
 				<rect x={LEFT + s * 108} y={12} width={11} height={11} rx="2" fill={SERIES[s % SERIES.length]} />
-				<text x={LEFT + s * 108 + 17} y={22} font-size="12" fill={PALETTE.ink} font-family="var(--stack-sans)">
+				<text x={LEFT + s * 108 + 17} y={22} font-size="13" fill={PALETTE.ink} font-family="var(--stack-sans)">
 					{name}
 				</text>
 			</g>
@@ -47,7 +48,7 @@ const barW = Math.min(26, (groupW - 18) / series.length - 2);
 		axis.map((t) => (
 			<g>
 				<line x1={LEFT} y1={y(t)} x2={W - RIGHT} y2={y(t)} stroke={PALETTE.grid} stroke-width="1" />
-				<text x={LEFT - 10} y={y(t) + 4} text-anchor="end" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+				<text x={LEFT - 10} y={y(t) + 4} text-anchor="end" font-size="12" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
 					{fmt(t, digits)}
 				</text>
 			</g>
@@ -68,13 +69,13 @@ const barW = Math.min(26, (groupW - 18) / series.length - 2);
 						return (
 							<g>
 								<path d={barPath(bx, by, barW, H - BOTTOM - by, 4)} fill={fill} />
-								<text x={bx + barW / 2} y={by - 6} text-anchor="middle" font-size="10" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+								<text x={bx + barW / 2} y={by - 6} text-anchor="middle" font-size="12" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
 									{fmt(v, digits)}
 								</text>
 							</g>
 						);
 					})}
-					<text x={gx + groupW / 2} y={H - BOTTOM + 20} text-anchor="middle" font-size="12.5" fill={PALETTE.ink} font-family="var(--stack-sans)">
+					<text x={gx + groupW / 2} y={H - BOTTOM + 20} text-anchor="middle" font-size="13.5" fill={PALETTE.ink} font-family="var(--stack-sans)">
 						{g.label}
 					</text>
 				</g>
@@ -83,5 +84,5 @@ const barW = Math.min(26, (groupW - 18) / series.length - 2);
 	}
 
 	<line x1={LEFT} y1={H - BOTTOM} x2={W - RIGHT} y2={H - BOTTOM} stroke={PALETTE.muted} stroke-width="1" />
-	{unit && <text x={LEFT - 10} y={TOP - 12} text-anchor="end" font-size="11" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">{unit}</text>}
+	{unit && <text x={LEFT - 10} y={TOP - 12} text-anchor="end" font-size="12" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">{unit}</text>}
 </ChartFrame>

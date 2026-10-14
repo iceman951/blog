@@ -1,7 +1,7 @@
 ---
 import PersonSchema from '../components/PersonSchema.astro';
 import Layout from '../layouts/BlogPost.astro';
-import OgImage from '../assets/icerust-og-anime.png';
+import OgImage from '../assets/about-og.jpg';
 import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 ---
 
@@ -12,7 +12,9 @@ import { CONTACT_EMAIL, SOCIAL_LINKS } from '../consts';
 	kicker="Colophon / About"
 	titleTh="เกี่ยวกับผม — Vorrapong Kertnat"
 	kickerTh="แนะนำตัว / เกี่ยวกับผม"
+	ogImage={OgImage}
 	heroImage={OgImage}
+	heroBleed
 >
 	<PersonSchema slot="head" profilePage />
 	<div data-ui-language-panel="en" lang="en">

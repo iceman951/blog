@@ -35,7 +35,7 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 		segments.map((name, i) => (
 			<g>
 				<rect x={LEFT + (i % 3) * 128} y={4 + Math.floor(i / 3) * 18} width={11} height={11} rx="2" fill={colorFor(i)} />
-				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--stack-sans)">
+				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="12.5" fill={PALETTE.ink} font-family="var(--stack-sans)">
 					{name}
 				</text>
 			</g>
@@ -50,7 +50,7 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 			const total = totals[i];
 			return (
 				<g>
-					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--stack-sans)">
+					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="14" fill={PALETTE.ink} font-family="var(--stack-sans)">
 						{bar.label}
 					</text>
 					{bar.values.map((v, s) => {
@@ -63,14 +63,14 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 							<g>
 								<rect x={bx} y={y} width={w} height={h} fill={colorFor(s)} rx="2" />
 								{pct >= 9 && (
-									<text x={bx + w / 2} y={y + h / 2 + 4} text-anchor="middle" font-size="11" font-weight="600" fill={s < neutralFrom ? ON_SERIES : PALETTE.ink} font-family="var(--font-sans), system-ui, sans-serif">
+									<text x={bx + w / 2} y={y + h / 2 + 4} text-anchor="middle" font-size="12" font-weight="600" fill={s < neutralFrom ? ON_SERIES : PALETTE.ink} font-family="var(--font-sans), system-ui, sans-serif">
 										{pct.toFixed(0)}%
 									</text>
 								)}
 							</g>
 						);
 					})}
-					<text x={W - RIGHT + 8} y={y + h / 2 + 4} font-size="12" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
+					<text x={W - RIGHT + 8} y={y + h / 2 + 4} font-size="13" fill={PALETTE.muted} font-family="var(--font-sans), system-ui, sans-serif">
 						{fmt(total, digits)}
 						{unit}
 					</text>

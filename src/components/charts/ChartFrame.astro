@@ -64,5 +64,12 @@ const { title, ariaLabel, note, width = 720, height = 420 } = Astro.props;
 		.chart {
 			padding: var(--space-3) var(--space-3) var(--space-4);
 		}
+		/*
+		  Shrinking a 720-unit chart to a phone's ~330px would set 12-unit labels near
+		  5px. Hold it at 600px and let it scroll inside its frame instead (DESIGN.md §5).
+		*/
+		.chart-scroll svg {
+			min-width: 600px;
+		}
 	}
 </style>
