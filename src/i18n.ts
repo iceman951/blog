@@ -4,7 +4,7 @@ export type UiLanguage = 'en' | 'th';
 
 export const ui = {
 	en: {
-		lastUpdated: 'Last updated on',
+		updated: 'Updated',
 		dateLocale: 'en-us',
 		readingList: 'Blog',
 		latestPosts: 'Latest posts',
@@ -16,7 +16,7 @@ export const ui = {
 		nextEpisode: 'Next episode',
 	},
 	th: {
-		lastUpdated: 'อัปเดตล่าสุดเมื่อ',
+		updated: 'อัปเดต',
 		dateLocale: 'th-TH-u-ca-gregory', // Gregorian, not Buddhist era — a 2569 would confuse a tech post
 		readingList: 'บล็อก',
 		latestPosts: 'บทความล่าสุด',

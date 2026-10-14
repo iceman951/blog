@@ -45,8 +45,8 @@ const t = copy[lang];
 			<title id="express-flow-title">{t.expressTitle}</title>
 			<desc id="express-flow-desc">{t.expressDesc}</desc>
 			<defs>
-				<marker id="express-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker>
-				<marker id="express-early-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--vermilion)" /></marker>
+				<marker id="express-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--text)" /></marker>
+				<marker id="express-early-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--accent)" /></marker>
 			</defs>
 			<g class="connections" marker-end="url(#express-arrow)">
 				<path d="M126 56V90" /><path d="M126 138V194" />
@@ -71,7 +71,7 @@ const t = copy[lang];
 		<svg viewBox="0 0 320 840" role="img" aria-labelledby="fastify-flow-title fastify-flow-desc">
 			<title id="fastify-flow-title">{t.fastifyTitle}</title>
 			<desc id="fastify-flow-desc">{`${fastifySteps.join(' → ')} ${t.fastifyDescNote}`}</desc>
-			<defs><marker id="fastify-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--indigo)" /></marker></defs>
+			<defs><marker id="fastify-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--text)" /></marker></defs>
 			{fastifySteps.map((label, index) => (
 				<g>
 					{index > 0 && <path class="connections" d={`M160 ${8 + (index - 1) * 64 + 48}v16`} marker-end="url(#fastify-arrow)" />}
@@ -86,16 +86,16 @@ const t = copy[lang];
 
 <style>
 	.lifecycles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 2rem 0; align-items: start; }
-	figure { min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--line); background: var(--paper-alt); color: var(--ink); font-family: var(--stack-meta); }
+	figure { min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--border-strong); background: var(--surface-alt); color: var(--text); font-family: var(--stack-sans); }
 	.diagram-title { margin: 0 0 1rem; font-size: 0.9rem; font-weight: 600; }
 	svg { display: block; width: 100%; height: auto; }
-	rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
-	rect.handler { stroke: var(--indigo); stroke-width: 2.5; }
-	text { fill: var(--ink); font-family: var(--stack-meta); font-size: 17px; }
-	.connections { fill: none; stroke: var(--indigo); stroke-width: 2; }
-	.early-connection { fill: none; stroke: var(--vermilion); stroke-width: 2; }
+	rect { fill: var(--bg); stroke: var(--border-strong); stroke-width: 1.5; }
+	rect.handler { stroke: var(--text); stroke-width: 2.5; }
+	text { fill: var(--text); font-family: var(--stack-sans); font-size: 17px; }
+	.connections { fill: none; stroke: var(--text); stroke-width: 2; }
+	.early-connection { fill: none; stroke: var(--accent); stroke-width: 2; }
 	.edge-label, .early-label { font-size: 15px; }
-	.early-label { fill: var(--vermilion); }
-	figcaption { margin-top: 1rem; color: var(--ink-soft); font-size: 0.75rem; line-height: 1.8; }
+	.early-label { fill: var(--accent); }
+	figcaption { margin-top: 1rem; color: var(--text); font-size: 0.75rem; line-height: 1.8; }
 	@media (max-width: 600px) { .lifecycles { grid-template-columns: 1fr; } }
 </style>

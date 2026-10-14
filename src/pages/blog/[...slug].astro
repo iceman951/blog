@@ -61,12 +61,9 @@ type Props = CollectionEntry<'blog'> & {
 const { translations, seriesContext, ...post } = Astro.props;
 const { Content } = await render(post as CollectionEntry<'blog'>);
 const minutes = readingMinutes(post.body);
-// The kicker follows the post's own tags; hardcoding "Benchmark" stopped being
-// true the moment a post about deployment existed.
-const kicker = (post.data.tags ?? []).slice(0, 2).join(' / ') || 'Engineering';
 ---
 
-<BlogPost {...post.data} translations={translations} readingMinutes={minutes} kicker={kicker} seriesContext={seriesContext}>
+<BlogPost {...post.data} translations={translations} readingMinutes={minutes} seriesContext={seriesContext}>
 	<BlogPostingSchema slot="head" {...post.data} />
 	<Content />
 </BlogPost>

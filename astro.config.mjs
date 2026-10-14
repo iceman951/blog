@@ -30,41 +30,34 @@ export default defineConfig({
 	],
 	fonts: [
 		{
-			// Mincho-style display face: carries the Latin headings and the 氷錆 mark
-			// in one download, which is why the Latin weights above were trimmed.
-			provider: fontProviders.google(),
-			name: 'Noto Serif JP',
-			cssVariable: '--font-display',
-			weights: [400, 600],
-			styles: ['normal'],
-			fallbacks: ['Hiragino Mincho ProN', 'Yu Mincho', 'Georgia', 'serif'],
-		},
-		{
-			provider: fontProviders.google(),
-			name: 'Source Serif 4',
-			cssVariable: '--font-serif',
-			weights: [400, 600],
-			styles: ['normal', 'italic'],
-			fallbacks: ['Georgia', 'serif'],
-		},
-		{
+			// Latin text and UI. 600 is the heading weight; there is no 700 on the site.
 			provider: fontProviders.google(),
 			name: 'Inter',
 			cssVariable: '--font-sans',
-			weights: [400, 500],
+			weights: [400, 500, 600],
 			styles: ['normal'],
 			fallbacks: ['system-ui', 'sans-serif'],
 		},
 		{
+			// Loopless, and it has a real 600, so a mixed Thai–English heading renders
+			// at one weight instead of a heavier Thai face beside lighter Latin.
 			provider: fontProviders.google(),
-			name: 'Noto Serif Thai',
+			name: 'Noto Sans Thai',
 			cssVariable: '--font-thai',
-			weights: [400, 700],
+			weights: [400, 600],
 			styles: ['normal'],
 			// Without this the build emits only the Latin subset of a Thai family, and
 			// every Thai glyph on the site falls through to a system font instead.
 			subsets: ['thai', 'latin'],
 			fallbacks: ['Sarabun', 'sans-serif'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'JetBrains Mono',
+			cssVariable: '--font-mono',
+			weights: [400],
+			styles: ['normal'],
+			fallbacks: ['ui-monospace', 'monospace'],
 		},
 	],
 });

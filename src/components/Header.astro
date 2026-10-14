@@ -1,19 +1,12 @@
 ---
-import HankoMark from './HankoMark.astro';
 import HeaderLink from './HeaderLink.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 <header data-ui-language-region lang="en">
 	<div class="bar">
-		<a class="brand" href="/">
-			<span class="wordmark">ICERUST</span>
-			<span class="mark" lang="ja">氷錆</span>
-			<span class="tagline">
-				<span data-ui-language-copy="en" lang="en">Thoughts on software,<br />systems, and experiments.</span>
-				<span data-ui-language-copy="th" lang="th">บันทึกเรื่องซอฟต์แวร์<br />ระบบ และการทดลอง</span>
-			</span>
-		</a>
+		<a class="brand" href="/" aria-label="ICERUST — home" data-ui-en-aria-label="ICERUST — home" data-ui-th-aria-label="ICERUST — หน้าหลัก">ICERUST</a>
 
 		<button
 			class="menu-toggle"
@@ -33,36 +26,25 @@ import LanguageSwitcher from './LanguageSwitcher.astro';
 			data-ui-en-aria-label="Primary navigation"
 			data-ui-th-aria-label="เมนูนำทางหลัก"
 		>
-			<HeaderLink href="/">
-				<span data-ui-language-copy="en" lang="en">Home</span>
-				<span data-ui-language-copy="th" lang="th">หน้าหลัก</span>
-			</HeaderLink>
-			<HeaderLink href="/blog">
-				<span data-ui-language-copy="en" lang="en">Blog</span>
-				<span data-ui-language-copy="th" lang="th">บล็อก</span>
-			</HeaderLink>
-			<HeaderLink href="/series">
-				<span data-ui-language-copy="en" lang="en">Series</span>
-				<span data-ui-language-copy="th" lang="th">ซีรีส์</span>
-			</HeaderLink>
-			<HeaderLink href="/about">
-				<span data-ui-language-copy="en" lang="en">About</span>
-				<span data-ui-language-copy="th" lang="th">เกี่ยวกับ</span>
-			</HeaderLink>
+			<div class="links">
+				<HeaderLink href="/blog">
+					<span data-ui-language-copy="en" lang="en">Blog</span>
+					<span data-ui-language-copy="th" lang="th">บล็อก</span>
+				</HeaderLink>
+				<HeaderLink href="/series">
+					<span data-ui-language-copy="en" lang="en">Series</span>
+					<span data-ui-language-copy="th" lang="th">ซีรีส์</span>
+				</HeaderLink>
+				<HeaderLink href="/about">
+					<span data-ui-language-copy="en" lang="en">About</span>
+					<span data-ui-language-copy="th" lang="th">เกี่ยวกับ</span>
+				</HeaderLink>
+			</div>
 
-			<LanguageSwitcher />
-
-			<a
-				class="seal-link"
-				href="https://github.com/iceman951"
-				target="_blank"
-				rel="noopener noreferrer"
-				aria-label="ICE on GitHub"
-				data-ui-en-aria-label="ICE on GitHub"
-				data-ui-th-aria-label="ICE บน GitHub"
-			>
-				<HankoMark size="sm" />
-			</a>
+			<div class="controls">
+				<LanguageSwitcher />
+				<ThemeToggle />
+			</div>
 		</nav>
 	</div>
 </header>
@@ -78,66 +60,48 @@ import LanguageSwitcher from './LanguageSwitcher.astro';
 
 <style>
 	header {
-		border-bottom: 1px solid var(--line-light);
+		border-bottom: 1px solid var(--border);
+		background: var(--bg);
 	}
 	.bar {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-8);
 		width: var(--frame);
-		max-width: calc(100% - 2.5rem);
+		max-width: calc(100% - 2 * var(--gutter));
 		margin: 0 auto;
-		padding: var(--space-6) 0;
+		padding: var(--space-3) 0;
 	}
 	.brand {
-		display: block;
-		color: var(--ink);
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		color: var(--text);
+		font-size: 1rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
 		text-decoration: none;
 	}
-	.wordmark {
-		display: block;
-		font-family: var(--stack-display);
-		font-size: 1.28rem;
-		font-weight: 600;
-		letter-spacing: 0.2em;
-		line-height: 1.1;
-	}
-	.mark {
-		display: block;
-		margin-top: 0.15em;
-		color: var(--ink-muted);
-		font-family: var(--stack-display);
-		font-size: 0.92rem;
-		letter-spacing: 0.3em;
-		line-height: 1.2;
-	}
-	.tagline {
-		display: block;
-		margin-top: var(--space-2);
-		color: var(--ink-muted);
-		font-family: var(--stack-meta);
-		font-size: 0.68rem;
-		line-height: 1.5;
+	.brand:hover {
+		color: var(--accent);
 	}
 	nav {
 		display: flex;
 		align-items: center;
 		gap: var(--space-6);
-		padding-top: 0.35rem;
 	}
-	.seal-link {
-		display: inline-flex;
+	.links {
+		display: flex;
 		align-items: center;
-		justify-content: center;
-		min-width: 44px;
-		min-height: 44px;
-		text-decoration: none;
-		opacity: 0.85;
-		transition: opacity var(--duration) var(--ease);
+		gap: var(--space-6);
 	}
-	.seal-link:hover {
-		opacity: 1;
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding-left: var(--space-6);
+		border-left: 1px solid var(--border);
 	}
 	.menu-toggle {
 		display: none;
@@ -146,7 +110,7 @@ import LanguageSwitcher from './LanguageSwitcher.astro';
 		padding: 0;
 		border: 0;
 		background: transparent;
-		color: var(--ink);
+		color: var(--text);
 		cursor: pointer;
 	}
 	.bars,
@@ -176,8 +140,7 @@ import LanguageSwitcher from './LanguageSwitcher.astro';
 	@media (max-width: 860px) {
 		.bar {
 			flex-wrap: wrap;
-			max-width: calc(100% - 2rem);
-			padding: var(--space-4) 0;
+			gap: 0;
 		}
 		.menu-toggle {
 			display: block;
@@ -186,16 +149,18 @@ import LanguageSwitcher from './LanguageSwitcher.astro';
 			display: none;
 			flex-basis: 100%;
 			flex-wrap: wrap;
-			gap: var(--space-4) var(--space-6);
-			margin-top: var(--space-4);
-			padding-top: var(--space-4);
-			border-top: 1px solid var(--line-light);
+			justify-content: space-between;
+			gap: var(--space-4);
+			margin-top: var(--space-3);
+			padding-top: var(--space-3);
+			border-top: 1px solid var(--border);
 		}
 		header[data-menu-open] nav {
 			display: flex;
 		}
-		.tagline {
-			display: none;
+		.controls {
+			padding-left: 0;
+			border-left: 0;
 		}
 	}
 </style>

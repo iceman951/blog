@@ -1,5 +1,5 @@
 ---
-import { NEUTRAL, PALETTE, SERIES, SERIES_STROKE, fmt, linear } from '../../lib/chart';
+import { NEUTRAL, ON_SERIES, PALETTE, SERIES, fmt, linear } from '../../lib/chart';
 import ChartFrame from './ChartFrame.astro';
 
 interface Props {
@@ -34,8 +34,8 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 	{
 		segments.map((name, i) => (
 			<g>
-				<rect x={LEFT + (i % 3) * 128} y={4 + Math.floor(i / 3) * 18} width={11} height={11} rx="2" fill={colorFor(i)} stroke={SERIES_STROKE[colorFor(i)] ?? 'none'} />
-				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--stack-meta)">
+				<rect x={LEFT + (i % 3) * 128} y={4 + Math.floor(i / 3) * 18} width={11} height={11} rx="2" fill={colorFor(i)} />
+				<text x={LEFT + (i % 3) * 128 + 17} y={14 + Math.floor(i / 3) * 18} font-size="11.5" fill={PALETTE.ink} font-family="var(--stack-sans)">
 					{name}
 				</text>
 			</g>
@@ -50,7 +50,7 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 			const total = totals[i];
 			return (
 				<g>
-					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--stack-meta)">
+					<text x={LEFT - 10} y={y + h / 2 + 4} text-anchor="end" font-size="13" fill={PALETTE.ink} font-family="var(--stack-sans)">
 						{bar.label}
 					</text>
 					{bar.values.map((v, s) => {
@@ -61,9 +61,9 @@ const x = linear(0, Math.max(...totals), LEFT, W - RIGHT);
 						const pct = (v / total) * 100;
 						return (
 							<g>
-								<rect x={bx} y={y} width={w} height={h} fill={colorFor(s)} stroke={SERIES_STROKE[colorFor(s)] ?? 'none'} stroke-width="1" rx="2" />
+								<rect x={bx} y={y} width={w} height={h} fill={colorFor(s)} rx="2" />
 								{pct >= 9 && (
-									<text x={bx + w / 2} y={y + h / 2 + 4} text-anchor="middle" font-size="11" font-weight="700" fill={PALETTE.surface} font-family="var(--font-sans), system-ui, sans-serif">
+									<text x={bx + w / 2} y={y + h / 2 + 4} text-anchor="middle" font-size="11" font-weight="600" fill={s < neutralFrom ? ON_SERIES : PALETTE.ink} font-family="var(--font-sans), system-ui, sans-serif">
 										{pct.toFixed(0)}%
 									</text>
 								)}

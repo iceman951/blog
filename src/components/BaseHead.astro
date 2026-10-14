@@ -79,7 +79,25 @@ const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 		}
 	})();
 </script>
+<script is:inline>
+	// Before first paint, so a stored theme never flashes the other one. With no
+	// stored choice, data-theme stays unset and CSS follows prefers-color-scheme.
+	(() => {
+		const root = document.documentElement;
+		try {
+			const stored = window.localStorage.getItem('icerust_theme_v1');
+			if (stored === 'light' || stored === 'dark') root.dataset.theme = stored;
+		} catch {
+			// Storage blocked: the system setting still applies.
+		}
+		// Colour transitions only after first paint, so a page never animates in.
+		requestAnimationFrame(() => requestAnimationFrame(() => root.setAttribute('data-theme-ready', '')));
+	})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#090d14" media="(prefers-color-scheme: dark)" />
 <link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -101,12 +119,12 @@ const alternates = Object.entries(translations ?? {}) as [UiLanguage, string][];
 
 <!--
   Preloads compete with the HTML and above-the-fold text on mobile, so only the
-  faces that paint first get one. Italic serif and the Thai face on non-Thai pages
-  still load, but through the @font-face rules once they're actually used.
+  faces that paint first get one. Mono and the Thai face on non-Thai pages still
+  load, but through the @font-face rules once they're actually used.
 -->
-<Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
-<Font cssVariable="--font-sans" preload />
-<Font cssVariable="--font-thai" preload={lang === 'th'} />
+<Font cssVariable="--font-sans" preload={[{ weight: 400 }, { weight: 600 }]} />
+<Font cssVariable="--font-thai" preload={lang === 'th' ? [{ weight: 400 }] : false} />
+<Font cssVariable="--font-mono" />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

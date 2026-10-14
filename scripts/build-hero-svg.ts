@@ -15,12 +15,13 @@ const RIGHT = 150;
 const TOP = 112;
 const BOTTOM = 54;
 
-// Kept in sync by hand with src/styles/global.css — see DESIGN.md §2.
-const CREAM = '#f4efe4';
-const INK = '#1e1c19';
-const GRAY = '#777064';
-const GRID = '#ddd5c8';
-const ACCENT = '#a63d32';
+// The light chart palette from src/styles/global.css, kept in sync by hand. Hero
+// images sit on a white plate in both themes — see DESIGN.md §3 and §6.
+const PLATE = '#ffffff';
+const INK = '#0f172a';
+const GRAY = '#64748b';
+const GRID = '#e2e8f0';
+const ACCENT = '#0369a1';
 
 const order = data.aggregates.rankings.byMjPerReq as string[];
 const rows = order.map((fw) => ({
@@ -47,7 +48,7 @@ parts.push(
 	`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" ` +
 		`aria-label="Energy per request by Bun HTTP framework on a MacBook Air M5, request-weighted over the ping, query and body routes">`,
 );
-parts.push(`<rect width="${W}" height="${H}" fill="${CREAM}"/>`);
+parts.push(`<rect width="${W}" height="${H}" fill="${PLATE}"/>`);
 parts.push(`<text x="60" y="56" font-family="${F}" font-size="25" font-weight="700" fill="${INK}">Energy per request — Bun HTTP frameworks on an M5 Air</text>`);
 parts.push(
 	`<text x="60" y="82" font-family="${F}" font-size="14" fill="${GRAY}">` +

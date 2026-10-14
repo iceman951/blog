@@ -1,5 +1,5 @@
 ---
-/** Square-cornered tag chips. Pills are explicitly out (DESIGN.md §3). */
+/** Tag chips: 4px radius, hairline, no colour fill (DESIGN.md §4–5). */
 interface Props {
 	tags?: readonly string[];
 	/** `inline` collapses to a middot-separated meta line for listings. */
@@ -25,7 +25,6 @@ const { tags, variant = 'chips' } = Astro.props;
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		font-family: var(--stack-meta);
 	}
 	.tags li {
 		margin: 0;
@@ -34,17 +33,18 @@ const { tags, variant = 'chips' } = Astro.props;
 		gap: var(--space-2);
 	}
 	.chips li {
-		padding: 0.2rem 0.55rem;
-		border: 1px solid var(--line-light);
-		background: var(--paper-alt);
-		color: var(--ink-soft);
-		font-size: 0.72rem;
-		letter-spacing: 0.04em;
+		padding: 0.15rem 0.5rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: var(--surface-alt);
+		color: var(--text-muted);
+		font-size: 0.75rem;
+		line-height: 1.6;
 	}
 	.inline {
 		gap: 0.5em;
-		color: var(--ink-muted);
-		font-size: 0.75rem;
+		color: var(--text-faint);
+		font-size: 0.8rem;
 	}
 	.inline li + li::before {
 		margin-right: 0.5em;

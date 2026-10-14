@@ -164,11 +164,11 @@
 		flex: 0 0 auto;
 		align-items: center;
 		gap: 0.35rem;
-		font-family: var(--stack-meta);
+		font-family: var(--stack-sans);
 	}
 
 	.divider {
-		color: var(--line);
+		color: var(--border-strong);
 		font-size: 0.78rem;
 	}
 
@@ -182,7 +182,7 @@
 		position: relative;
 		border: 0;
 		background: transparent;
-		color: var(--ink-muted);
+		color: var(--text-muted);
 		font: inherit;
 		font-size: 0.78rem;
 		letter-spacing: 0.08em;
@@ -192,12 +192,12 @@
 	}
 
 	button:hover {
-		color: var(--ink);
+		color: var(--text);
 	}
 
 	/* The selected language is marked by a vermilion rule, not a filled chip. */
 	button[aria-pressed='true'] {
-		color: var(--ink);
+		color: var(--text);
 	}
 
 	button[aria-pressed='true']::after {
@@ -206,12 +206,12 @@
 		left: 0;
 		right: 0;
 		height: 1px;
-		background: var(--vermilion);
+		background: var(--accent);
 		content: '';
 	}
 
 	button:focus-visible {
-		outline: 2px solid var(--vermilion);
+		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}
 </style>

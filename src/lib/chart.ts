@@ -1,29 +1,28 @@
 /**
  * Chart primitives shared by the SVG chart components.
  *
- * The palette is the site's own ink-on-washi system (see DESIGN.md) rather than a
- * separate chart palette: sumi ink, indigo and vermilion on paper. Series colours
- * keep the separation the previous blue/terracotta/gold set was validated for —
- * ink against indigo against vermilion stays distinguishable under deuteranopia
- * and protanopia because the pairs differ in lightness as well as hue.
+ * Colours are CSS custom properties from global.css (DESIGN.md §3, §7), not hex,
+ * so inline charts follow the light/dark theme. Each mode's categorical set was
+ * run through the dataviz palette validator against its own surface: lightness
+ * band, chroma floor, CVD separation, normal-vision floor and 3:1 contrast.
  *
  * Every chart still carries visible value labels and a backing data table, so no
  * reading of these charts depends on colour discrimination alone.
  */
 export const PALETTE = {
-	accent: '#a63d32',
-	accentDark: '#843028',
-	ink: '#1e1c19',
-	muted: '#777064',
-	grid: '#ddd5c8',
-	surface: '#f4efe4',
+	accent: 'var(--series-1)',
+	ink: 'var(--text)',
+	muted: 'var(--chart-axis)',
+	grid: 'var(--chart-grid)',
+	surface: 'var(--surface)',
 } as const;
 
 /** Fixed order — assigned by entity, never cycled, never by rank. */
-export const SERIES = ['#263746', '#a63d32', '#8a7a52'] as const;
-export const SERIES_STROKE: Record<string, string> = { '#8a7a52': '#6b5d3c' };
+export const SERIES = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)'] as const;
 /** Residual buckets ("other", tooling) are deliberately neutral. */
-export const NEUTRAL = ['#777064', '#b3a894'] as const;
+export const NEUTRAL = ['var(--series-neutral)', 'var(--series-neutral-2)'] as const;
+/** Text drawn on a series fill; neutral fills take ordinary text colour instead. */
+export const ON_SERIES = 'var(--chart-on-series)';
 
 export type Scale = (v: number) => number;
 

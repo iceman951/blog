@@ -2,16 +2,12 @@
 import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
-import HankoMark from '../components/HankoMark.astro';
 import Header from '../components/Header.astro';
 import TagList from '../components/TagList.astro';
-import VerticalNote from '../components/VerticalNote.astro';
-import BrushDivider from '../components/ink/BrushDivider.astro';
-import InkMountains from '../components/ink/InkMountains.astro';
 import PersonSchema from '../components/PersonSchema.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { t, type UiLanguage } from '../i18n';
-import { MONTHS_SHORT } from '../lib/dates';
+import { editorialDate } from '../lib/dates';
 import { postsForLanguage } from '../lib/posts';
 import { postsForSeries, seriesForLanguage } from '../lib/series';
 
@@ -42,80 +38,58 @@ const featured = panels
 	<body>
 		<Header />
 		<main>
-			<section class="hero" aria-labelledby="intro-heading">
-				<div class="hero-copy">
-					<h1 id="intro-heading">
-						<span data-ui-language-copy="en" lang="en">Small Experiments<br />for a Better Future.</span>
-						<span data-ui-language-copy="th" lang="th">การทดลองเล็ก ๆ<br />เพื่ออนาคตที่ดีกว่า</span>
-					</h1>
-					<p class="hero-sub">
-						<span data-ui-language-copy="en" lang="en">Notes on technology, markets, and experiments.</span>
-						<span data-ui-language-copy="th" lang="th">บันทึกเรื่องเทคโนโลยี ตลาด และการทดลอง</span>
-					</p>
-					<!-- The author's name in visible copy, not only the footer: the home
-					     page is the one Google ranks for a name query. -->
-					<p class="hero-byline">
-						<span data-ui-language-copy="en" lang="en">by <a href="/about/">{SITE_TITLE}</a></span>
-						<span data-ui-language-copy="th" lang="th">โดย <a href="/about/">{SITE_TITLE}</a></span>
-					</p>
-					<HankoMark />
-				</div>
-
-				<div class="hero-ink" aria-hidden="true">
-					<InkMountains />
-				</div>
-
-				<aside class="hero-note">
-					<hr class="rule-short" />
-					<p>
-						<span data-ui-language-copy="en" lang="en">Continuously<br />learning,<br />like water.</span>
-						<span data-ui-language-copy="th" lang="th">เรียนรู้ต่อเนื่อง<br />เหมือนสายน้ำ</span>
-					</p>
-				</aside>
+			<section class="intro" aria-labelledby="intro-heading">
+				<h1 id="intro-heading">
+					<span data-ui-language-copy="en" lang="en">Small Experiments<br />for a Better Future.</span>
+					<span data-ui-language-copy="th" lang="th">การทดลองเล็ก ๆ<br />เพื่ออนาคตที่ดีกว่า</span>
+				</h1>
+				<p class="intro-sub">
+					<span data-ui-language-copy="en" lang="en">Notes on technology, markets, and experiments.</span>
+					<span data-ui-language-copy="th" lang="th">บันทึกเรื่องเทคโนโลยี ตลาด และการทดลอง</span>
+				</p>
+				<!-- The author's name in visible copy, not only the footer: the home
+				     page is the one Google ranks for a name query. -->
+				<p class="intro-byline">
+					<span data-ui-language-copy="en" lang="en">by <a href="/about/">{SITE_TITLE}</a></span>
+					<span data-ui-language-copy="th" lang="th">โดย <a href="/about/">{SITE_TITLE}</a></span>
+				</p>
 			</section>
-
-			<BrushDivider />
 
 			{
 				featured.map(({ lang, series: { entry, episodes } }) => (
-					// The panel wrapper takes the language toggle's `display: block`;
-					// the section underneath keeps its grid.
 					<div data-ui-language-panel={lang}>
-					<section
-						class="featured-series"
-						aria-labelledby={`featured-series-heading-${lang}`}
-						lang={entry.data.lang}
-					>
-						<div class="series-label">
-							<p class="kicker">{t(lang, 'featuredSeries')}</p>
-							<p class="series-count">
-								{lang === 'th'
-									? episodes.length
-										? `${episodes.length} ตอน`
-										: 'กำลังเริ่มต้น'
-									: episodes.length
-										? `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`
-										: 'Just getting started'}
+						<section
+							class="featured-series"
+							aria-labelledby={`featured-series-heading-${lang}`}
+							lang={entry.data.lang}
+						>
+							<p class="kicker">
+								{t(lang, 'featuredSeries')}
+								<span class="series-count">
+									{' · '}
+									{lang === 'th'
+										? episodes.length
+											? `${episodes.length} ตอน`
+											: 'กำลังเริ่มต้น'
+										: episodes.length
+											? `${episodes.length} ${episodes.length === 1 ? 'episode' : 'episodes'}`
+											: 'Just getting started'}
+								</span>
 							</p>
-						</div>
-						<div class="series-copy">
 							<h2 id={`featured-series-heading-${lang}`}>{entry.data.title}</h2>
 							<p>{entry.data.description}</p>
 							<a href={`/series/${entry.id}/`}>
 								{t(lang, 'viewSeries')}
-								<span aria-hidden="true">⟶</span>
+								<span aria-hidden="true">→</span>
 							</a>
-						</div>
-					</section>
+						</section>
 					</div>
 				))
 			}
 
 			<section class="latest" aria-labelledby="latest-heading">
-				<hr class="rule-short" />
-				<p class="section-jp" lang="ja">最新の記事</p>
 				<h2 class="kicker" id="latest-heading">
-					<span data-ui-language-copy="en" lang="en">Latest writings</span>
+					<span data-ui-language-copy="en" lang="en">Latest posts</span>
 					<span data-ui-language-copy="th" lang="th">บทความล่าสุด</span>
 				</h2>
 
@@ -130,20 +104,18 @@ const featured = panels
 										<li class="post-row">
 											<a href={`/blog/${post.id}/`}>
 												<time class="date" datetime={post.data.pubDate.toISOString()}>
-													<span class="day">{post.data.pubDate.getDate()}</span>
-													<span class="month">{MONTHS_SHORT[post.data.pubDate.getMonth()]}</span>
-													<span class="year">{post.data.pubDate.getFullYear()}</span>
+													{editorialDate(post.data.pubDate)}
 												</time>
-											<span class="body">
-												<span class="title">{post.data.title}</span>
-											{post.data.seriesOrder && (
-												<span class="series-marker">
-													{t(lang, 'series')} · {t(lang, 'episode')} {String(post.data.seriesOrder).padStart(2, '0')}
+												<span class="body">
+													{post.data.seriesOrder && (
+														<span class="series-marker">
+															{t(lang, 'series')} · {t(lang, 'episode')} {String(post.data.seriesOrder).padStart(2, '0')}
+														</span>
+													)}
+													<span class="title">{post.data.title}</span>
+													<span class="excerpt">{post.data.description}</span>
+													<TagList tags={post.data.tags} variant="inline" />
 												</span>
-											)}
-												<TagList tags={post.data.tags} variant="inline" />
-												</span>
-												<span class="arrow" aria-hidden="true">—</span>
 											</a>
 										</li>
 									))}
@@ -157,280 +129,176 @@ const featured = panels
 					<a href="/blog">
 						<span data-ui-language-copy="en" lang="en">View all posts</span>
 						<span data-ui-language-copy="th" lang="th">ดูบทความทั้งหมด</span>
-						<span aria-hidden="true">⟶</span>
+						<span aria-hidden="true">→</span>
 					</a>
 				</p>
 			</section>
-
-			<!-- 継続は力なり — "perseverance is strength". -->
-			<div class="margin-note">
-				<VerticalNote text="継続は力なり" />
-			</div>
 		</main>
 		<Footer />
 	</body>
 </html>
 
 <style>
-	main {
-		width: var(--frame);
-		position: relative;
-	}
-
-	.hero {
-		display: grid;
-		grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) 10rem;
-		align-items: center;
-		gap: var(--space-8);
-		padding: var(--space-16) 0 var(--space-24);
+	.intro {
+		max-width: var(--measure-prose);
+		padding: var(--space-8) 0 var(--space-16);
 	}
 
 	h1 {
-		margin: 0 0 var(--space-6);
-		font-size: clamp(2.6rem, 6vw, 4.2rem);
-		font-weight: 400;
-		line-height: 1.18;
-		letter-spacing: -0.02em;
+		margin: 0 0 var(--space-4);
+		font-size: clamp(2.2rem, 5vw, 3.25rem);
+		line-height: 1.15;
 	}
 
-	.hero-sub {
+	.intro-sub {
 		margin: 0 0 var(--space-2);
-		color: var(--ink-soft);
-		font-size: 1rem;
-		line-height: 1.9;
-	}
-	.hero-byline {
-		margin: 0 0 var(--space-8);
-		color: var(--ink-soft);
-		font-family: var(--stack-meta);
-		font-size: 0.78rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-	}
-	.hero-byline a {
-		color: inherit;
+		color: var(--text-muted);
+		font-size: 1.15rem;
 	}
 
-	.hero-ink {
-		align-self: center;
-	}
-
-	.hero-note {
-		align-self: end;
-		padding-bottom: var(--space-8);
-	}
-
-	.hero-note p {
+	.intro-byline {
 		margin: 0;
-		color: var(--ink-muted);
-		font-family: var(--stack-meta);
-		font-size: 0.8rem;
-		line-height: 1.7;
-	}
-
-	.latest {
-		padding: var(--space-16) 0 0;
+		color: var(--text-faint);
+		font-size: 0.9rem;
 	}
 
 	.featured-series {
-		display: grid;
-		grid-template-columns: 11rem minmax(0, 1fr);
-		gap: var(--space-12);
-		padding: var(--space-16) 0;
-		border-bottom: 1px solid var(--line-light);
-	}
-
-	.featured-series .kicker {
-		margin-bottom: var(--space-2);
+		margin: 0 0 var(--space-16);
+		padding: var(--space-8);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface);
 	}
 
 	.series-count {
-		margin: 0;
-		color: var(--ink-muted);
-		font-family: var(--stack-meta);
-		font-size: 0.75rem;
+		color: var(--text-faint);
+		font-weight: 500;
 	}
 
-	.series-copy h2 {
-		max-width: 25ch;
-		font-size: clamp(1.6rem, 3vw, 2.25rem);
+	.featured-series h2 {
+		max-width: 32ch;
+		margin-bottom: var(--space-3);
 	}
 
-	.series-copy p {
-		max-width: 62ch;
+	.featured-series p:not(.kicker) {
+		max-width: 65ch;
+		margin-bottom: var(--space-4);
+		color: var(--text-muted);
 	}
 
-	.series-copy a {
+	.featured-series a {
 		display: inline-flex;
 		min-height: 44px;
 		align-items: center;
-		gap: 0.6em;
-		font-family: var(--stack-meta);
-		font-size: 0.85rem;
+		gap: 0.5em;
+		font-size: 0.95rem;
+		font-weight: 500;
 		text-decoration: none;
 	}
 
-	.section-jp {
-		margin: 0 0 var(--space-2);
-		color: var(--ink);
-		font-family: var(--stack-display);
-		font-size: 1.35rem;
-		letter-spacing: 0.12em;
-	}
-
 	h2.kicker {
-		margin-bottom: var(--space-12);
+		margin-bottom: var(--space-4);
 	}
 
 	.post-list {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		counter-reset: none;
 	}
 
 	.post-row {
 		margin: 0;
-		border-top: 1px solid var(--line-light);
+		border-top: 1px solid var(--border);
 	}
 
 	.post-row:last-child {
-		border-bottom: 1px solid var(--line-light);
+		border-bottom: 1px solid var(--border);
 	}
 
 	.post-row a {
 		display: grid;
-		grid-template-columns: 5.5rem minmax(0, 1fr) 2rem;
-		align-items: center;
-		gap: var(--space-8);
+		grid-template-columns: 7.5rem minmax(0, 1fr);
+		align-items: baseline;
+		gap: var(--space-6);
 		padding: var(--space-6) 0;
 		color: inherit;
 		text-decoration: none;
-		transition: background-color var(--duration) var(--ease);
-	}
-
-	.post-row a:hover {
-		background: var(--paper-alt);
 	}
 
 	.date {
-		display: block;
-		font-family: var(--stack-meta);
-		line-height: 1.15;
-		text-align: left;
+		color: var(--text-faint);
+		font-size: 0.82rem;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 
-	.day {
+	.body {
 		display: block;
-		color: var(--ink);
-		font-family: var(--stack-display);
-		font-size: 1.9rem;
-		font-weight: 400;
-	}
-
-	.month,
-	.year {
-		display: block;
-		color: var(--ink-muted);
-		font-size: 0.68rem;
-		letter-spacing: 0.16em;
+		max-width: var(--measure-prose);
 	}
 
 	.title {
 		display: block;
 		margin-bottom: var(--space-2);
-		color: var(--ink);
-		font-family: var(--stack-display);
-		font-size: 1.4rem;
+		color: var(--text);
+		font-size: 1.25rem;
+		font-weight: 600;
 		line-height: 1.35;
 		transition: color var(--duration) var(--ease);
 	}
 
+	.post-row a:hover .title {
+		color: var(--accent);
+	}
+
+	.excerpt {
+		display: -webkit-box;
+		margin-bottom: var(--space-2);
+		overflow: hidden;
+		color: var(--text-muted);
+		font-size: 0.95rem;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
 	.series-marker {
 		display: block;
-		margin-bottom: var(--space-2);
-		color: var(--vermilion);
-		font-family: var(--stack-meta);
-		font-size: 0.68rem;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-
-	.post-row a:hover .title {
-		color: var(--vermilion);
-	}
-
-	.arrow {
-		color: var(--line);
-		text-align: right;
+		margin-bottom: var(--space-1);
+		color: var(--accent);
+		font-size: 0.8rem;
+		font-weight: 500;
 	}
 
 	.all {
-		margin: var(--space-12) 0 0;
-		font-family: var(--stack-meta);
-		font-size: 0.85rem;
+		margin: var(--space-8) 0 0;
+		font-size: 0.95rem;
 	}
 
 	.all a {
-		color: var(--ink);
+		font-weight: 500;
 		text-decoration: none;
 	}
 
-	.all a:hover {
-		color: var(--vermilion);
-	}
-
 	.all span[aria-hidden] {
-		margin-left: 0.6em;
-	}
-
-	.margin-note {
-		position: absolute;
-		right: -2.5rem;
-		bottom: 12rem;
-	}
-
-	@media (max-width: 1180px) {
-		.margin-note {
-			display: none;
-		}
-	}
-
-	@media (max-width: 1180px) {
-		.hero {
-			grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-		}
-		.hero-note {
-			display: none;
-		}
+		margin-left: 0.4em;
 	}
 
 	@media (max-width: 860px) {
-		.hero {
-			grid-template-columns: 1fr;
-			gap: var(--space-8);
-			padding: var(--space-12) 0 var(--space-16);
-		}
-		.hero-ink {
-			max-width: 22rem;
+		.intro {
+			padding: var(--space-4) 0 var(--space-12);
 		}
 		.featured-series {
-			grid-template-columns: 1fr;
-			gap: var(--space-4);
-			padding: var(--space-12) 0;
+			margin-bottom: var(--space-12);
+			padding: var(--space-6);
 		}
 		.post-row a {
-			grid-template-columns: 3.6rem minmax(0, 1fr);
-			gap: var(--space-6);
-		}
-		.arrow {
-			display: none;
-		}
-		.day {
-			font-size: 1.5rem;
+			grid-template-columns: 1fr;
+			gap: var(--space-1);
+			padding: var(--space-4) 0;
 		}
 		.title {
-			font-size: 1.15rem;
+			font-size: 1.1rem;
 		}
 	}
 </style>
